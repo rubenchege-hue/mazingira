@@ -1,0 +1,380 @@
+
+<link rel="stylesheet" href="animations.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:var(--color-background-tertiary,#f7f8fa);color:var(--color-text-primary,#1a1a2e);font-size:14px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+.wrap{padding:20px}
+.toprow{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+.metric{background:var(--color-background-secondary,#f3f4f6);border-radius:8px;padding:14px 16px}
+.metric-label{font-size:11px;color:var(--color-text-secondary,#6b7280);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.metric-val{font-size:24px;font-weight:700;line-height:1}
+.metric-sub{font-size:11px;color:var(--color-text-secondary,#6b7280);margin-top:4px}
+.card{background:var(--color-background-primary,#fff);border:0.5px solid var(--color-border-tertiary,#e5e7eb);border-radius:12px;padding:18px;margin-bottom:14px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:8px;flex-wrap:wrap}
+.card-title{font-size:14px;font-weight:500;color:var(--color-text-primary,#1a1a2e)}
+.card-sub{font-size:12px;color:var(--color-text-secondary,#6b7280);margin-top:2px}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.b-red{background:var(--color-background-danger,#fee2e2);color:var(--color-text-danger,#b91c1c)}
+.b-amber{background:var(--color-background-warning,#fef3c7);color:var(--color-text-warning,#92400e)}
+.b-green{background:var(--color-background-success,#dcfce7);color:var(--color-text-success,#166534)}
+.b-blue{background:var(--color-background-info,#dbeafe);color:var(--color-text-info,#1e40af)}
+.b-gray{background:var(--color-background-secondary,#f3f4f6);color:var(--color-text-secondary,#374151)}
+.filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-btn{padding:6px 14px;border-radius:20px;border:0.5px solid var(--color-border-secondary,#d1d5db);background:var(--color-background-primary,#fff);color:var(--color-text-secondary,#374151);font-size:12px;font-weight:500;cursor:pointer;transition:all 0.15s}
+.filter-btn.active{background:var(--color-text-primary,#1a1a2e);color:var(--color-background-primary,#fff);border-color:var(--color-text-primary,#1a1a2e)}
+.gap-item{border:0.5px solid var(--color-border-tertiary,#e5e7eb);border-radius:10px;padding:14px 16px;margin-bottom:10px;transition:border-color 0.15s}
+.gap-item:hover{border-color:var(--color-border-secondary,#9ca3af)}
+.gap-top{display:flex;align-items:flex-start;gap:10px}
+.gap-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;margin-top:1px}
+.gap-icon-red{background:var(--color-background-danger,#fee2e2);color:var(--color-text-danger,#b91c1c)}
+.gap-icon-amber{background:var(--color-background-warning,#fef3c7);color:var(--color-text-warning,#92400e)}
+.gap-icon-blue{background:var(--color-background-info,#dbeafe);color:var(--color-text-info,#1e40af)}
+.gap-meta{flex:1;min-width:0}
+.gap-title{font-size:13px;font-weight:500;color:var(--color-text-primary,#1a1a2e);margin-bottom:4px}
+.gap-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.gap-why{font-size:12px;color:var(--color-text-secondary,#374151);line-height:1.6;margin-bottom:10px;padding:10px 12px;background:var(--color-background-secondary,#f9fafb);border-radius:8px;border-left:3px solid var(--color-border-secondary,#d1d5db)}
+.gap-why.red{border-left-color:#ef4444}
+.gap-why.amber{border-left-color:#f59e0b}
+.gap-why.blue{border-left-color:#3b82f6}
+.gap-actions{display:flex;gap:8px;flex-wrap:wrap}
+.act-btn{padding:5px 12px;border-radius:6px;border:0.5px solid var(--color-border-secondary,#d1d5db);background:var(--color-background-primary,#fff);color:var(--color-text-secondary,#374151);font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all 0.15s;font-weight:500}
+.act-btn:hover{background:var(--color-background-secondary,#f3f4f6)}
+.act-btn.primary{background:var(--color-text-primary,#1a1a2e);color:var(--color-background-primary,#fff);border-color:var(--color-text-primary,#1a1a2e)}
+.act-btn.primary:hover{opacity:0.88}
+.prog-bar{height:6px;background:var(--color-background-secondary,#e5e7eb);border-radius:99px;overflow:hidden;margin-top:6px}
+.prog-fill{height:100%;border-radius:99px}
+.ai-box{border:0.5px solid var(--color-border-tertiary,#e5e7eb);border-radius:10px;padding:14px 16px;margin-bottom:10px;min-height:80px}
+.ai-prompt-row{display:flex;gap:10px;align-items:flex-end;margin-bottom:14px}
+.ai-prompt-row input{flex:1;border:0.5px solid var(--color-border-secondary,#d1d5db);border-radius:8px;padding:9px 12px;font-size:13px;background:var(--color-background-primary,#fff);color:var(--color-text-primary,#1a1a2e);outline:none}
+.ai-prompt-row input:focus{border-color:#2d9b5a;box-shadow:0 0 0 3px rgba(45,155,90,0.1)}
+.ai-response{font-size:13px;color:var(--color-text-secondary,#374151);line-height:1.7;white-space:pre-wrap}
+.ai-thinking{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-secondary,#6b7280)}
+.dot-pulse{display:flex;gap:4px}
+.dot-pulse span{width:6px;height:6px;border-radius:50%;background:#2d9b5a;animation:pulse 1.2s infinite}
+.dot-pulse span:nth-child(2){animation-delay:0.2s}
+.dot-pulse span:nth-child(3){animation-delay:0.4s}
+@keyframes pulse{0%,80%,100%{opacity:0.3;transform:scale(0.8)}40%{opacity:1;transform:scale(1)}}
+.score-ring-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:4px}
+.mini-ring{display:flex;flex-direction:column;align-items:center;gap:4px}
+.mini-ring svg{display:block}
+.mini-ring-label{font-size:11px;color:var(--color-text-secondary,#6b7280);text-align:center}
+.mini-ring-val{font-size:13px;font-weight:600;color:var(--color-text-primary,#1a1a2e)}
+.prio-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary,#f3f4f6)}
+.prio-row:last-child{border-bottom:none}
+.prio-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.prio-info{flex:1;min-width:0}
+.prio-name{font-size:13px;font-weight:500;color:var(--color-text-primary,#1a1a2e)}
+.prio-std{font-size:11px;color:var(--color-text-secondary,#6b7280);margin-top:1px}
+.impact-bar-wrap{width:80px}
+.impact-bar{height:5px;border-radius:99px}
+.separator{height:0.5px;background:var(--color-border-tertiary,#e5e7eb);margin:16px 0}
+
+
+  .btn, .act-btn, .filter-btn {
+    position: relative; overflow: hidden;
+  }
+  .btn::after, .act-btn::after, .filter-btn::after {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at var(--rx, 50%) var(--ry, 50%), rgba(255,255,255,0.3) 0%, transparent 60%);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .btn:active::after, .act-btn:active::after, .filter-btn:active::after {
+    opacity: 1; animation: ripple 0.6s ease-out forwards;
+  }
+
+  .card, .metric, .stat-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card:hover, .metric:hover, .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.06);
+  }
+</style>
+
+<h2 class="sr-only">AI-powered ESG gap analyser — identifies missing disclosures and explains why they matter for your Nairobi organisation</h2>
+
+<div class="wrap">
+
+<div class="toprow reveal">
+  <div class="metric reveal">
+    <div class="metric-label">Total gaps found</div>
+    <div class="metric-val" style="color:#b91c1c">14</div>
+    <div class="metric-sub">across 4 standards</div>
+  </div>
+  <div class="metric reveal">
+    <div class="metric-label">Critical gaps</div>
+    <div class="metric-val" style="color:#b91c1c">5</div>
+    <div class="metric-sub">block report sign-off</div>
+  </div>
+  <div class="metric reveal">
+    <div class="metric-label">Moderate gaps</div>
+    <div class="metric-val" style="color:#92400e">6</div>
+    <div class="metric-sub">reduce score significantly</div>
+  </div>
+  <div class="metric reveal">
+    <div class="metric-label">Minor gaps</div>
+    <div class="metric-val" style="color:#166534">3</div>
+    <div class="metric-sub">good-practice additions</div>
+  </div>
+</div>
+
+<div class="card reveal" style="margin-bottom:14px">
+  <div class="card-header">
+    <div><div class="card-title">Coverage by standard</div></div>
+  </div>
+  <div class="score-ring-row">
+    <div class="mini-ring">
+      <svg width="60" height="60" viewBox="0 0 60 60"><circle cx="30" cy="30" r="24" fill="none" stroke="#e5e7eb" stroke-width="5"/><circle cx="30" cy="30" r="24" fill="none" stroke="#2d9b5a" stroke-width="5" stroke-dasharray="150.8" stroke-dashoffset="27.1" stroke-linecap="round" transform="rotate(-90 30 30)"/><text x="30" y="35" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1a2e">82%</text></svg>
+      <div class="mini-ring-label">GRI</div>
+    </div>
+    <div class="mini-ring">
+      <svg width="60" height="60" viewBox="0 0 60 60"><circle cx="30" cy="30" r="24" fill="none" stroke="#e5e7eb" stroke-width="5"/><circle cx="30" cy="30" r="24" fill="none" stroke="#0e7490" stroke-width="5" stroke-dasharray="150.8" stroke-dashoffset="43.7" stroke-linecap="round" transform="rotate(-90 30 30)"/><text x="30" y="35" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1a2e">71%</text></svg>
+      <div class="mini-ring-label">TCFD</div>
+    </div>
+    <div class="mini-ring">
+      <svg width="60" height="60" viewBox="0 0 60 60"><circle cx="30" cy="30" r="24" fill="none" stroke="#e5e7eb" stroke-width="5"/><circle cx="30" cy="30" r="24" fill="none" stroke="#1e40af" stroke-width="5" stroke-dasharray="150.8" stroke-dashoffset="52.8" stroke-linecap="round" transform="rotate(-90 30 30)"/><text x="30" y="35" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1a2e">65%</text></svg>
+      <div class="mini-ring-label">SASB</div>
+    </div>
+    <div class="mini-ring">
+      <svg width="60" height="60" viewBox="0 0 60 60"><circle cx="30" cy="30" r="24" fill="none" stroke="#e5e7eb" stroke-width="5"/><circle cx="30" cy="30" r="24" fill="none" stroke="#6d28d9" stroke-width="5" stroke-dasharray="150.8" stroke-dashoffset="52.8" stroke-linecap="round" transform="rotate(-90 30 30)"/><text x="30" y="35" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1a2e">53%</text></svg>
+      <div class="mini-ring-label">SDGs</div>
+    </div>
+    <div style="flex:1;min-width:160px">
+      <div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="color:var(--color-text-secondary,#6b7280)">Overall ESG readiness</span><span style="font-weight:600">74%</span></div>
+        <div class="prog-bar"><div class="prog-fill" style="width:74%;background:#2d9b5a"></div></div>
+      </div>
+      <div style="font-size:12px;color:var(--color-text-secondary,#6b7280);line-height:1.5">Closing the 5 critical gaps would lift your score to an estimated <strong style="color:var(--color-text-primary,#1a1a2e)">88%</strong> — investment-grade ESG readiness.</div>
+    </div>
+  </div>
+</div>
+
+<div class="card reveal" style="margin-bottom:14px">
+  <div class="card-header">
+    <div><div class="card-title">Top 5 — fix these first</div><div class="card-sub">Ranked by materiality × reporting risk</div></div>
+  </div>
+  <div class="prio-row">
+    <div class="prio-num" style="background:#fee2e2;color:#b91c1c">1</div>
+    <div class="prio-info"><div class="prio-name">TCFD climate scenario analysis (1.5°C / 4°C)</div><div class="prio-std">TCFD — Strategy pillar · Deadline: Jun 30</div></div>
+    <div class="impact-bar-wrap"><div class="prog-bar"><div class="impact-bar" style="width:95%;background:#ef4444"></div></div><div style="font-size:10px;color:var(--color-text-secondary,#6b7280);margin-top:2px;text-align:right">Critical</div></div>
+  </div>
+  <div class="prio-row">
+    <div class="prio-num" style="background:#fee2e2;color:#b91c1c">2</div>
+    <div class="prio-info"><div class="prio-name">GRI 2-29 — Stakeholder engagement approach</div><div class="prio-std">GRI Universal Standards 2021 · Core requirement</div></div>
+    <div class="impact-bar-wrap"><div class="prog-bar"><div class="impact-bar" style="width:90%;background:#ef4444"></div></div><div style="font-size:10px;color:var(--color-text-secondary,#6b7280);margin-top:2px;text-align:right">Critical</div></div>
+  </div>
+  <div class="prio-row">
+    <div class="prio-num" style="background:#fee2e2;color:#b91c1c">3</div>
+    <div class="prio-info"><div class="prio-name">GRI 306-2 — Waste by type & disposal method</div><div class="prio-std">GRI 306: Waste 2020 · Environmental pillar</div></div>
+    <div class="impact-bar-wrap"><div class="prog-bar"><div class="impact-bar" style="width:82%;background:#ef4444"></div></div><div style="font-size:10px;color:var(--color-text-secondary,#6b7280);margin-top:2px;text-align:right">Critical</div></div>
+  </div>
+  <div class="prio-row">
+    <div class="prio-num" style="background:#fef3c7;color:#92400e">4</div>
+    <div class="prio-info"><div class="prio-name">Scope 3 — full category breakdown (15 cats)</div><div class="prio-std">GRI 305-3 · TCFD Metrics & Targets</div></div>
+    <div class="impact-bar-wrap"><div class="prog-bar"><div class="impact-bar" style="width:70%;background:#f59e0b"></div></div><div style="font-size:10px;color:var(--color-text-secondary,#6b7280);margin-top:2px;text-align:right">Moderate</div></div>
+  </div>
+  <div class="prio-row">
+    <div class="prio-num" style="background:#fef3c7;color:#92400e">5</div>
+    <div class="prio-info"><div class="prio-name">SASB — data security approach (FN-CB-240a.1)</div><div class="prio-std">SASB Financial Services · Investor-facing</div></div>
+    <div class="impact-bar-wrap"><div class="prog-bar"><div class="impact-bar" style="width:65%;background:#f59e0b"></div></div><div style="font-size:10px;color:var(--color-text-secondary,#6b7280);margin-top:2px;text-align:right">Moderate</div></div>
+  </div>
+</div>
+
+<div class="card reveal">
+  <div class="card-header" style="margin-bottom:10px">
+    <div><div class="card-title">All gaps — detailed breakdown</div></div>
+    <div style="display:flex;gap:6px">
+      <span class="badge b-red"><i class="ti ti-circle-x" style="font-size:11px"></i> 5 critical</span>
+      <span class="badge b-amber">6 moderate</span>
+      <span class="badge b-blue">3 minor</span>
+    </div>
+  </div>
+
+  <div class="filters" id="filters">
+    <button class="filter-btn active" onclick="filterGaps('all',this)">All gaps</button>
+    <button class="filter-btn" onclick="filterGaps('critical',this)">Critical</button>
+    <button class="filter-btn" onclick="filterGaps('moderate',this)">Moderate</button>
+    <button class="filter-btn" onclick="filterGaps('minor',this)">Minor</button>
+    <button class="filter-btn" onclick="filterGaps('gri',this)">GRI</button>
+    <button class="filter-btn" onclick="filterGaps('tcfd',this)">TCFD</button>
+    <button class="filter-btn" onclick="filterGaps('sasb',this)">SASB</button>
+    <button class="filter-btn" onclick="filterGaps('sdg',this)">SDGs</button>
+  </div>
+
+  <div id="gaps-list"></div>
+</div>
+
+<div class="card reveal" style="margin-top:14px">
+  <div class="card-header">
+    <div><div class="card-title">Ask the AI gap analyst</div><div class="card-sub">Powered by OpenRouter · Ask anything about your ESG gaps</div></div>
+    <span class="badge b-green"><i class="ti ti-sparkles" style="font-size:11px"></i> AI</span>
+  </div>
+  <div style="padding:10px 0 12px;display:flex;align-items:center;gap:8px">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1A7050" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    <input id="or-api-key" type="password" placeholder="Paste your OpenRouter API key…" style="flex:1;border:1px solid #d1d5db;border-radius:8px;padding:7px 10px;font-size:12px;outline:none" oninput="saveApiKey()">
+    <a href="https://openrouter.ai/keys" target="_blank" style="font-size:11px;color:#1A7050;white-space:nowrap">Get key ↗</a>
+  </div>
+    <span class="badge b-green"><i class="ti ti-sparkles" style="font-size:11px"></i> AI</span>
+  </div>
+  <div class="ai-prompt-row">
+    <input id="ai-input" type="text" placeholder="e.g. Why does TCFD scenario analysis matter for a Nairobi company?" onkeydown="if(event.key==='Enter')runAI()"/>
+    <button class="act-btn primary" onclick="runAI()"><i class="ti ti-send"></i> Ask</button>
+  </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+    <button class="act-btn" onclick="setQ('Why does stakeholder engagement matter for GRI compliance?')">Why does GRI 2-29 matter? ↗</button>
+    <button class="act-btn" onclick="setQ('What are the biggest climate risks for a Nairobi company under TCFD?')">Nairobi climate risks ↗</button>
+    <button class="act-btn" onclick="setQ('How do I fix Scope 3 emissions gaps quickly?')">Fix Scope 3 gaps ↗</button>
+  </div>
+  <div id="ai-out" class="ai-box" style="display:none"></div>
+</div>
+
+</div>
+
+<script>
+const gaps = [
+  {id:1,sev:'critical',standard:'tcfd',title:'TCFD climate scenario analysis missing',icon:'ti-temperature',why:'Investors and lenders increasingly require TCFD scenario analysis (1.5°C transition vs 4°C physical risk) before financing decisions. For a Nairobi-based organisation, physical risks — flooding in the Nairobi River basin, water stress from prolonged droughts — must be quantified. Without this, your TCFD disclosure is structurally incomplete and unverifiable.',deadline:'Jun 30, 2024',effort:'High',tags:['TCFD','Strategy','Climate risk']},
+  {id:2,sev:'critical',standard:'gri',title:'GRI 2-29 — stakeholder engagement not documented',icon:'ti-users-group',why:'GRI Universal Standards 2021 require a documented approach to identifying and engaging stakeholders. This is a mandatory "with reference to GRI" requirement — its absence means your report cannot claim GRI alignment, which blocks access to ESG ratings (MSCI, Sustainalytics) and Kenya NSE ESG disclosure requirements.',deadline:'Report sign-off',effort:'Medium',tags:['GRI 2-29','Universal Standards','Mandatory']},
+  {id:3,sev:'critical',standard:'gri',title:'GRI 306-2 — waste by type & disposal method',icon:'ti-trash',why:'Waste disclosure is material for Nairobi operations given NEMA (National Environment Management Authority) reporting obligations under EMCA 1999. Without GRI 306-2 data, you are also at risk of non-compliance with Kenya\'s Sustainable Waste Management Act 2022, which requires formal waste tracking by category (hazardous, non-hazardous, landfill, recycled).',deadline:'Report sign-off',effort:'Low',tags:['GRI 306','Environmental','NEMA Kenya']},
+  {id:4,sev:'critical',standard:'gri',title:'GRI 2-22 — statement on sustainable development strategy',icon:'ti-flag',why:'The CEO or board statement on sustainability strategy is required for GRI "in accordance" reporting. ESG-focused investors and the Nairobi Securities Exchange (NSE) Sustainability Reporting Guidelines (2022) require this narrative to contextualise quantitative data. Its absence signals weak board-level commitment.',deadline:'Report sign-off',effort:'Low',tags:['GRI 2-22','Board','Strategy']},
+  {id:5,sev:'critical',standard:'sasb',title:'SASB FN-CB-240a.1 — data security risk approach',icon:'ti-lock',why:'Data security is a top SASB metric for Financial Services. Central Bank of Kenya\'s Cybersecurity Guidance (2023) and the Data Protection Act 2019 both require documented approaches to cyber risk. Investors screen for this disclosure; its absence is flagged by ESG data providers as a governance red flag.',deadline:'Report sign-off',effort:'Medium',tags:['SASB','Data security','CBK Kenya']},
+  {id:6,sev:'moderate',standard:'tcfd',title:'TCFD — climate-related targets not formalised',icon:'ti-target',why:'Without science-based or time-bound climate targets linked to your net-zero ambition, TCFD Metrics & Targets pillar remains incomplete. Kenya\'s NDC (Nationally Determined Contribution) commits to 32% emissions reduction by 2030 — aligning your targets strengthens both local credibility and investor trust.',deadline:'Q3 2024',effort:'Medium',tags:['TCFD','Net zero','Targets']},
+  {id:7,sev:'moderate',standard:'gri',title:'GRI 305-3 — Scope 3 category breakdown (15 categories)',icon:'ti-arrows-transfer-up',why:'You have estimated total Scope 3 but not broken it into the 15 GHG Protocol categories. Category 1 (purchased goods) and Category 11 (use of sold products) are typically the most material. Without category-level data, science-based target setting and supply chain engagement — increasingly required by international buyers — is not possible.',deadline:'Q3 2024',effort:'High',tags:['GRI 305-3','Scope 3','Value chain']},
+  {id:8,sev:'moderate',standard:'gri',title:'GRI 413-1 — local community impact assessment',icon:'ti-building-community',why:'Your community investment data exists but lacks a structured impact assessment. NSE guidelines and the Kenya Vision 2030 Social Pillar expect organisations to demonstrate measurable community outcomes — not just spend figures. This gap reduces your Social pillar score and limits your ability to respond to community-related investor questions.',deadline:'Q3 2024',effort:'Medium',tags:['GRI 413','Social','Community']},
+  {id:9,sev:'moderate',standard:'sasb',title:'SASB — fair lending & community development loans',icon:'ti-receipt',why:'GRI FN-CB-270a.1 requires disclosure of loans qualifying for community development programmes. Kenya\'s Credit Reference Bureau and CBK Prudential Guidelines tie this to financial inclusion metrics under Kenya\'s Financial Sector Development Plan. This gap is visible to DFIs (IFC, AfDB) who are active Nairobi lenders.',deadline:'Q4 2024',effort:'Medium',tags:['SASB','Financial inclusion','CBK']},
+  {id:10,sev:'moderate',standard:'sdg',title:'SDG 12 — responsible consumption metrics not linked',icon:'ti-recycle',why:'Responsible consumption (SDG 12) is directly relevant given your Sustainable Waste Management Act obligations and your supply chain footprint. Without linking metrics here, your SDG coverage drops below the 10-goal threshold recommended by the UN Global Compact for credible SDG reporting.',deadline:'Q4 2024',effort:'Low',tags:['SDG 12','Circular economy','Procurement']},
+  {id:11,sev:'moderate',standard:'sdg',title:'SDG 4 — quality education / workforce training depth',icon:'ti-school',why:'Training hours are captured (36 hrs) but not broken down by type, gender, or job category — which SDG 4 and GRI 404-2 require. Kenya\'s technical skills gap is a national priority; demonstrating structured workforce development adds value for NITA (National Industrial Training Authority) partnerships and youth employment credibility.',deadline:'Q4 2024',effort:'Low',tags:['SDG 4','GRI 404','Training']},
+  {id:12,sev:'minor',standard:'gri',title:'GRI 2-9 — governance structure detail',icon:'ti-sitemap',why:'Board committee structure and decision-making authority for ESG is referenced but not formally documented under GRI 2-9. Adding this strengthens governance transparency and is required for the CMA Kenya Corporate Governance scorecard submission.',deadline:'Next cycle',effort:'Low',tags:['GRI 2-9','Governance','CMA Kenya']},
+  {id:13,sev:'minor',standard:'tcfd',title:'TCFD — transition risk financial quantification',icon:'ti-coin',why:'Your risk identification is complete but the financial impact (KES value at risk) of transition risks is not quantified. As Kenya accelerates its green energy transition under LCPDP (Least Cost Power Development Plan), quantifying stranded asset or carbon cost risk adds depth valued by institutional investors.',deadline:'Next cycle',effort:'High',tags:['TCFD','Transition risk','Financial']},
+  {id:14,sev:'minor',standard:'sdg',title:'SDG 14/15 — biodiversity & ecosystem disclosure',icon:'ti-tree',why:'Your Karura Forest tree-planting initiative creates an opportunity to report on SDG 15 (Life on Land). Linking this formally — with hectares, species, and carbon sequestration data — activates Nature-based Solutions (NbS) credentials increasingly valued by green bond issuers and conservation finance investors active in Kenya.',deadline:'Next cycle',effort:'Low',tags:['SDG 15','Biodiversity','Karura Forest']},
+];
+
+function renderGaps(filter='all') {
+  const list = document.getElementById('gaps-list');
+  const filtered = gaps.filter(g => {
+    if(filter==='all') return true;
+    if(['critical','moderate','minor'].includes(filter)) return g.sev===filter;
+    return g.standard===filter;
+  });
+  list.innerHTML = filtered.map(g => {
+    const sevColor = g.sev==='critical'?'red':g.sev==='moderate'?'amber':'blue';
+    const sevLabel = g.sev==='critical'?'Critical gap':g.sev==='moderate'?'Moderate gap':'Minor gap';
+    const badgeClass = g.sev==='critical'?'b-red':g.sev==='moderate'?'b-amber':'b-blue';
+    const iconClass = g.sev==='critical'?'gap-icon-red':g.sev==='moderate'?'gap-icon-amber':'gap-icon-blue';
+    const effortColor = g.effort==='High'?'b-red':g.effort==='Medium'?'b-amber':'b-green';
+    return `<div class="gap-item" id="gap-${g.id}">
+      <div class="gap-top">
+        <div class="gap-icon ${iconClass}"><i class="ti ${g.icon}"></i></div>
+        <div class="gap-meta">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+            <span class="badge ${badgeClass}">${sevLabel}</span>
+            <span class="badge b-gray">${g.standard.toUpperCase()}</span>
+            <span class="badge b-gray">Effort: ${g.effort}</span>
+            ${g.deadline?`<span class="badge b-gray"><i class="ti ti-calendar" style="font-size:10px"></i> ${g.deadline}</span>`:''}
+          </div>
+          <div class="gap-title">${g.title}</div>
+          <div class="gap-tags">${g.tags.map(t=>`<span class="badge b-gray" style="font-size:10px">${t}</span>`).join('')}</div>
+          <div class="gap-why ${sevColor}">${g.why}</div>
+          <div class="gap-actions">
+            <button class="act-btn primary" onclick="askAboutGap(${g.id})"><i class="ti ti-sparkles"></i> Ask AI how to fix this ↗</button>
+            <button class="act-btn" onclick="markDone(${g.id})"><i class="ti ti-check"></i> Mark resolved</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('') || `<div style="padding:24px;text-align:center;color:var(--color-text-secondary,#6b7280);font-size:13px">No gaps in this category</div>`;
+}
+
+function filterGaps(f, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGaps(f);
+}
+
+function markDone(id) {
+  const el = document.getElementById('gap-'+id);
+  if(el) { el.style.opacity='0.4'; el.style.pointerEvents='none'; }
+}
+
+function askAboutGap(id) {
+  const g = gaps.find(x=>x.id===id);
+  if(!g) return;
+  const q = `How do I fix the gap: "${g.title}" for a Nairobi-based organisation? What are the specific steps and data I need to collect?`;
+  document.getElementById('ai-input').value = q;
+  document.getElementById('ai-out').style.display='block';
+  document.getElementById('ai-out').scrollIntoView({behavior:'smooth',block:'nearest'});
+  runAI();
+}
+
+function setQ(q) {
+  document.getElementById('ai-input').value = q;
+  document.getElementById('ai-out').style.display = 'block';
+  runAI();
+}
+
+function saveApiKey() {
+  var key = document.getElementById('or-api-key').value.trim();
+  if (key) localStorage.setItem('or_api_key', key);
+}
+function getApiKey() {
+  var saved = localStorage.getItem('or_api_key') || '';
+  var input = document.getElementById('or-api-key');
+  if (input && saved && !input.value) input.value = saved;
+  return saved;
+}
+
+async function runAI() {
+  var input = document.getElementById('ai-input');
+  var out = document.getElementById('ai-out');
+  var q = input.value.trim();
+  if(!q) return;
+  out.style.display = 'block';
+  out.innerHTML = '<div class="ai-thinking"><div class="dot-pulse"><span></span><span></span><span></span></div><span>Analysing your ESG data...</span></div>';
+  
+  var key = getApiKey();
+  if (!key) {
+    out.innerHTML = '<div class="ai-response" style="color:var(--color-text-danger,#b91c1c)">Please paste your OpenRouter API key above to use the AI analyst. Get a free key at <a href="https://openrouter.ai/keys" target="_blank" style="color:#1A7050">openrouter.ai/keys</a>.</div>';
+    return;
+  }
+  
+  var systemPrompt = 'You are an expert ESG analyst specialising in GRI, TCFD, SASB, and UN SDG reporting for organisations based in Nairobi, Kenya. You have deep knowledge of Kenya regulatory environment including NEMA, CMA Kenya, CBK guidelines, Kenya Data Protection Act 2019, NSE Sustainability Reporting Guidelines, and Kenya NDC commitments. The organisation has: GRI 82% complete, TCFD 71% complete, SASB 65% complete, SDGs 53% (9 of 17 mapped), Overall ESG score 74/100. Provide concise, practical, Nairobi-specific advice under 280 words.';
+  
+  try {
+    var res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method:'POST',
+      headers:{
+        'Authorization':'Bearer ' + key,
+        'Content-Type':'application/json'
+      },
+      body: JSON.stringify({
+        model: 'openai/gpt-4o-mini',
+        max_tokens: 1000,
+        messages: [
+          {role:'system',content:systemPrompt},
+          {role:'user',content:q}
+        ]
+      })
+    });
+    if (!res.ok) {
+      out.innerHTML = '<div class="ai-response" style="color:var(--color-text-danger,#b91c1c)">API error: ' + res.status + '. Check your key.</div>';
+      return;
+    }
+    var data = await res.json();
+    var text = data.choices?.[0]?.message?.content || 'No response received.';
+    out.innerHTML = '<div class="ai-response">' + text.replace(/\n/g,'<br>')+'</div>';
+  } catch(e) {
+    out.innerHTML = '<div class="ai-response" style="color:var(--color-text-danger,#b91c1c)">Could not connect to AI: ' + e.message + '</div>';
+  }
+  input.value = '';
+}
+
+document.addEventListener('DOMContentLoaded', function() { getApiKey(); });
+
+renderGaps('all');
+
+
+// Animate main container on page load
+setTimeout(function() { animatePanel(".wrap"); }, 200);
+</script>
+<script src="animations.js"></script>

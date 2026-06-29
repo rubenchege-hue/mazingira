@@ -1,0 +1,564 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:1.5rem 0 3rem;font-family:var(--font-sans)}
+.hero{margin-bottom:1.5rem}
+.hero-tag{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:.4rem}
+.hero-title{font-size:22px;font-weight:500;color:var(--text-primary);margin-bottom:.3rem}
+.hero-sub{font-size:13px;color:var(--text-secondary)}
+.search-bar{position:relative;margin-bottom:1rem}
+.search-bar input{width:100%;height:42px;padding:0 14px 0 38px;font-size:14px;border:0.5px solid var(--border-strong);border-radius:var(--radius);background:var(--surface-2);color:var(--text-primary);font-family:var(--font-sans)}
+.search-bar input:focus{outline:none;border-color:var(--border-accent)}
+.search-bar .si{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:16px;pointer-events:none}
+.breadcrumb{font-size:12px;color:var(--text-muted);margin-bottom:1rem;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.breadcrumb span{color:var(--text-secondary);cursor:pointer}
+.breadcrumb span:hover{color:var(--text-accent)}
+.breadcrumb .sep{color:var(--border-strong)}
+.sectors-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:1.5rem}
+.sector-card{border:0.5px solid var(--border);border-radius:12px;padding:14px 16px;cursor:pointer;transition:border-color .15s,background .15s;background:var(--surface-2)}
+.sector-card:hover{border-color:var(--border-accent);background:var(--bg-accent)}
+.sector-card.active{border-color:var(--border-accent);background:var(--bg-accent)}
+.sector-name{font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:4px}
+.sector-count{font-size:11px;color:var(--text-muted);font-family:var(--font-mono)}
+.industry-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;margin-bottom:1.5rem}
+.ind-item{border:0.5px solid var(--border);border-radius:var(--radius);padding:10px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:var(--surface-2);transition:border-color .15s}
+.ind-item:hover{border-color:var(--border-strong)}
+.ind-name{font-size:13px;color:var(--text-primary);font-weight:500}
+.ind-co{font-size:11px;color:var(--text-muted);font-family:var(--font-mono);margin-top:2px}
+.ind-arrow{color:var(--text-muted);font-size:14px}
+.back-btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary);cursor:pointer;margin-bottom:1rem;padding:6px 0}
+.back-btn:hover{color:var(--text-primary)}
+.industry-header{margin-bottom:1.25rem}
+.industry-header h2{font-size:20px;font-weight:500;color:var(--text-primary);margin-bottom:.25rem}
+.sector-badge{display:inline-block;font-size:11px;padding:3px 10px;border-radius:999px;background:var(--bg-accent);color:var(--text-accent);border:0.5px solid var(--border-accent);font-family:var(--font-mono)}
+.issue-card{border:0.5px solid var(--border);border-radius:12px;background:var(--surface-2);margin-bottom:10px;overflow:hidden}
+.issue-header{padding:14px 16px 12px;display:flex;align-items:flex-start;gap:10px}
+.issue-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.issue-name{font-size:14px;font-weight:500;color:var(--text-primary)}
+.dim-tag{font-size:10px;padding:2px 7px;border-radius:999px;border:0.5px solid var(--border);color:var(--text-muted);margin-top:4px;display:inline-block}
+.metrics{padding:0 16px 14px 34px}
+.metric-row{padding:7px 0;border-top:0.5px solid var(--border);display:flex;gap:10px;align-items:flex-start}
+.metric-code{font-size:11px;font-family:var(--font-mono);color:var(--text-accent);white-space:nowrap;flex-shrink:0;padding-top:1px}
+.metric-desc{font-size:12px;color:var(--text-secondary);line-height:1.5}
+.search-results{margin-bottom:1rem}
+.sr-label{font-size:12px;color:var(--text-muted);margin-bottom:.75rem;font-family:var(--font-mono)}
+.sr-item{border:0.5px solid var(--border);border-radius:var(--radius);padding:10px 14px;cursor:pointer;background:var(--surface-2);margin-bottom:6px;transition:border-color .15s}
+.sr-item:hover{border-color:var(--border-strong)}
+.sr-item-top{display:flex;justify-content:space-between;align-items:baseline}
+.sr-iname{font-size:13px;font-weight:500;color:var(--text-primary)}
+.sr-sector{font-size:11px;color:var(--text-muted)}
+.sr-issue{font-size:12px;color:var(--text-secondary);margin-top:3px}
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--text-muted);font-size:13px}
+.dim-e{background:#eaf3de;color:#3B6D11}
+.dim-s{background:#E6F1FB;color:#185FA5}
+.dim-g{background:#EEEDFE;color:#534AB7}
+.dim-bm{background:#FAEEDA;color:#854F0B}
+.issue-e{background:#3B6D11}.issue-s{background:#185FA5}.issue-g{background:#534AB7}.issue-bm{background:#BA7517}
+</style>
+
+<h2 class="sr-only">Vogosen ESG Material Mapping Tool — browse SASB material ESG issues by industry</h2>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-tag">Free ESG Tool</div>
+    <div class="hero-title">ESG Material Mapping Tool</div>
+    <div class="hero-sub">Search material ESG dimensions across industries, based on SASB standards</div>
+  </div>
+  <div class="search-bar">
+    <i class="ti ti-search si" aria-hidden="true"></i>
+    <input type="text" id="searchQ" placeholder="Search industries or ESG issues (e.g. Software, Water, GHG emissions…)" oninput="onSearch()">
+  </div>
+  <div id="main"></div>
+</div>
+
+<script>
+const SECTORS = {
+  "Consumer Goods":{color:"#639922",dim:"e",industries:[
+    {name:"Apparel, Accessories & Footwear",co:1991,issues:[
+      {name:"Raw Materials Sourcing & Supply Chain Management",dim:"E",code:"CG-AA-440a.1",metric:"Description of environmental and social risks associated with sourcing priority raw materials"},
+      {name:"Raw Materials Sourcing & Supply Chain Management",dim:"E",code:"CG-AA-440a.2",metric:"Description of the business risks and opportunities associated with raw material sourcing and the company's ability to manage those risks and capitalize on those opportunities"},
+      {name:"Labor Conditions in the Supply Chain",dim:"S",code:"CG-AA-430a.1",metric:"Percentage of (1) Tier 1 supplier facilities and (2) supplier facilities beyond Tier 1 that have been audited to a labor code of conduct, percentage conducted by a third-party auditor"},
+      {name:"Labor Conditions in the Supply Chain",dim:"S",code:"CG-AA-430a.2",metric:"Priority non-conformance rate and associated corrective action rate for suppliers' labor code of conduct audits"},
+      {name:"Product Lifecycle Management",dim:"BM",code:"CG-AA-410a.1",metric:"Revenue from products designed with end-of-life management, by product category"},
+      {name:"Product Lifecycle Management",dim:"BM",code:"CG-AA-410a.2",metric:"Share of recycled input materials used for product packaging"},
+    ]},
+    {name:"Appliance Manufacturing",co:250,issues:[
+      {name:"Product Lifecycle Management",dim:"BM",code:"CG-AM-410a.1",metric:"Amount of hazardous waste generated, percentage recycled"},
+      {name:"Product Lifecycle Management",dim:"BM",code:"CG-AM-410a.2",metric:"Percentage of eligible products meeting ENERGY STAR® criteria"},
+      {name:"Energy Management in Manufacturing",dim:"E",code:"CG-AM-130a.1",metric:"(1) Total energy consumed, (2) percentage grid electricity, (3) percentage renewable"},
+    ]},
+    {name:"E-Commerce",co:188,issues:[
+      {name:"Data Privacy & Advertising Standards",dim:"S",code:"CG-EC-220a.1",metric:"Description of policies and practices relating to behavioral advertising and consumer privacy"},
+      {name:"Data Privacy & Advertising Standards",dim:"S",code:"CG-EC-220a.2",metric:"Total amount of monetary losses as a result of legal proceedings associated with consumer privacy"},
+      {name:"Data Security",dim:"S",code:"CG-EC-230a.1",metric:"(1) Number of data breaches, (2) percentage involving personally identifiable information (PII), (3) number of users affected"},
+      {name:"Packaging Lifecycle Management",dim:"BM",code:"CG-EC-410a.1",metric:"Total weight of packaging, percentage made from recycled or renewable materials"},
+    ]},
+    {name:"Household & Personal Products",co:568,issues:[
+      {name:"Product Social & Environmental Responsibility",dim:"S",code:"CG-HP-250a.1",metric:"Revenue from products designed with health, safety, and/or environmental benefits"},
+      {name:"Ingredient/Input Transparency",dim:"BM",code:"CG-HP-410a.1",metric:"Description of processes to assess and manage risks and/or hazards associated with chemicals in products"},
+      {name:"Packaging Lifecycle Management",dim:"BM",code:"CG-HP-410b.1",metric:"Total weight of packaging, percentage made from recycled or renewable materials"},
+    ]},
+    {name:"Multiline and Specialty Retailers & Distributors",co:1730,issues:[
+      {name:"Data Security",dim:"S",code:"CG-MR-230a.1",metric:"(1) Number of data breaches, (2) percentage involving personally identifiable information (PII), (3) number of users affected"},
+      {name:"Labor Practices",dim:"S",code:"CG-MR-310a.1",metric:"Percentage of active workforce covered under collective bargaining agreements"},
+      {name:"Product Sourcing, Packaging & Marketing",dim:"BM",code:"CG-MR-410a.1",metric:"Revenue from products third-party certified to environmental or social sustainability standards"},
+      {name:"Supply Chain Management",dim:"E",code:"CG-MR-430a.1",metric:"Percentage of (1) Tier 1 supplier facilities and (2) supplier facilities beyond Tier 1 audited to a labor code of conduct"},
+    ]},
+  ]},
+
+  "Extractives & Minerals Processing":{color:"#D85A30",dim:"e",industries:[
+    {name:"Metals & Mining",co:3158,issues:[
+      {name:"Greenhouse Gas Emissions",dim:"E",code:"EM-MM-110a.1",metric:"Gross global Scope 1 emissions, percentage covered under emissions-limiting regulations"},
+      {name:"Air Quality",dim:"E",code:"EM-MM-120a.1",metric:"Air emissions of the following pollutants: (1) NOx, (2) SOx, (3) particulate matter (PM10), (4) mercury (Hg), (5) lead (Pb), (6) volatile organic compounds"},
+      {name:"Water Management",dim:"E",code:"EM-MM-140a.1",metric:"(1) Total water withdrawn, (2) total water consumed, percentage in regions with High or Extremely High Baseline Water Stress"},
+      {name:"Biodiversity Impacts",dim:"E",code:"EM-MM-160a.1",metric:"Description of environmental management policies and practices for active sites"},
+      {name:"Workforce Health & Safety",dim:"S",code:"EM-MM-320a.1",metric:"(1) MSHA all-incidence rate, (2) fatality rate, (3) near miss frequency rate, for (a) employees and (b) contract employees"},
+      {name:"Community Relations",dim:"S",code:"EM-MM-210b.1",metric:"Discussion of process to manage risks and opportunities associated with community rights and interests"},
+    ]},
+    {name:"Oil & Gas – Exploration & Production",co:1031,issues:[
+      {name:"Greenhouse Gas Emissions",dim:"E",code:"EM-EP-110a.1",metric:"Gross global Scope 1 emissions, percentage covered under emissions-limiting regulations"},
+      {name:"Water Management",dim:"E",code:"EM-EP-140a.1",metric:"(1) Total fresh water withdrawn, (2) total fresh water consumed, percentage in regions with High or Extremely High Baseline Water Stress"},
+      {name:"Ecological Impacts",dim:"E",code:"EM-EP-160a.1",metric:"Terrestrial acreage disturbed, percentage of impacted area restored"},
+      {name:"Workforce Health & Safety",dim:"S",code:"EM-EP-320a.1",metric:"(1) Total recordable incident rate (TRIR) and (2) fatality rate for (a) direct employees and (b) contract employees"},
+      {name:"Reserve Valuation & Capital Allocation",dim:"BM",code:"EM-EP-420a.1",metric:"Sensitivity of the net present value (NPV) of proved reserves to future price projection scenarios"},
+    ]},
+    {name:"Coal Operations",co:272,issues:[
+      {name:"Greenhouse Gas Emissions",dim:"E",code:"EM-CO-110a.1",metric:"Gross global Scope 1 emissions, percentage covered under emissions-limiting regulations"},
+      {name:"Air Quality",dim:"E",code:"EM-CO-120a.1",metric:"Air emissions of: (1) NOx, (2) SOx, (3) particulate matter (PM10), (4) mercury (Hg)"},
+      {name:"Water Management",dim:"E",code:"EM-CO-140a.1",metric:"(1) Total water withdrawn, (2) total water consumed, percentage of each in regions with High or Extremely High Baseline Water Stress"},
+      {name:"Workforce Health & Safety",dim:"S",code:"EM-CO-320a.1",metric:"(1) MSHA all-incidence rate, (2) fatality rate, (3) near miss frequency rate, for (a) employees and (b) contract employees"},
+    ]},
+    {name:"Construction Materials",co:789,issues:[
+      {name:"Air Quality",dim:"E",code:"EM-CM-120a.1",metric:"Air emissions of: (1) NOx, (2) SOx, (3) PM10, (4) dioxins/furans, (5) VOCs, (6) PAHs, (7) heavy metals"},
+      {name:"Greenhouse Gas Emissions",dim:"E",code:"EM-CM-110a.1",metric:"Gross global Scope 1 emissions, percentage covered under emissions-limiting regulations"},
+      {name:"Energy Management",dim:"E",code:"EM-CM-130a.1",metric:"(1) Total energy consumed, (2) percentage grid electricity, (3) percentage alternative, (4) percentage renewable"},
+      {name:"Biodiversity Impacts",dim:"E",code:"EM-CM-160a.1",metric:"Description of environmental management policies and practices for active sites"},
+      {name:"Product Innovation",dim:"BM",code:"EM-CM-410a.1",metric:"Percentage of products that qualify for credits in sustainable building design and construction certifications"},
+    ]},
+    {name:"Iron & Steel Producers",co:775,issues:[
+      {name:"Greenhouse Gas Emissions",dim:"E",code:"EM-IS-110a.1",metric:"Gross global Scope 1 emissions, percentage covered under emissions-limiting regulations"},
+      {name:"Air Quality",dim:"E",code:"EM-IS-120a.1",metric:"Air emissions of: (1) NOx, (2) SOx, (3) PM10, (4) manganese (Mn), (5) lead (Pb), (6) VOCs, (7) polycyclic aromatic hydrocarbons (PAHs)"},
+      {name:"Energy Management",dim:"E",code:"EM-IS-130a.1",metric:"(1) Total energy consumed, (2) percentage grid electricity, (3) percentage renewable"},
+      {name:"Water Management",dim:"E",code:"EM-IS-140a.1",metric:"(1) Total water withdrawn, (2) total water consumed, percentage in regions with High Water Stress"},
+    ]},
+  ]},
+
+  "Financials":{color:"#378ADD",dim:"s",industries:[
+    {name:"Commercial Banks",co:2342,issues:[
+      {name:"Data Security",dim:"S",code:"FN-CB-230a.1",metric:"(1) Number of data breaches, (2) percentage involving personally identifiable information (PII), (3) number of customers affected"},
+      {name:"Financial Inclusion & Capacity Building",dim:"S",code:"FN-CB-240a.1",metric:"(1) Number and (2) amount of loans outstanding qualified to programs designed to promote small business and community development"},
+      {name:"Incorporation of ESG Factors in Credit Analysis",dim:"BM",code:"FN-CB-410a.1",metric:"Commercial and industrial credit exposure, by industry"},
+      {name:"Business Ethics",dim:"G",code:"FN-CB-510a.1",metric:"Total amount of monetary losses as a result of legal proceedings associated with fraud, insider trading, anti-trust, anti-competitive behavior, market manipulation"},
+      {name:"Systemic Risk Management",dim:"G",code:"FN-CB-550a.1",metric:"Global Systemically Important Bank (G-SIB) score, by category"},
+    ]},
+    {name:"Asset Management & Custody Activities",co:2290,issues:[
+      {name:"Transparent Information & Fair Advice for Customers",dim:"S",code:"FN-AC-270a.1",metric:"Total amount of monetary losses as a result of legal proceedings associated with customer protection"},
+      {name:"ESG Incorporation in Investment Management",dim:"BM",code:"FN-AC-410a.1",metric:"Amount of assets under management, by asset class, that employ (1) integration of ESG issues, (2) sustainability themed investing, (3) screening"},
+      {name:"ESG Incorporation in Investment Management",dim:"BM",code:"FN-AC-410a.2",metric:"Description of approach to incorporation of ESG factors in investment and/or wealth management processes and strategies"},
+      {name:"Business Ethics",dim:"G",code:"FN-AC-510a.1",metric:"Total amount of monetary losses as a result of legal proceedings associated with fraud, insider trading, anti-trust"},
+    ]},
+    {name:"Insurance",co:807,issues:[
+      {name:"Transparent Information & Fair Advice for Customers",dim:"S",code:"FN-IN-270a.1",metric:"Total amount of monetary losses as a result of legal proceedings associated with marketing and communication of insurance product-related information"},
+      {name:"Incorporation of ESG Factors in Investment Management",dim:"BM",code:"FN-IN-410a.1",metric:"Total invested assets, by industry and asset class"},
+      {name:"Systemic Risk Management",dim:"G",code:"FN-IN-550a.1",metric:"Probable maximum loss (PML) of insured products from weather-related natural catastrophes"},
+      {name:"Physical Risk Exposure",dim:"E",code:"FN-IN-450a.1",metric:"Description of approach to incorporation of environmental risks into (1) the underwriting process for individual contracts and (2) the management of firm-level risks and capital adequacy"},
+    ]},
+    {name:"Investment Banking & Brokerage",co:850,issues:[
+      {name:"Business Ethics",dim:"G",code:"FN-IB-510a.1",metric:"Total amount of monetary losses as a result of legal proceedings associated with fraud, insider trading, anti-trust"},
+      {name:"Incorporation of ESG Factors in Financial Industry Business Lines",dim:"BM",code:"FN-IB-410a.1",metric:"Revenue from (1) underwriting, (2) advisory, and (3) securitization transactions incorporating ESG factors"},
+      {name:"Employee Incentives & Risk Taking",dim:"G",code:"FN-IB-550a.1",metric:"Percentage of total remuneration that is variable for material risk takers"},
+    ]},
+    {name:"Consumer Finance",co:765,issues:[
+      {name:"Customer Privacy",dim:"S",code:"FN-CF-220a.1",metric:"Description of policies and practices relating to behavioral advertising and consumer privacy"},
+      {name:"Selling Practices",dim:"S",code:"FN-CF-270a.1",metric:"Total amount of monetary losses as a result of legal proceedings associated with selling and servicing of products"},
+      {name:"Data Security",dim:"S",code:"FN-CF-230a.1",metric:"(1) Number of data breaches, (2) percentage involving personally identifiable information (PII), (3) number of customers affected"},
+      {name:"Discriminatory Lending",dim:"S",code:"FN-CF-270b.1",metric:"Number of loans and amount of financing provided to businesses certified as small businesses"},
+    ]},
+  ]},
+
+  "Food & Beverage":{color:"#C9A84C",dim:"e",industries:[
+    {name:"Agricultural Products",co:875,issues:[
+      {name:"GHG Emissions",dim:"E",code:"FB-AG-110a.1",metric:"Gross global Scope 1 emissions, percentage covered under emissions-limiting regulations"},
+      {name:"Water Management",dim:"E",code:"FB-AG-140a.1",metric:"(1) Total water withdrawn, (2) total water consumed, percentage in regions with High or Extremely High Baseline Water Stress"},
+      {name:"Food Safety",dim:"S",code:"FB-AG-250a.1",metric:"Global Food Safety Initiative (GFSI) audit (1) non-conformance rate and (2) associated corrective action rate, by (a) major and (b) minor non-conformances"},
+      {name:"Supply Chain Management",dim:"E",code:"FB-AG-430a.1",metric:"Percentage of supplier facilities (1) audited or (2) self-assessed to social sustainability standards"},
+    ]},
+    {name:"Processed Foods",co:733,issues:[
+      {name:"GHG Emissions",dim:"E",code:"FB-PF-110a.1",metric:"Gross global Scope 1 emissions, percentage covered under emissions-limiting regulations"},
+      {name:"Energy Management",dim:"E",code:"FB-PF-130a.1",metric:"(1) Total energy consumed, (2) percentage grid electricity, (3) percentage renewable"},
+      {name:"Nutritional Content",dim:"BM",code:"FB-PF-260a.1",metric:"Revenue from products labeled and/or marketed to promote health and nutrition attributes"},
+      {name:"Packaging Lifecycle Management",dim:"BM",code:"FB-PF-410a.1",metric:"Total weight of packaging, percentage made from recycled or renewable materials"},
+    ]},
+    {name:"Restaurants",co:448,issues:[
+      {name:"Energy Management",dim:"E",code:"FB-RN-130a.1",metric:"(1) Total energy consumed, (2) percentage grid electricity, (3) percentage renewable"},
+      {name:"Food Safety",dim:"S",code:"FB-RN-250a.1",metric:"Percentage of (1) company-owned and (2) franchised restaurants that received a food safety audit rating of 'satisfactory' or above"},
+      {name:"Supply Chain Management",dim:"E",code:"FB-RN-430a.1",metric:"Discussion of strategy for managing opportunities and risks to company's supply chain associated with environmental and social risks"},
+      {name:"Nutritional Content",dim:"BM",code:"FB-RN-260a.1",metric:"Description of strategy, plans, and progress toward incorporating healthful, sustainable sourcing, preparation, and sale of food and beverages"},
+    ]},
+    {name:"Alcoholic Beverages",co:331,issues:[
+      {name:"Water Management",dim:"E",code:"FB-AB-140a.1",metric:"(1) Total water withdrawn, (2) total water consumed, percentage in regions with High or Extremely High Baseline Water Stress"},
+      {name:"Responsible Drinking & Marketing",dim:"S",code:"FB-AB-270a.1",metric:"Percentage of advertisements in compliance with company's advertising standards for marketing to (1) adults above the legal drinking age and (2) underage individuals"},
+      {name:"Energy Management",dim:"E",code:"FB-AB-130a.1",metric:"(1) Total energy consumed, (2) percentage grid electricity, (3) percentage renewable"},
+    ]},
+    {name:"Meat, Poultry & Dairy",co:522,issues:[
+      {name:"GHG Emissions",dim:"E",code:"FB-MP-110a.1",metric:"Gross global Scope 1 emissions, percentage covered under emissions-limiting regulations"},
+      {name:"Animal Care & Welfare",dim:"S",code:"FB-MP-430b.1",metric:"Percentage of production animals in gestation crates, sow stalls, or battery cages"},
+      {name:"Workforce Safety",dim:"S",code:"FB-MP-320a.1",metric:"(1) Total recordable incident rate (TRIR) and (2) fatality rate for (a) direct employees and (b) contract employees"},
+      {name:"Food Safety",dim:"S",code:"FB-MP-250a.1",metric:"Number of recalls issued, total weight of products recalled"},
+    ]},
+    {name:"Non-Alcoholic Beverages",co:280,issues:[
+      {name:"Water Management",dim:"E",code:"FB-NB-140a.1",metric:"(1) Total water withdrawn, (2) total water consumed, percentage in regions with High or Extremely High Baseline Water Stress"},
+      {name:"Packaging Lifecycle Management",dim:"BM",code:"FB-NB-410a.1",metric:"(1) Total weight of packaging, (2) percentage made from recycled or renewable materials, (3) percentage that is recyclable, reusable, or compostable"},
+      {name:"Nutritional Content",dim:"BM",code:"FB-NB-260a.1",metric:"Description of the strategy to address consumer and regulatory concerns about nutritional quality of products"},
+    ]},
+  ]},
+
+  "Health Care":{color:"#D4537E",dim:"s",industries:[
+    {name:"Biotechnology & Pharmaceuticals",co:2607,issues:[
+      {name:"Drug Safety",dim:"S",code:"HC-BP-250a.1",metric:"List of products listed in the Food and Drug Administration's (FDA) MedWatch Safety Alerts for Human Medical Products database"},
+      {name:"Affordability & Pricing",dim:"S",code:"HC-BP-240a.1",metric:"Description of how price is determined for products, including the role of clinical evidence, comparative effectiveness, patient outcomes, and cost of development"},
+      {name:"Drug Marketing & Advertising",dim:"S",code:"HC-BP-270a.1",metric:"Total amount of monetary losses as a result of legal proceedings associated with false marketing claims"},
+      {name:"Counterfeit Drugs",dim:"S",code:"HC-BP-260a.1",metric:"Description of methods and technologies used to maintain traceability of products throughout the supply chain and prevent counterfeiting"},
+    ]},
+    {name:"Medical Equipment & Supplies",co:992,issues:[
+      {name:"Product Safety",dim:"S",code:"HC-MS-250a.1",metric:"List of products recalled and the associated corrective action plan (CAP)"},
+      {name:"Product Design & Lifecycle Management",dim:"BM",code:"HC-MS-410a.1",metric:"Revenue from products designed with end-of-life management, by product category"},
+      {name:"Regulatory & Legal Challenges",dim:"G",code:"HC-MS-520a.1",metric:"Total amount of monetary losses as a result of legal proceedings"},
+      {name:"Supply Chain Management",dim:"E",code:"HC-MS-430a.1",metric:"Percentage of (1) entity-owned and (2) contract manufacturing sites that have been audited to a quality management standard"},
+    ]},
+    {name:"Health Care Delivery",co:524,issues:[
+      {name:"Patient Engagement, Safety, & Rights",dim:"S",code:"HC-DY-250a.1",metric:"Patient outcomes data for the reporting entity for ten indicators from the Agency for Healthcare Research and Quality (AHRQ) Inpatient Quality Indicators"},
+      {name:"Fraud & Unnecessary Procedures",dim:"G",code:"HC-DY-510a.1",metric:"Total amount of monetary losses as a result of legal proceedings associated with Medicare and Medicaid fraud"},
+      {name:"Quality of Care & Patient Satisfaction",dim:"S",code:"HC-DY-250b.1",metric:"Patient satisfaction score (as measured by HCAHPS survey or equivalent)"},
+    ]},
+    {name:"Managed Care",co:36,issues:[
+      {name:"Member Engagement, Coverage & Experience",dim:"S",code:"HC-MC-240a.1",metric:"Description of approach for providing employees and plan members with tools and resources for making health care decisions"},
+      {name:"Fraud, Waste & Abuse Management",dim:"G",code:"HC-MC-510a.1",metric:"Total amount of monetary losses as a result of legal proceedings associated with Medicare and Medicaid fraud"},
+      {name:"Access & Affordability",dim:"S",code:"HC-MC-240b.1",metric:"(1) Percentage of members in high-deductible health plans, (2) percentage of members in plans with preventive services covered at no cost"},
+    ]},
+  ]},
+
+  "Infrastructure":{color:"#7F77DD",dim:"e",industries:[
+    {name:"Electric Utilities & Power Generators",co:849,issues:[
+      {name:"Greenhouse Gas Emissions & Energy Resource Planning",dim:"E",code:"IF-EU-110a.1",metric:"(1) Gross global Scope 1 emissions, percentage covered under (2) emissions-limiting regulations, and (3) emissions-reporting regulations"},
+      {name:"Air Quality",dim:"E",code:"IF-EU-120a.1",metric:"Air emissions of: (1) NOx, (2) SOx, (3) PM10, (4) lead (Pb), and (5) mercury (Hg); percentage in or near areas of dense population"},
+      {name:"Water Management",dim:"E",code:"IF-EU-140a.1",metric:"(1) Total water withdrawn, (2) total water consumed, percentage in regions with High or Extremely High Baseline Water Stress"},
+      {name:"Coal Ash Management",dim:"E",code:"IF-EU-150a.1",metric:"Amount of coal combustion residuals (CCR) generated, percentage recycled"},
+      {name:"Nuclear Safety & Emergency Management",dim:"S",code:"IF-EU-540a.1",metric:"Total number of nuclear power units, broken down by U.S. Nuclear Regulatory Commission (NRC) Action Matrix Column"},
+      {name:"End-Use Efficiency & Demand",dim:"BM",code:"IF-EU-420a.2",metric:"Percentage of electric load served by smart grid technology"},
+    ]},
+    {name:"Real Estate",co:2722,issues:[
+      {name:"Energy Management",dim:"E",code:"IF-RE-130a.1",metric:"Energy consumption data coverage as a percentage of total floor area, percentage managed assets"},
+      {name:"Water Management",dim:"E",code:"IF-RE-140a.1",metric:"Water withdrawal data coverage as a percentage of total floor area"},
+      {name:"Management of Tenant Sustainability Impacts",dim:"S",code:"IF-RE-410a.1",metric:"Percentage of new leases that contain a cost recovery clause for resource efficiency-related capital improvements"},
+      {name:"Climate Change Adaptation",dim:"E",code:"IF-RE-450a.1",metric:"Area of properties located in 100-year flood zones"},
+    ]},
+    {name:"Engineering & Construction Services",co:1846,issues:[
+      {name:"Environmental Impacts of Project Development",dim:"E",code:"IF-EN-160a.1",metric:"Number of incidents of non-compliance with environmental permits, standards, and regulations"},
+      {name:"Workforce Health & Safety",dim:"S",code:"IF-EN-320a.1",metric:"(1) Total recordable incident rate (TRIR) and (2) fatality rate for (a) direct employees and (b) contract employees"},
+      {name:"Structural Integrity & Safety",dim:"S",code:"IF-EN-250a.1",metric:"Amount of defect- and safety-related rework costs"},
+      {name:"Lifecycle Impacts of Buildings & Infrastructure",dim:"BM",code:"IF-EN-410a.1",metric:"Number of projects designed to meet green building standards"},
+    ]},
+    {name:"Waste Management",co:277,issues:[
+      {name:"GHG Emissions",dim:"E",code:"IF-WM-110a.1",metric:"Gross global Scope 1 emissions from (1) landfill sites and (2) transport vehicles"},
+      {name:"Air Quality",dim:"E",code:"IF-WM-120a.1",metric:"Air emissions of: (1) NOx, (2) SOx, (3) PM10, (4) VOCs, (5) mercury (Hg), (6) lead (Pb), (7) dioxins/furans"},
+      {name:"Workforce Health & Safety",dim:"S",code:"IF-WM-320a.1",metric:"(1) Total recordable incident rate (TRIR) and (2) fatality rate for (a) employees and (b) contract employees"},
+    ]},
+    {name:"Water Utilities & Services",co:180,issues:[
+      {name:"Drinking Water Quality",dim:"S",code:"IF-WU-250a.1",metric:"Number of (1) acute health-based, (2) non-acute health-based, and (3) non-health-based drinking water violations"},
+      {name:"Distribution Network Efficiency",dim:"E",code:"IF-WU-140a.1",metric:"Water main replacement rate"},
+      {name:"Effluent Quality Management",dim:"E",code:"IF-WU-140b.1",metric:"Number of incidents of non-compliance associated with water effluent quality permits"},
+      {name:"Water Supply",dim:"E",code:"IF-WU-440a.1",metric:"Total water sourced from regions with High or Extremely High Baseline Water Stress"},
+    ]},
+    {name:"Gas Utilities & Distributors",co:162,issues:[
+      {name:"Energy Affordability",dim:"S",code:"IF-GU-240a.1",metric:"Average retail gas rate for (1) residential, (2) commercial, and (3) industrial customers"},
+      {name:"End-Use Efficiency",dim:"BM",code:"IF-GU-420a.1",metric:"Percentage of gas utility revenues from rate structures that are decoupled"},
+      {name:"Grid Resiliency",dim:"BM",code:"IF-GU-550a.1",metric:"Number of significant unplanned service disruptions, customers affected"},
+    ]},
+    {name:"Home Builders",co:358,issues:[
+      {name:"Land Use & Ecological Impacts",dim:"E",code:"IF-HB-160a.1",metric:"Number of lots delivered in locations with High or Extremely High Baseline Water Stress"},
+      {name:"Community Impacts",dim:"S",code:"IF-HB-210a.1",metric:"Number of open violations of building codes and other regulations"},
+      {name:"Design for Resource Efficiency",dim:"BM",code:"IF-HB-410a.1",metric:"Number of homes delivered certified to a third-party, multi-attribute green building standard"},
+    ]},
+  ]},
+
+  "Renewable Resources & Alternative Energy":{color:"#1D9E75",dim:"e",industries:[
+    {name:"Solar Technology & Project Developers",co:190,issues:[
+      {name:"Ecological Impacts of Project Development",dim:"E",code:"RR-ST-160a.1",metric:"Number and duration of project delays related to ecological impacts"},
+      {name:"Energy Management in Manufacturing",dim:"E",code:"RR-ST-130a.1",metric:"(1) Total energy consumed, (2) percentage grid electricity, (3) percentage renewable"},
+      {name:"Hazardous Waste Management",dim:"E",code:"RR-ST-150a.1",metric:"Amount of hazardous waste generated, percentage recycled"},
+      {name:"Management of Energy Infrastructure Integration",dim:"BM",code:"RR-ST-410a.1",metric:"Description of risks associated with integration of solar energy into existing energy infrastructure"},
+    ]},
+    {name:"Wind Technology & Project Developers",co:62,issues:[
+      {name:"Ecological Impacts of Project Development",dim:"E",code:"RR-WT-160a.1",metric:"Number and duration of project delays related to ecological impacts"},
+      {name:"Energy Management in Manufacturing",dim:"E",code:"RR-WT-130a.1",metric:"(1) Total energy consumed, (2) percentage grid electricity, (3) percentage renewable"},
+      {name:"Grid Resiliency & Capacity Factors",dim:"BM",code:"RR-WT-410a.1",metric:"Description of risks and opportunities associated with energy policy and its impact on the integration of wind energy"},
+    ]},
+    {name:"Fuel Cells & Industrial Batteries",co:87,issues:[
+      {name:"Hazardous Materials Management",dim:"E",code:"RR-FC-150a.1",metric:"Amount of hazardous waste generated, percentage recycled"},
+      {name:"Product Lifecycle Management",dim:"BM",code:"RR-FC-410a.1",metric:"Percentage of products containing substances of concern"},
+      {name:"Intellectual Property Protection",dim:"G",code:"RR-FC-520a.1",metric:"Revenue from licenses, royalties, and other agreements related to intellectual property"},
+    ]},
+    {name:"Forestry Management",co:95,issues:[
+      {name:"Ecosystem Services & Impacts",dim:"E",code:"RR-FM-160a.1",metric:"Area of forestland certified to a third-party forest management standard"},
+      {name:"GHG Emissions & Energy Resource Planning",dim:"E",code:"RR-FM-110a.1",metric:"Gross global Scope 1 emissions from (1) combustion and (2) other direct sources"},
+      {name:"Community Relations",dim:"S",code:"RR-FM-210a.1",metric:"Number and duration of non-technical delays, by cause"},
+    ]},
+    {name:"Biofuels",co:59,issues:[
+      {name:"GHG Emissions & Energy Resource Planning",dim:"E",code:"RR-BI-110a.1",metric:"Scope 1 emissions, percentage covered under emissions-limiting regulations"},
+      {name:"Water Management",dim:"E",code:"RR-BI-140a.1",metric:"(1) Total water withdrawn, (2) total water consumed, percentage in regions with High Water Stress"},
+    ]},
+    {name:"Pulp & Paper Products",co:232,issues:[
+      {name:"GHG Emissions & Energy Resource Planning",dim:"E",code:"RR-PP-110a.1",metric:"Gross global Scope 1 emissions, percentage covered under emissions-limiting regulations"},
+      {name:"Water Management",dim:"E",code:"RR-PP-140a.1",metric:"(1) Total water withdrawn, (2) total water consumed, percentage in regions with High Water Stress"},
+      {name:"Fiber Sourcing",dim:"E",code:"RR-PP-430a.1",metric:"Percentage of wood fiber sourced from (1) third-party certified forestlands and (2) meeting other fiber sourcing standards"},
+    ]},
+  ]},
+
+  "Resource Transformation":{color:"#E87BA4",dim:"e",industries:[
+    {name:"Aerospace & Defense",co:244,issues:[
+      {name:"Fuel Economy & Emissions in Use-phase",dim:"E",code:"RT-AE-410a.1",metric:"Revenue from products designed to increase fuel efficiency and reduce emissions"},
+      {name:"Business Ethics",dim:"G",code:"RT-AE-510a.1",metric:"Total amount of monetary losses as a result of legal proceedings with foreign governments"},
+      {name:"Workforce Safety",dim:"S",code:"RT-AE-320a.1",metric:"(1) Total recordable incident rate (TRIR) and (2) fatality rate for (a) employees and (b) contract employees"},
+      {name:"Supply Chain Management",dim:"E",code:"RT-AE-430a.1",metric:"Percentage of primary suppliers that were audited to a labor code of conduct, percentage conducted by a third-party auditor"},
+    ]},
+    {name:"Chemicals",co:1943,issues:[
+      {name:"GHG Emissions",dim:"E",code:"RT-CH-110a.1",metric:"Gross global Scope 1 emissions, percentage covered under emissions-limiting regulations"},
+      {name:"Air Quality",dim:"E",code:"RT-CH-120a.1",metric:"Air emissions of: (1) NOx, (2) SOx, (3) VOCs, (4) HAPs"},
+      {name:"Water Management",dim:"E",code:"RT-CH-140a.1",metric:"(1) Total water withdrawn, (2) total water consumed, percentage in regions with High or Extremely High Baseline Water Stress"},
+      {name:"Hazardous Waste Management",dim:"E",code:"RT-CH-150a.1",metric:"Amount of hazardous waste generated, percentage recycled"},
+      {name:"Product Design for Use-phase Efficiency",dim:"BM",code:"RT-CH-410a.1",metric:"Revenue from products designed with an inherently lower environmental impact"},
+    ]},
+    {name:"Containers & Packaging",co:537,issues:[
+      {name:"GHG Emissions",dim:"E",code:"RT-CP-110a.1",metric:"Gross global Scope 1 emissions, percentage covered under emissions-limiting regulations"},
+      {name:"Product Lifecycle Management",dim:"BM",code:"RT-CP-410a.1",metric:"Total weight of packaging, percentage made from recycled or renewable materials"},
+      {name:"Water Management",dim:"E",code:"RT-CP-140a.1",metric:"(1) Total water withdrawn, (2) total water consumed, percentage in regions with High Water Stress"},
+    ]},
+    {name:"Industrial Machinery & Goods",co:3020,issues:[
+      {name:"Energy Management",dim:"E",code:"RT-IG-130a.1",metric:"(1) Total energy consumed, (2) percentage grid electricity, (3) percentage renewable"},
+      {name:"Remanufacturing Design & Services",dim:"BM",code:"RT-IG-410a.1",metric:"Revenue from remanufactured products and reconditioned parts"},
+      {name:"Workforce Safety",dim:"S",code:"RT-IG-320a.1",metric:"(1) Total recordable incident rate (TRIR) and (2) fatality rate for (a) employees and (b) contract employees"},
+    ]},
+    {name:"Electrical & Electronic Equipment",co:1488,issues:[
+      {name:"Product Lifecycle Management",dim:"BM",code:"RT-EE-410a.1",metric:"Percentage of products by revenue that meet energy efficiency standards"},
+      {name:"Hazardous Materials Management",dim:"E",code:"RT-EE-150a.1",metric:"Amount of hazardous waste generated, percentage recycled"},
+      {name:"Employee Health & Safety",dim:"S",code:"RT-EE-320a.1",metric:"(1) Total recordable incident rate (TRIR) and (2) fatality rate for employees"},
+    ]},
+  ]},
+
+  "Services":{color:"#888780",dim:"s",industries:[
+    {name:"Casinos & Gaming",co:235,issues:[
+      {name:"Customer Welfare",dim:"S",code:"SV-CA-270a.1",metric:"Total amount of monetary losses as a result of legal proceedings associated with consumer protection"},
+      {name:"Energy & Water Management",dim:"E",code:"SV-CA-130a.1",metric:"(1) Total energy consumed, (2) percentage grid electricity, (3) percentage renewable"},
+      {name:"Responsible Gaming",dim:"S",code:"SV-CA-260a.1",metric:"Description of responsible gaming practices"},
+    ]},
+    {name:"Education",co:246,issues:[
+      {name:"Student Recruitment, Retention & Completion",dim:"S",code:"SV-ED-260a.1",metric:"Graduation and student loan default rates by (1) program and (2) student demographics"},
+      {name:"Student Financial Assistance",dim:"S",code:"SV-ED-270a.1",metric:"Total amount of monetary losses as a result of legal proceedings associated with student recruiting"},
+    ]},
+    {name:"Hotels & Lodging",co:568,issues:[
+      {name:"Energy Management",dim:"E",code:"SV-HL-130a.1",metric:"(1) Total energy consumed, (2) percentage grid electricity, (3) percentage renewable"},
+      {name:"Water Management",dim:"E",code:"SV-HL-140a.1",metric:"(1) Total water withdrawn, (2) total water consumed, percentage in regions with High Water Stress"},
+      {name:"Supply Chain Management & Human Trafficking",dim:"S",code:"SV-HL-310a.1",metric:"Discussion of policies and practices to prevent and detect human trafficking in the company's value chain"},
+    ]},
+    {name:"Media & Entertainment",co:823,issues:[
+      {name:"Intellectual Property Protection & Media Piracy",dim:"G",code:"SV-ME-520a.1",metric:"Description of approach to ensuring intellectual property (IP) protection"},
+      {name:"Journalistic Integrity & Sponsorship Identification",dim:"S",code:"SV-ME-270a.1",metric:"Total amount of monetary losses as a result of legal proceedings associated with libel or slander"},
+      {name:"Media Pluralism",dim:"S",code:"SV-ME-260a.1",metric:"Percentage of gender and racial/ethnic group representation for (1) management, (2) professionals, (3) all other employees"},
+    ]},
+    {name:"Advertising & Marketing",co:407,issues:[
+      {name:"Advertising Integrity",dim:"S",code:"SV-AD-270a.1",metric:"Total amount of monetary losses as a result of legal proceedings associated with false, deceptive, or unfair advertising"},
+      {name:"Data Privacy",dim:"S",code:"SV-AD-220a.1",metric:"Discussion of policies and practices relating to behavioral advertising and consumer privacy"},
+      {name:"Workforce Diversity & Inclusion",dim:"S",code:"SV-AD-330a.1",metric:"Percentage of gender and racial/ethnic group representation for (1) management and (2) all other employees"},
+    ]},
+    {name:"Professional & Commercial Services",co:1720,issues:[
+      {name:"Business Ethics & Competitive Practices",dim:"G",code:"SV-PS-510a.1",metric:"Total amount of monetary losses as a result of legal proceedings"},
+      {name:"Workforce Diversity & Engagement",dim:"S",code:"SV-PS-330a.1",metric:"Percentage of gender and racial/ethnic group representation for (1) management, (2) professionals, and (3) all other employees"},
+      {name:"Client Management",dim:"S",code:"SV-PS-250a.1",metric:"Description of quality management practices across the professional service"},
+    ]},
+    {name:"Leisure Facilities",co:396,issues:[
+      {name:"Energy Management",dim:"E",code:"SV-LF-130a.1",metric:"(1) Total energy consumed, (2) percentage grid electricity, (3) percentage renewable"},
+      {name:"Water Management",dim:"E",code:"SV-LF-140a.1",metric:"(1) Total water withdrawn, (2) total water consumed, percentage in regions with High Water Stress"},
+    ]},
+  ]},
+
+  "Technology & Communications":{color:"#534AB7",dim:"s",industries:[
+    {name:"Software & IT Services",co:3018,issues:[
+      {name:"Environmental Footprint of Hardware Infrastructure",dim:"E",code:"TC-SI-130a.1",metric:"(1) Total energy consumed, (2) percentage grid electricity, (3) percentage renewable"},
+      {name:"Data Privacy & Freedom of Expression",dim:"S",code:"TC-SI-220a.1",metric:"Description of policies and practices relating to behavioral advertising and consumer privacy"},
+      {name:"Data Security",dim:"S",code:"TC-SI-230a.1",metric:"(1) Number of data breaches, (2) percentage involving personally identifiable information (PII), (3) number of users affected"},
+      {name:"Recruiting & Managing a Global Workforce",dim:"S",code:"TC-SI-330a.1",metric:"Percentage of gender and racial/ethnic group representation for (1) management, (2) technical staff, and (3) all other employees"},
+      {name:"Intellectual Property Protection",dim:"G",code:"TC-SI-520a.1",metric:"Total amount of monetary losses as a result of legal proceedings associated with patent infringement"},
+    ]},
+    {name:"Hardware",co:1933,issues:[
+      {name:"Employee Diversity & Inclusion",dim:"S",code:"TC-HW-330a.1",metric:"Percentage of gender and racial/ethnic group representation for (1) management, (2) technical staff, and (3) all other employees"},
+      {name:"Materials Sourcing",dim:"E",code:"TC-HW-440a.1",metric:"Description of the management of risks associated with the use of critical materials"},
+      {name:"Product Lifecycle Management",dim:"BM",code:"TC-HW-410a.1",metric:"Percentage of products by revenue that contain IEC 62474 declarable substances"},
+      {name:"Product Security",dim:"S",code:"TC-HW-230a.1",metric:"Description of approach to identifying and addressing data security risks in products"},
+      {name:"Supply Chain Management",dim:"S",code:"TC-HW-430a.1",metric:"Percentage of Tier 1 supplier facilities audited in the RBA Validated Audit Process (VAP) or equivalent"},
+    ]},
+    {name:"Semiconductors",co:810,issues:[
+      {name:"Environmental Footprint of Hardware Infrastructure",dim:"E",code:"TC-SC-130a.1",metric:"(1) Total energy consumed, (2) percentage grid electricity, (3) percentage renewable"},
+      {name:"Water Management",dim:"E",code:"TC-SC-140a.1",metric:"(1) Total water withdrawn, (2) total water consumed, percentage in regions with High or Extremely High Baseline Water Stress"},
+      {name:"Materials Sourcing",dim:"E",code:"TC-SC-440a.1",metric:"Description of the management of risks associated with the use of critical materials"},
+      {name:"Employee Diversity & Inclusion",dim:"S",code:"TC-SC-330a.1",metric:"Percentage of gender and racial/ethnic group representation for (1) management, (2) technical staff, and (3) all other employees"},
+    ]},
+    {name:"Telecommunication Services",co:702,issues:[
+      {name:"Data Privacy",dim:"S",code:"TC-TL-220a.1",metric:"Description of policies and practices relating to behavioral advertising and consumer privacy"},
+      {name:"Data Security",dim:"S",code:"TC-TL-230a.1",metric:"(1) Number of data breaches, (2) percentage involving personally identifiable information (PII), (3) number of customers affected"},
+      {name:"Environmental Footprint of Network Infrastructure",dim:"E",code:"TC-TL-130a.1",metric:"(1) Total energy consumed, (2) percentage grid electricity, (3) percentage renewable"},
+      {name:"Employee Diversity & Inclusion",dim:"S",code:"TC-TL-330a.1",metric:"Percentage of gender and racial/ethnic group representation for (1) management, (2) technical staff, and (3) all other employees"},
+    ]},
+    {name:"Internet Media & Services",co:554,issues:[
+      {name:"Data Privacy & Advertising Standards",dim:"S",code:"TC-IM-220a.1",metric:"Description of policies and practices relating to behavioral advertising and consumer privacy"},
+      {name:"Data Security",dim:"S",code:"TC-IM-230a.1",metric:"(1) Number of data breaches, (2) percentage involving personally identifiable information (PII), (3) number of users affected"},
+      {name:"Intellectual Property Protection",dim:"G",code:"TC-IM-520a.1",metric:"Description of approach to ensuring intellectual property (IP) protection of user-generated content"},
+      {name:"Employee Recruitment, Inclusion & Performance",dim:"S",code:"TC-IM-330a.1",metric:"Percentage of gender and racial/ethnic group representation for (1) management and (2) all other employees"},
+    ]},
+    {name:"Electronic Manufacturing Services & Original Design Manufacturing",co:178,issues:[
+      {name:"Materials Sourcing",dim:"E",code:"TC-ES-440a.1",metric:"Description of the management of risks associated with the use of critical and other materials"},
+      {name:"Employee Health & Safety",dim:"S",code:"TC-ES-320a.1",metric:"(1) Total recordable incident rate (TRIR) and (2) fatality rate for (a) employees and (b) contract employees"},
+      {name:"Product Lifecycle Management",dim:"BM",code:"TC-ES-410a.1",metric:"Percentage of products meeting regulatory requirements for energy efficiency or reduced use of hazardous substances"},
+    ]},
+  ]},
+
+  "Transportation":{color:"#E87BA4",dim:"e",industries:[
+    {name:"Airlines",co:154,issues:[
+      {name:"Greenhouse Gas Emissions",dim:"E",code:"TR-AL-110a.1",metric:"(1) Gross global Scope 1 emissions, (2) percentage covered under emissions-limiting regulations"},
+      {name:"Labour Practices",dim:"S",code:"TR-AL-310a.1",metric:"Percentage of active workforce covered under collective bargaining agreements"},
+      {name:"Competitive Behaviour",dim:"G",code:"TR-AL-520a.1",metric:"Total amount of monetary losses as a result of legal proceedings associated with anti-competitive behaviour"},
+    ]},
+    {name:"Automobiles",co:208,issues:[
+      {name:"Fuel Economy & Use-phase Emissions",dim:"E",code:"TR-AU-410a.1",metric:"Sales-weighted average passenger fleet fuel economy, by region"},
+      {name:"Materials Sourcing",dim:"E",code:"TR-AU-440a.1",metric:"Description of the management of risks associated with the use of critical materials"},
+      {name:"Design for Fuel Efficiency, Safety & Sustainability",dim:"BM",code:"TR-AU-410b.1",metric:"Revenue from zero emission vehicles"},
+    ]},
+    {name:"Road Transportation",co:182,issues:[
+      {name:"Greenhouse Gas Emissions",dim:"E",code:"TR-RO-110a.1",metric:"Gross global Scope 1 emissions, percentage covered under emissions-limiting regulations"},
+      {name:"Air Quality",dim:"E",code:"TR-RO-120a.1",metric:"Air emissions of: (1) NOx, (2) SOx, and (3) PM10"},
+      {name:"Driver Working Conditions",dim:"S",code:"TR-RO-320a.1",metric:"(1) Total recordable incident rate (TRIR) and (2) fatality rate for (a) direct employees and (b) contract employees"},
+      {name:"Accident & Safety Management",dim:"S",code:"TR-RO-540a.1",metric:"Number of road accidents and incidents"},
+    ]},
+    {name:"Air Freight & Logistics",co:387,issues:[
+      {name:"GHG Emissions",dim:"E",code:"TR-AF-110a.1",metric:"Gross global Scope 1 emissions, percentage covered under emissions-limiting regulations"},
+      {name:"Workforce Safety",dim:"S",code:"TR-AF-320a.1",metric:"(1) Total recordable incident rate (TRIR) and (2) fatality rate for (a) direct employees and (b) contract employees"},
+      {name:"Supply Chain Integrity",dim:"G",code:"TR-AF-520a.1",metric:"Description of risks associated with nuclear, biological, and/or chemical cargo, policies and practices to address those risks"},
+    ]},
+    {name:"Auto Parts",co:891,issues:[
+      {name:"Materials Efficiency & Recyclability",dim:"BM",code:"TR-AP-440a.1",metric:"Percentage of input materials from recycled or reused sources"},
+      {name:"Fuel Economy & Emissions in the Use-phase",dim:"E",code:"TR-AP-410a.1",metric:"Revenue from products designed to increase fuel efficiency and reduce emissions"},
+      {name:"Workforce Safety",dim:"S",code:"TR-AP-320a.1",metric:"(1) Total recordable incident rate (TRIR) and (2) fatality rate for (a) employees and (b) contract employees"},
+    ]},
+    {name:"Marine Transportation",co:446,issues:[
+      {name:"GHG Emissions",dim:"E",code:"TR-MT-110a.1",metric:"Gross global Scope 1 emissions, percentage covered under emissions-limiting regulations"},
+      {name:"Air Quality",dim:"E",code:"TR-MT-120a.1",metric:"Air emissions of: (1) NOx, (2) SOx, (3) PM10, (4) ozone-depleting substances"},
+      {name:"Ecological Impacts",dim:"E",code:"TR-MT-160a.1",metric:"Discussion of processes to manage risks and opportunities of invasive species or ballast water"},
+    ]},
+    {name:"Rail Transportation",co:115,issues:[
+      {name:"GHG Emissions",dim:"E",code:"TR-RA-110a.1",metric:"Gross global Scope 1 emissions, percentage covered under emissions-limiting regulations"},
+      {name:"Air Quality",dim:"E",code:"TR-RA-120a.1",metric:"Air emissions of: (1) NOx, (2) PM10, (3) SOx"},
+      {name:"Workforce Safety",dim:"S",code:"TR-RA-320a.1",metric:"Federal Railroad Administration (FRA) train accident rate, employee injury rate, fatality rate"},
+    ]},
+  ]},
+};
+
+const DIM_COLORS = {E:{dot:'#3B6D11',bar:'#639922',cls:'dim-e',label:'Environment'},S:{dot:'#185FA5',bar:'#378ADD',cls:'dim-s',label:'Social'},G:{dot:'#534AB7',bar:'#7F77DD',cls:'dim-g',label:'Governance'},BM:{dot:'#854F0B',bar:'#BA7517',cls:'dim-bm',label:'Business Model & Innovation'}};
+
+let view = 'sectors'; // 'sectors' | 'industries' | 'detail' | 'search'
+let activeSector = null;
+let activeIndustry = null;
+
+function allIndustries(){
+  const out=[];
+  Object.entries(SECTORS).forEach(([sec,sd])=>sd.industries.forEach(ind=>out.push({...ind,sector:sec})));
+  return out;
+}
+
+function onSearch(){
+  const q = document.getElementById('searchQ').value.trim().toLowerCase();
+  if(!q){view='sectors';activeSector=null;activeIndustry=null;render();return;}
+  view='search';render(q);
+}
+
+function render(q){
+  const el=document.getElementById('main');
+  if(view==='search'){
+    const results=[];
+    allIndustries().forEach(ind=>{
+      const inName=ind.name.toLowerCase().includes(q);
+      const inSec=ind.sector.toLowerCase().includes(q);
+      const matchIssues=ind.issues.filter(i=>i.name.toLowerCase().includes(q)||i.metric.toLowerCase().includes(q)||i.code.toLowerCase().includes(q));
+      if(inName||inSec||matchIssues.length) results.push({...ind,matchIssues:matchIssues.length?matchIssues:null,reason:inName||inSec?'industry':'issue'});
+    });
+    if(!results.length){el.innerHTML=`<div class="empty"><i class="ti ti-search-off" aria-hidden="true" style="font-size:28px;display:block;margin-bottom:8px;"></i>No results for "${q}"</div>`;return;}
+    el.innerHTML=`<div class="sr-label">${results.length} result${results.length!==1?'s':''} for "${q}"</div>`+
+      results.map(r=>`<div class="sr-item" onclick="goDetail('${r.sector}','${r.name}')">
+        <div class="sr-item-top"><span class="sr-iname">${r.name}</span><span class="sr-sector">${r.sector}</span></div>
+        ${r.matchIssues?r.matchIssues.map(i=>`<div class="sr-issue"><span class="metric-code" style="font-size:10px;">${i.code}</span> ${i.name}</div>`).join(''):'<div class="sr-issue" style="color:var(--text-muted);">Industry match</div>'}
+      </div>`).join('');
+    return;
+  }
+  if(view==='sectors'){
+    el.innerHTML=`<div class="sectors-grid">${Object.entries(SECTORS).map(([name,sd])=>`
+      <div class="sector-card" onclick="goSector('${name}')">
+        <div class="sector-name">${name}</div>
+        <div class="sector-count">${sd.industries.length} industries · ${sd.industries.reduce((a,i)=>a+i.co,0).toLocaleString()} companies</div>
+      </div>`).join('')}</div>`;
+    return;
+  }
+  if(view==='industries'){
+    const sd=SECTORS[activeSector];
+    el.innerHTML=`
+      <div class="back-btn" onclick="goBack('sectors')"><i class="ti ti-arrow-left" aria-hidden="true"></i> All sectors</div>
+      <div class="industry-header"><h2>${activeSector}</h2></div>
+      <div class="industry-list">${sd.industries.map(ind=>`
+        <div class="ind-item" onclick="goDetail('${activeSector}','${ind.name}')">
+          <div><div class="ind-name">${ind.name}</div><div class="ind-co">${ind.co.toLocaleString()} companies</div></div>
+          <i class="ti ti-chevron-right ind-arrow" aria-hidden="true"></i>
+        </div>`).join('')}</div>`;
+    return;
+  }
+  if(view==='detail'){
+    const sd=SECTORS[activeSector];
+    const ind=sd.industries.find(i=>i.name===activeIndustry);
+    const grouped={};
+    ind.issues.forEach(i=>{if(!grouped[i.name])grouped[i.name]=[];grouped[i.name].push(i);});
+    el.innerHTML=`
+      <div class="back-btn" onclick="goBack('industries')"><i class="ti ti-arrow-left" aria-hidden="true"></i> ${activeSector}</div>
+      <div class="industry-header">
+        <h2>${ind.name}</h2>
+        <span class="sector-badge">Sector: ${activeSector}</span>
+      </div>
+      ${Object.entries(grouped).map(([issueName,metrics])=>{
+        const dim=metrics[0].dim;
+        const dc=DIM_COLORS[dim]||DIM_COLORS.E;
+        return `<div class="issue-card">
+          <div class="issue-header">
+            <div class="issue-dot" style="background:${dc.dot}"></div>
+            <div>
+              <div class="issue-name">${issueName}</div>
+              <span class="dim-tag ${dc.cls}">${dc.label}</span>
+            </div>
+          </div>
+          <div class="metrics">${metrics.map(m=>`
+            <div class="metric-row">
+              <span class="metric-code">${m.code}</span>
+              <span class="metric-desc">${m.metric}</span>
+            </div>`).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+      <button class="filter-btn" style="margin-top:8px;font-size:12px;" onclick="sendPrompt('Tell me more about ESG materiality for the ${ind.name} industry — key risks, SASB metrics in depth, and how companies are reporting on these issues')">Ask Claude to go deeper ↗</button>`;
+  }
+}
+
+function goSector(name){activeSector=name;view='industries';render();}
+function goDetail(sec,ind){activeSector=sec;activeIndustry=ind;view='detail';render();}
+function goBack(to){
+  if(to==='sectors'){view='sectors';activeSector=null;activeIndustry=null;}
+  else{view='industries';activeIndustry=null;}
+  render();
+}
+
+render();
+</script>

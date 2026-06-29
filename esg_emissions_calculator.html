@@ -1,0 +1,2147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mazingira — Scope 1, 2 & 3 Emissions Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="animations.css">
+<style>
+  :root {
+    --green-900: #0D4A35;
+    --green-800: #145C42;
+    --green-700: #1A7050;
+    --green-500: #1D9E75;
+    --green-300: #5DCAA5;
+    --green-100: #E1F5EE;
+    --green-50:  #F0FAF6;
+    --amber-500: #E8A020;
+    --amber-100: #FEF3DC;
+    --amber-50:  #FFFBF2;
+    --red-500:   #C0392B;
+    --red-100:   #FDECEA;
+    --surface:   #F7F5F0;
+    --white:     #FFFFFF;
+    --ink-900:   #1A1A1A;
+    --ink-600:   #4A4A4A;
+    --ink-400:   #7A7A7A;
+    --ink-200:   #DEDEDE;
+    --ink-100:   #F0EFEC;
+    --sidebar-w: 240px;
+    --header-h:  60px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--surface);
+    color: var(--ink-900);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── LAYOUT ─────────────────────────────── */
+  .layout { display: flex; height: 100vh; overflow: hidden; }
+
+  /* ── SIDEBAR ────────────────────────────── */
+  .sidebar {
+    width: var(--sidebar-w); flex-shrink: 0;
+    background: var(--green-900); color: #fff;
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+  }
+  .sidebar-logo {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .logo-mark { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; color: #fff; }
+  .logo-mark span { color: var(--amber-500); }
+  .logo-sub { font-size: 10px; color: rgba(255,255,255,0.45); letter-spacing: 0.8px; text-transform: uppercase; margin-top: 2px; }
+
+  .sidebar-section { padding: 16px 12px 8px; }
+  .sidebar-label { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.35); padding: 0 8px; margin-bottom: 4px; }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 10px; border-radius: 8px;
+    font-size: 13px; font-weight: 400; color: rgba(255,255,255,0.7);
+    cursor: pointer; transition: all 0.2s ease; margin-bottom: 2px;
+    border: none; background: none; width: 100%; text-align: left;
+    position: relative; text-decoration: none;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.07); color: #fff; transform: translateX(2px); }
+  .nav-item.active { background: rgba(255,255,255,0.12); color: #fff; font-weight: 500; }
+  .nav-item.active::before {
+    content: ''; position: absolute; left: -12px; top: 50%; transform: translateY(-50%);
+    width: 3px; height: 20px; border-radius: 0 3px 3px 0;
+    background: var(--amber-500);
+  }
+  .nav-item svg { flex-shrink: 0; opacity: 0.7; }
+  .nav-item:hover svg { opacity: 1; }
+  .nav-item.active svg { opacity: 1; }
+  .nav-badge {
+    margin-left: auto; font-size: 10px; font-weight: 600;
+    background: var(--amber-500); color: var(--green-900);
+    padding: 2px 7px; border-radius: 99px;
+  }
+
+  .sidebar-footer { margin-top: auto; padding: 16px; border-top: 1px solid rgba(255,255,255,0.08); }
+  .company-pill {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; background: rgba(255,255,255,0.08);
+    border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+  }
+  .company-pill:hover { background: rgba(255,255,255,0.12); }
+  .company-avatar {
+    width: 28px; height: 28px; border-radius: 6px;
+    background: var(--amber-500); display: flex; align-items: center;
+    justify-content: center; font-size: 11px; font-weight: 700; color: var(--green-900);
+    flex-shrink: 0;
+  }
+  .company-name { font-size: 12px; font-weight: 500; color: #fff; }
+  .company-meta { font-size: 10px; color: rgba(255,255,255,0.4); }
+
+  /* ── MAIN ───────────────────────────────── */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  .topbar {
+    height: var(--header-h); flex-shrink: 0;
+    background: var(--white); border-bottom: 1px solid var(--ink-200);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px;
+  }
+  .topbar-title { font-size: 15px; font-weight: 600; color: var(--ink-900); display: flex; align-items: center; gap: 10px; }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .topbar-tag {
+    font-size: 11px; font-weight: 600; padding: 4px 10px;
+    border-radius: 99px; background: var(--green-100); color: var(--green-700);
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all 0.2s ease; border: none;
+    font-family: 'Inter', sans-serif; position: relative; overflow: hidden;
+  }
+  .btn::after {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at var(--rx, 50%) var(--ry, 50%), rgba(255,255,255,0.3) 0%, transparent 60%);
+    opacity: 0; pointer-events: none;
+  }
+  .btn:active::after { opacity: 1; animation: ripple 0.6s ease-out forwards; }
+  .btn:active { transform: scale(0.96); }
+  .btn-primary { background: var(--green-700); color: #fff; }
+  .btn-primary:hover { background: var(--green-800); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(26,112,80,0.25); }
+  .btn-secondary { background: var(--white); color: var(--ink-600); border: 1px solid var(--ink-200); }
+  .btn-secondary:hover { background: var(--surface); transform: translateY(-1px); }
+  .btn-amber { background: var(--amber-500); color: var(--green-900); font-weight: 600; }
+  .btn-amber:hover { background: #d4901a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(232,160,32,0.3); }
+  .btn-sm { padding: 5px 10px; font-size: 11px; }
+
+  .content { flex: 1; overflow-y: auto; padding: 28px; }
+
+  /* ── CARDS & SECTIONS ──────────────────── */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+  .kpi-card {
+    background: var(--white); border-radius: 10px; padding: 18px;
+    border: 1px solid var(--ink-200);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(0,0,0,0.07); }
+  .kpi-label { font-size: 10px; color: var(--ink-400); font-weight: 500; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; }
+  .kpi-val { font-size: 26px; font-weight: 700; color: var(--ink-900); line-height: 1; }
+  .kpi-unit { font-size: 11px; color: var(--ink-400); margin-top: 3px; }
+  .kpi-delta { font-size: 12px; margin-top: 6px; display: flex; align-items: center; gap: 4px; }
+  .delta-up { color: var(--green-500); }
+  .delta-warn { color: var(--amber-500); }
+  .delta-bad { color: var(--red-500); }
+
+  .card {
+    background: var(--white); border-radius: 10px; padding: 20px;
+    border: 1px solid var(--ink-200);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin-bottom: 18px;
+  }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,0.06); }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--ink-900); margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+  .card-title-left { display: flex; align-items: center; gap: 8px; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+
+  /* ── SECTION TABS ──────────────────────── */
+  .scope-tabs {
+    display: flex; gap: 4px; background: var(--ink-100);
+    border-radius: 10px; padding: 4px; margin-bottom: 20px;
+  }
+  .scope-tab {
+    flex: 1; padding: 10px 16px; border-radius: 8px;
+    text-align: center; font-size: 12px; font-weight: 600;
+    border: none; background: none; cursor: pointer;
+    color: var(--ink-400); transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif;
+  }
+  .scope-tab:hover { color: var(--ink-600); }
+  .scope-tab.active { background: var(--white); color: var(--ink-900); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .scope-tab .tab-count {
+    display: inline-block; margin-left: 6px;
+    padding: 1px 7px; border-radius: 99px; font-size: 10px;
+    background: var(--ink-100); color: var(--ink-400);
+  }
+  .scope-tab.active .tab-count { background: var(--green-100); color: var(--green-700); }
+
+  .scope-panel { display: none; }
+  .scope-panel.active { display: block; }
+
+  /* ── CALCULATOR ROWS ───────────────────── */
+  .calc-section { margin-bottom: 16px; }
+  .calc-section-title {
+    font-size: 12px; font-weight: 600; color: var(--ink-900);
+    padding-bottom: 8px; border-bottom: 1px solid var(--ink-100);
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .calc-section-title .badge { font-size: 10px; }
+
+  .calc-row {
+    display: grid; grid-template-columns: 1fr 120px 80px 100px;
+    gap: 10px; align-items: center; padding: 7px 0;
+    border-bottom: 1px solid var(--ink-100);
+  }
+  .calc-row:last-child { border-bottom: none; }
+  .calc-row:hover { background: var(--surface); margin: 0 -8px; padding: 7px 8px; border-radius: 6px; }
+  .calc-label { font-size: 12px; font-weight: 500; color: var(--ink-600); }
+  .calc-label .calc-sub { display: block; font-size: 10px; font-weight: 400; color: var(--ink-400); margin-top: 1px; }
+  .calc-input input {
+    width: 100%; padding: 5px 8px; border: 1px solid var(--ink-200);
+    border-radius: 6px; font-size: 12px; font-family: 'Inter', sans-serif;
+    color: var(--ink-900); background: var(--white); outline: none;
+    text-align: right;
+  }
+  .calc-input input:focus { border-color: var(--green-500); box-shadow: 0 0 0 2px rgba(29,158,117,0.12); }
+  .calc-factor { font-size: 10px; color: var(--ink-400); text-align: right; }
+  .calc-result { font-size: 12px; font-weight: 600; color: var(--green-700); text-align: right; }
+
+  .calc-total {
+    background: var(--green-50); border-radius: 8px; padding: 10px 14px;
+    margin-top: 8px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .calc-total-label { font-size: 13px; font-weight: 600; color: var(--ink-900); }
+  .calc-total-val { font-size: 18px; font-weight: 700; color: var(--green-700); }
+  .calc-total-sub { font-size: 10px; color: var(--ink-400); text-align: right; }
+
+  .calc-toggle { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .calc-toggle input[type="checkbox"] { accent-color: var(--green-500); }
+  .calc-toggle label { font-size: 12px; color: var(--ink-600); cursor: pointer; }
+
+  /* ── SCOPE 3 CATEGORIES ────────────────── */
+  .s3-cat {
+    border: 1px solid var(--ink-200); border-radius: 8px;
+    margin-bottom: 6px; overflow: hidden;
+    transition: border-color 0.15s;
+  }
+  .s3-cat:hover { border-color: var(--green-300); }
+  .s3-cat-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 14px; cursor: pointer; user-select: none;
+    transition: background 0.15s;
+  }
+  .s3-cat-header:hover { background: var(--surface); }
+  .s3-cat-name { font-size: 12px; font-weight: 500; color: var(--ink-900); }
+  .s3-cat-desc { font-size: 10px; color: var(--ink-400); margin-top: 1px; }
+  .s3-cat-toggle { font-size: 10px; color: var(--ink-400); transition: transform 0.2s; }
+  .s3-cat.open .s3-cat-toggle { transform: rotate(180deg); }
+  .s3-cat-body { display: none; padding: 0 14px 12px; }
+  .s3-cat.open .s3-cat-body { display: block; }
+  .s3-cat-body .calc-row { grid-template-columns: 1fr 120px 80px 100px; }
+
+  /* ── SUMMARY SECTION ───────────────────── */
+  .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px; }
+  .summary-card {
+    border-radius: 10px; padding: 18px; text-align: center;
+    border: 1px solid var(--ink-200);
+  }
+  .summary-card.s1 { background: linear-gradient(135deg, #FDECEA 0%, #FFF5F4 100%); border-color: rgba(192,57,43,0.2); }
+  .summary-card.s2 { background: linear-gradient(135deg, #EBF4FF 0%, #F5F9FF 100%); border-color: rgba(55,138,221,0.2); }
+  .summary-card.s3 { background: linear-gradient(135deg, var(--amber-50) 0%, #FFF8F0 100%); border-color: rgba(232,160,32,0.2); }
+  .summary-card .sum-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .summary-card.s1 .sum-label { color: var(--red-500); }
+  .summary-card.s2 .sum-label { color: #1A5FA8; }
+  .summary-card.s3 .sum-label { color: #7A5000; }
+  .summary-card .sum-val { font-size: 28px; font-weight: 700; color: var(--ink-900); line-height: 1; }
+  .summary-card .sum-unit { font-size: 11px; color: var(--ink-400); margin-top: 3px; }
+  .summary-card .sum-pct { font-size: 12px; margin-top: 6px; }
+  .summary-total {
+    background: var(--green-900); border-radius: 12px; padding: 24px 28px;
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 18px; position: relative; overflow: hidden;
+  }
+  .summary-total::after {
+    content: ''; position: absolute; right: -20px; top: -20px;
+    width: 160px; height: 160px; border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+  .summary-total::before {
+    content: ''; position: absolute; right: 60px; top: 40px;
+    width: 80px; height: 80px; border-radius: 50%;
+    background: rgba(232,160,32,0.12);
+  }
+  .summary-total .st-label { font-size: 14px; color: rgba(255,255,255,0.6); font-weight: 500; }
+  .summary-total .st-val { font-size: 36px; font-weight: 800; color: #fff; line-height: 1; }
+  .summary-total .st-unit { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+
+  /* ── PATHWAY / DECARBONISATION ──────────── */
+  .pathway-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid var(--ink-100);
+  }
+  .pathway-row:last-child { border-bottom: none; }
+  .pathway-year { font-size: 12px; font-weight: 600; color: var(--ink-900); min-width: 50px; }
+  .pathway-bar-wrap { flex: 1; }
+  .pathway-bar { height: 10px; border-radius: 99px; transition: width 0.4s ease; }
+  .pathway-bar.current { background: var(--green-500); }
+  .pathway-bar.target { background: var(--amber-500); opacity: 0.6; }
+  .pathway-val { font-size: 11px; color: var(--ink-600); min-width: 60px; text-align: right; }
+
+  /* ── FORM ELEMENTS ─────────────────────── */
+  select {
+    padding: 5px 8px; border: 1px solid var(--ink-200);
+    border-radius: 6px; font-size: 12px; font-family: 'Inter', sans-serif;
+    color: var(--ink-900); background: var(--white); outline: none;
+    width: 100%;
+  }
+  select:focus { border-color: var(--green-500); box-shadow: 0 0 0 2px rgba(29,158,117,0.12); }
+  .input-hint { font-size: 10px; color: var(--ink-400); margin-top: 2px; }
+
+  /* ── BADGES ─────────────────────────────── */
+  .badge {
+    display: inline-flex; align-items: center; font-size: 10px; font-weight: 600;
+    padding: 2px 8px; border-radius: 99px;
+  }
+  .badge-green { background: var(--green-100); color: var(--green-800); }
+  .badge-amber { background: var(--amber-100); color: #7A5000; }
+  .badge-blue { background: #EBF4FF; color: #1A5FA8; }
+  .badge-red { background: var(--red-100); color: #8B1A14; }
+  .badge-gray { background: var(--ink-100); color: var(--ink-600); }
+
+  /* ── PILLS ───────────────────────────────── */
+  .pill-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pill {
+    font-size: 11px; padding: 4px 12px; border-radius: 99px;
+    border: 1px solid var(--ink-200); cursor: pointer; color: var(--ink-600);
+    background: var(--white); font-weight: 500; transition: all 0.2s ease;
+  }
+  .pill:hover { border-color: var(--green-500); color: var(--green-700); }
+  .pill.active { background: var(--green-700); color: #fff; border-color: var(--green-700); }
+
+  /* ── ALERT ──────────────────────────────── */
+  .alert { border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; display: flex; align-items: flex-start; gap: 10px; font-size: 12px; }
+  .alert-green { background: var(--green-50); border: 1px solid rgba(29,158,117,0.3); color: var(--ink-600); }
+  .alert-amber { background: var(--amber-50); border: 1px solid rgba(232,160,32,0.3); color: var(--ink-600); }
+  .alert-red { background: var(--red-100); border: 1px solid rgba(192,57,43,0.3); color: var(--ink-600); }
+  .alert strong { color: var(--ink-900); font-weight: 600; display: block; margin-bottom: 2px; }
+  .alert svg { flex-shrink: 0; margin-top: 1px; }
+
+  /* ── PROGRESS BAR ───────────────────────── */
+  .prog-row { margin-bottom: 10px; }
+  .prog-header { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; }
+  .prog-header span:first-child { color: var(--ink-600); }
+  .prog-header span:last-child { font-weight: 600; color: var(--ink-900); }
+  .prog-track { height: 6px; background: var(--ink-100); border-radius: 99px; overflow: hidden; }
+  .prog-fill { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
+  .fill-red { background: var(--red-500); }
+  .fill-blue { background: #378ADD; }
+  .fill-amber { background: var(--amber-500); }
+
+  /* ── EQUIVALENCIES ──────────────────────── */
+  .equiv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .equiv-card {
+    text-align: center; padding: 14px 10px; border-radius: 8px;
+    background: var(--surface); border: 1px solid var(--ink-100);
+  }
+  .equiv-icon { font-size: 24px; margin-bottom: 6px; }
+  .equiv-val { font-size: 16px; font-weight: 700; color: var(--ink-900); }
+  .equiv-label { font-size: 10px; color: var(--ink-400); margin-top: 2px; }
+
+  /* ── TOAST ──────────────────────────────── */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 999;
+    background: var(--green-900); color: #fff; padding: 10px 18px;
+    border-radius: 8px; font-size: 13px; font-weight: 500;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    opacity: 0; transform: translateY(8px);
+    transition: all 0.25s; pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); animation: bounceIn 0.4s cubic-bezier(.22,.61,.36,1); }
+
+  /* ── TABLE ──────────────────────────────── */
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { font-size: 10px; font-weight: 600; color: var(--ink-400); text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--ink-200); }
+  td { padding: 8px 10px; font-size: 12px; color: var(--ink-600); border-bottom: 1px solid var(--ink-100); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface); }
+  td strong { color: var(--ink-900); font-weight: 500; }
+
+  /* ── UTILITY ────────────────────────────── */
+  .text-sm { font-size: 12px; }
+  .text-xs { font-size: 11px; }
+  .text-muted { color: var(--ink-400); }
+  .fw-600 { font-weight: 600; }
+  .flex { display: flex; }
+  .flex-between { display: flex; justify-content: space-between; align-items: center; }
+  .gap-8 { gap: 8px; }
+  .gap-12 { gap: 12px; }
+  .mt-8 { margin-top: 8px; }
+  .mt-16 { margin-top: 16px; }
+  .mb-16 { margin-bottom: 16px; }
+  .divider { border: none; border-top: 1px solid var(--ink-200); margin: 16px 0; }
+
+  @keyframes ripple { to { transform: scale(4); opacity: 0; } }
+
+  /* responsive */
+  @media (max-width: 900px) {
+    .sidebar { width: 56px; }
+    .logo-sub, .nav-item span, .sidebar-label, .company-name, .company-meta { display: none; }
+    .logo-mark { font-size: 14px; }
+    .kpi-grid, .summary-grid { grid-template-columns: 1fr 1fr; }
+    .two-col, .equiv-grid { grid-template-columns: 1fr 1fr; }
+    .calc-row { grid-template-columns: 1fr 100px 60px 80px; gap: 6px; }
+    .s3-cat-body .calc-row { grid-template-columns: 1fr 100px 60px 80px; }
+  }
+  @media (max-width: 600px) {
+    .kpi-grid, .summary-grid, .equiv-grid { grid-template-columns: 1fr; }
+    .two-col { grid-template-columns: 1fr; }
+  }
+
+  /* Chart container */
+  .chart-container { position: relative; height: 220px; margin-top: 10px; }
+
+  /* ── ASSURANCE / AUDIT ──────────────────── */
+  .audit-progress { display: flex; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; }
+  .audit-progress-card {
+    flex: 1; min-width: 160px; border-radius: 10px; padding: 16px;
+    border: 1px solid var(--ink-200); background: var(--white);
+    text-align: center;
+  }
+  .audit-progress-card .ap-label { font-size: 10px; color: var(--ink-400); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 4px; }
+  .audit-progress-card .ap-val { font-size: 28px; font-weight: 700; line-height: 1; }
+  .audit-progress-card .ap-sub { font-size: 11px; color: var(--ink-400); margin-top: 3px; }
+
+  .audit-score-ring { width: 100px; height: 100px; position: relative; margin: 0 auto 8px; }
+  .audit-score-ring svg { transform: rotate(-90deg); }
+  .audit-score-ring-val {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    font-size: 22px; font-weight: 700; color: var(--ink-900);
+  }
+
+  .audit-category { margin-bottom: 16px; }
+  .audit-cat-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 14px; background: var(--surface); border-radius: 8px;
+    cursor: pointer; user-select: none; margin-bottom: 8px;
+    border: 1px solid var(--ink-100); transition: all 0.15s;
+  }
+  .audit-cat-header:hover { border-color: var(--green-300); }
+  .audit-cat-name { font-size: 12px; font-weight: 600; color: var(--ink-900); display: flex; align-items: center; gap: 8px; }
+  .audit-cat-progress { font-size: 11px; color: var(--ink-400); display: flex; align-items: center; gap: 8px; }
+  .audit-cat-progress .prog-track { width: 60px; height: 5px; }
+  .audit-cat-body { padding: 0 4px; }
+  .audit-cat.collapsed .audit-cat-body { display: none; }
+  .audit-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 9px 12px; border-radius: 6px;
+    border: 1px solid var(--ink-100); margin-bottom: 4px;
+    transition: all 0.15s;
+  }
+  .audit-item:hover { background: var(--surface); border-color: var(--green-300); }
+  .audit-item input[type="checkbox"] {
+    margin-top: 2px; accent-color: var(--green-500); flex-shrink: 0;
+  }
+  .audit-item-content { flex: 1; min-width: 0; }
+  .audit-item-title { font-size: 12px; font-weight: 500; color: var(--ink-900); }
+  .audit-item-desc { font-size: 10px; color: var(--ink-400); margin-top: 1px; }
+  .audit-item.done { background: var(--green-50); border-color: var(--green-200); }
+  .audit-item.done .audit-item-title { color: var(--green-700); }
+  .audit-item-badge { font-size: 9px; padding: 1px 7px; border-radius: 99px; font-weight: 600; flex-shrink: 0; margin-left: auto; }
+  .badge-critical { background: var(--red-100); color: var(--red-500); }
+  .badge-important { background: var(--amber-100); color: #7A5000; }
+  .badge-standard { background: var(--green-100); color: var(--green-800); }
+  .badge-optional { background: var(--ink-100); color: var(--ink-600); }
+
+  .audit-summary-card {
+    border-radius: 10px; padding: 18px 20px; margin-bottom: 14px;
+    display: flex; align-items: center; justify-content: space-between;
+    border: 1px solid var(--ink-200);
+  }
+  .audit-summary-card.ready { background: linear-gradient(135deg, var(--green-50), #fff); border-color: var(--green-300); }
+  .audit-summary-card.almost { background: linear-gradient(135deg, var(--amber-50), #fff); border-color: rgba(232,160,32,0.3); }
+  .audit-summary-card.gap { background: linear-gradient(135deg, var(--red-100), #fff); border-color: rgba(192,57,43,0.2); }
+
+  .audit-evidence-btn {
+    font-size: 10px; padding: 3px 9px; border-radius: 6px;
+    border: 1px solid var(--ink-200); background: var(--white); cursor: pointer;
+    color: var(--ink-600); transition: all 0.15s;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .audit-evidence-btn:hover { border-color: var(--green-500); color: var(--green-700); }
+  .audit-evidence-btn.has-evidence { background: var(--green-50); border-color: var(--green-300); color: var(--green-700); }
+
+  .template-download {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--green-700); cursor: pointer;
+    padding: 6px 12px; border-radius: 6px; border: 1px solid var(--green-200);
+    background: var(--green-50); transition: all 0.15s;
+  }
+  .template-download:hover { background: var(--green-100); transform: translateY(-1px); }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ── SIDEBAR ── -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">Mazingira<span>.</span></div>
+      <div class="logo-sub">Emissions Calculator</div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Navigate</div>
+      <a class="nav-item" href="mazingira-esg.html">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        <span>Back to Dashboard</span>
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Carbon Tools</div>
+      <button class="nav-item active" onclick="showScope('scope1')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span>Scope 1 · Direct</span>
+      </button>
+      <button class="nav-item" onclick="showScope('scope2')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>Scope 2 · Energy</span>
+      </button>
+      <button class="nav-item" onclick="showScope('scope3')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span>Scope 3 · Value Chain</span>
+      </button>
+      <button class="nav-item" onclick="showScope('summary')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        <span>Summary &amp; Report</span>
+      </button>
+      <button class="nav-item" onclick="showScope('assurance')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <span>Assurance &amp; Audit</span>
+      </button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Actions</div>
+      <button class="nav-item" onclick="exportEmissionsCSV()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>Export CSV</span>
+      </button>
+      <button class="nav-item" onclick="saveEmissionsData()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        <span>Save to Dashboard</span>
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="company-pill" onclick="window.location.href='mazingira-esg.html'">
+        <div class="company-avatar">AK</div>
+        <div>
+          <div class="company-name" id="sidebar-company">Acacia Kenya Ltd</div>
+          <div class="company-meta">NSE Listed · Carbon Calculator</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── MAIN ── -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green-700)" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        Scope 1, 2 &amp; 3 Emissions Calculator
+        <span class="topbar-tag">GHG Protocol</span>
+      </div>
+      <div class="topbar-right">
+        <span class="text-sm text-muted" id="last-saved">Not saved</span>
+        <button class="btn btn-secondary btn-sm" onclick="resetAll()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Reset
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="saveEmissionsData()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Save
+        </button>
+        <button class="btn btn-amber btn-sm" onclick="exportEmissionsCSV()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export
+        </button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ═══════════ KPI ROW ═══════════ -->
+      <div class="kpi-grid reveal">
+        <div class="kpi-card">
+          <div class="kpi-label">Total Emissions</div>
+          <div class="kpi-val" id="kpi-total" style="color:var(--green-700)">0</div>
+          <div class="kpi-unit">tCO₂e · all scopes</div>
+          <div class="kpi-delta" id="kpi-trend">Enter data to calculate</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Scope 1</div>
+          <div class="kpi-val" id="kpi-s1" style="color:var(--red-500)">0</div>
+          <div class="kpi-unit">tCO₂e · direct sources</div>
+          <div class="kpi-delta" id="kpi-s1-pct"></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Scope 2</div>
+          <div class="kpi-val" id="kpi-s2" style="color:#378ADD">0</div>
+          <div class="kpi-unit">tCO₂e · purchased energy</div>
+          <div class="kpi-delta" id="kpi-s2-pct"></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Scope 3</div>
+          <div class="kpi-val" id="kpi-s3" style="color:var(--amber-500)">0</div>
+          <div class="kpi-unit">tCO₂e · value chain</div>
+          <div class="kpi-delta" id="kpi-s3-pct"></div>
+        </div>
+      </div>
+
+      <!-- ═══════════ SCOPE TABS ═══════════ -->
+      <div class="scope-tabs reveal">
+        <button class="scope-tab active" onclick="showScope('scope1')">
+          Scope 1 · Direct
+          <span class="tab-count" id="s1-count">0 t</span>
+        </button>
+        <button class="scope-tab" onclick="showScope('scope2')">
+          Scope 2 · Energy
+          <span class="tab-count" id="s2-count">0 t</span>
+        </button>
+        <button class="scope-tab" onclick="showScope('scope3')">
+          Scope 3 · Value Chain
+          <span class="tab-count" id="s3-count">0 t</span>
+        </button>
+        <button class="scope-tab" onclick="showScope('summary')">
+          Summary &amp; Report
+          <span class="tab-count" id="sum-count">Total</span>
+        </button>
+        <button class="scope-tab" onclick="showScope('assurance')">
+          Assurance
+          <span class="tab-count" id="audit-count">0%</span>
+        </button>
+      </div>
+
+      <!-- ═══════════ SCOPE 1 PANEL ═══════════ -->
+      <div id="panel-scope1" class="scope-panel active">
+
+        <div class="alert alert-green reveal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green-700)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div><strong>Scope 1 — Direct GHG Emissions (GRI 305-1)</strong>
+          Direct emissions from sources owned or controlled by your organisation. Includes stationary combustion (boilers, generators), mobile combustion (fleet vehicles), fugitive emissions (refrigerants, methane leaks), and process emissions. Emission factors below are tailored to the Kenyan context.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">A · Stationary Combustion <span class="badge badge-green">Fuel use</span></div>
+          <div class="calc-row">
+            <div class="calc-label">Natural gas <span class="calc-sub">for boilers, heating</span></div>
+            <div class="calc-input"><input type="number" id="s1-gas-m3" placeholder="0" oninput="calcScope1()" step="1"></div>
+            <div class="calc-factor">× 0.0021 t/m³</div>
+            <div class="calc-result" id="s1-gas-result">0.00</div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Diesel (generators) <span class="calc-sub">emergency / backup gen sets</span></div>
+            <div class="calc-input"><input type="number" id="s1-diesel-l" placeholder="0" oninput="calcScope1()" step="1"></div>
+            <div class="calc-factor">× 0.00268 t/L</div>
+            <div class="calc-result" id="s1-diesel-result">0.00</div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">LPG <span class="calc-sub">catering, heating</span></div>
+            <div class="calc-input"><input type="number" id="s1-lpg-kg" placeholder="0" oninput="calcScope1()" step="1"></div>
+            <div class="calc-factor">× 0.00301 t/kg</div>
+            <div class="calc-result" id="s1-lpg-result">0.00</div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Biomass / wood <span class="calc-sub">industrial heating, process</span></div>
+            <div class="calc-input"><input type="number" id="s1-biomass-t" placeholder="0" oninput="calcScope1()" step="1"></div>
+            <div class="calc-factor">× 0.112 t/tonne</div>
+            <div class="calc-result" id="s1-biomass-result">0.00</div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Heavy Fuel Oil (HFO) <span class="calc-sub">industrial boilers</span></div>
+            <div class="calc-input"><input type="number" id="s1-hfo-l" placeholder="0" oninput="calcScope1()" step="1"></div>
+            <div class="calc-factor">× 0.00317 t/L</div>
+            <div class="calc-result" id="s1-hfo-result">0.00</div>
+          </div>
+          <div class="calc-total">
+            <div><div class="calc-total-label">Stationary Subtotal</div></div>
+            <div style="text-align:right">
+              <div class="calc-total-val" id="s1-stationary-total">0.00</div>
+              <div class="calc-total-sub">tCO₂e</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">B · Mobile Combustion <span class="badge badge-blue">Fleet vehicles</span></div>
+          <div class="calc-row">
+            <div class="calc-label">Petrol cars <span class="calc-sub">company fleet</span></div>
+            <div class="calc-input"><input type="number" id="s1-petrol-l" placeholder="0" oninput="calcScope1()" step="1"></div>
+            <div class="calc-factor">× 0.0023 t/L</div>
+            <div class="calc-result" id="s1-petrol-result">0.00</div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Diesel vehicles <span class="calc-sub">trucks, vans, buses</span></div>
+            <div class="calc-input"><input type="number" id="s1-diesel-v-l" placeholder="0" oninput="calcScope1()" step="1"></div>
+            <div class="calc-factor">× 0.00268 t/L</div>
+            <div class="calc-result" id="s1-diesel-v-result">0.00</div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Jet fuel / aviation <span class="calc-sub">company aircraft</span></div>
+            <div class="calc-input"><input type="number" id="s1-jet-l" placeholder="0" oninput="calcScope1()" step="1"></div>
+            <div class="calc-factor">× 0.00254 t/L</div>
+            <div class="calc-result" id="s1-jet-result">0.00</div>
+          </div>
+          <div class="calc-total">
+            <div><div class="calc-total-label">Mobile Subtotal</div></div>
+            <div style="text-align:right">
+              <div class="calc-total-val" id="s1-mobile-total">0.00</div>
+              <div class="calc-total-sub">tCO₂e</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">C · Fugitive Emissions <span class="badge badge-amber">Refrigerants &amp; leaks</span></div>
+          <div class="calc-row">
+            <div class="calc-label">R-134a refrigerant <span class="calc-sub">HVAC, chillers</span></div>
+            <div class="calc-input"><input type="number" id="s1-r134a-kg" placeholder="0" oninput="calcScope1()" step="0.1"></div>
+            <div class="calc-factor">× 1,430 GWP</div>
+            <div class="calc-result" id="s1-r134a-result">0.00</div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">R-410A refrigerant <span class="calc-sub">modern AC units</span></div>
+            <div class="calc-input"><input type="number" id="s1-r410a-kg" placeholder="0" oninput="calcScope1()" step="0.1"></div>
+            <div class="calc-factor">× 2,088 GWP</div>
+            <div class="calc-result" id="s1-r410a-result">0.00</div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">R-32 refrigerant <span class="calc-sub">newer split systems</span></div>
+            <div class="calc-input"><input type="number" id="s1-r32-kg" placeholder="0" oninput="calcScope1()" step="0.1"></div>
+            <div class="calc-factor">× 675 GWP</div>
+            <div class="calc-result" id="s1-r32-result">0.00</div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Methane leaks <span class="calc-sub">landfills, biogas, mining</span></div>
+            <div class="calc-input"><input type="number" id="s1-ch4-kg" placeholder="0" oninput="calcScope1()" step="1"></div>
+            <div class="calc-factor">× 0.028 t/kg</div>
+            <div class="calc-result" id="s1-ch4-result">0.00</div>
+          </div>
+          <div class="calc-total">
+            <div><div class="calc-total-label">Fugitive Subtotal</div></div>
+            <div style="text-align:right">
+              <div class="calc-total-val" id="s1-fugitive-total">0.00</div>
+              <div class="calc-total-sub">tCO₂e</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">D · Process Emissions <span class="badge badge-red">Industrial</span></div>
+          <div class="calc-row">
+            <div class="calc-label">Cement / clinker production <span class="calc-sub">calcination process</span></div>
+            <div class="calc-input"><input type="number" id="s1-cement-t" placeholder="0" oninput="calcScope1()" step="1"></div>
+            <div class="calc-factor">× 0.525 t/t</div>
+            <div class="calc-result" id="s1-cement-result">0.00</div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Chemical processes <span class="calc-sub">ammonia, nitric acid, etc.</span></div>
+            <div class="calc-input"><input type="number" id="s1-chemical-t" placeholder="0" oninput="calcScope1()" step="1"></div>
+            <div class="calc-factor">× 1.5 t/t (est.)</div>
+            <div class="calc-result" id="s1-chemical-result">0.00</div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Other industrial processes</div>
+            <div class="calc-input"><input type="number" id="s1-industry-t" placeholder="0" oninput="calcScope1()" step="1"></div>
+            <div class="calc-factor">× User factor</div>
+            <div class="calc-result" id="s1-industry-result">0.00</div>
+          </div>
+          <div class="calc-total">
+            <div><div class="calc-total-label">Process Subtotal</div></div>
+            <div style="text-align:right">
+              <div class="calc-total-val" id="s1-process-total">0.00</div>
+              <div class="calc-total-sub">tCO₂e</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="background:var(--green-50);border-color:var(--green-300)">
+          <div class="card-title" style="color:var(--green-800)">Scope 1 Total</div>
+          <div class="flex-between">
+            <div>
+              <div class="text-sm text-muted">Sum of stationary + mobile + fugitive + process emissions</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:28px;font-weight:700;color:var(--green-700)" id="s1-grand-total">0.00</div>
+              <div class="text-sm text-muted">tCO₂e</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ SCOPE 2 PANEL ═══════════ -->
+      <div id="panel-scope2" class="scope-panel">
+
+        <div class="alert alert-green reveal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green-700)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div><strong>Scope 2 — Indirect Energy Emissions (GRI 305-2)</strong>
+          Emissions from purchased electricity, steam, heat, and cooling. Kenya's grid is ~90% renewable (geothermal, hydro, wind, solar). Use location-based factors for NSE reporting; market-based if you purchase RECs or have PPAs.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">A · Purchased Electricity <span class="badge badge-blue">Grid</span></div>
+          <div class="calc-row">
+            <div class="calc-label">Location-based <span class="calc-sub">Kenya grid avg: 0.045 tCO₂e/MWh</span></div>
+            <div class="calc-input"><input type="number" id="s2-electricity-mwh" placeholder="0" oninput="calcScope2()" step="1"></div>
+            <div class="calc-factor">× 0.045 t/MWh</div>
+            <div class="calc-result" id="s2-electricity-result">0.00</div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Market-based <span class="calc-sub">if RECs or PPAs, use 0</span></div>
+            <div class="calc-input"><input type="number" id="s2-electricity-market-mwh" placeholder="0" oninput="calcScope2()" step="1"></div>
+            <div class="calc-factor">× 0.045 t/MWh</div>
+            <div class="calc-result" id="s2-electricity-market-result">0.00</div>
+          </div>
+          <div class="input-hint" style="margin-top:6px">Kenya grid emission factor: 0.045 tCO₂e/MWh (approx). Verify with Kenya Power & Lighting Co. for latest published factor.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">B · Purchased Steam / Heat / Cooling <span class="badge badge-amber">District energy</span></div>
+          <div class="calc-row">
+            <div class="calc-label">Purchased steam <span class="calc-sub">district heating</span></div>
+            <div class="calc-input"><input type="number" id="s2-steam-mwh" placeholder="0" oninput="calcScope2()" step="1"></div>
+            <div class="calc-factor">× 0.065 t/MWh</div>
+            <div class="calc-result" id="s2-steam-result">0.00</div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Purchased chilled water / cooling</div>
+            <div class="calc-input"><input type="number" id="s2-cooling-mwh" placeholder="0" oninput="calcScope2()" step="1"></div>
+            <div class="calc-factor">× 0.048 t/MWh</div>
+            <div class="calc-result" id="s2-cooling-result">0.00</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">C · On-site Renewable Generation <span class="badge badge-green">Owned solar</span></div>
+          <div class="calc-row">
+            <div class="calc-label">Solar PV generation <span class="calc-sub">rooftop or ground-mount</span></div>
+            <div class="calc-input"><input type="number" id="s2-solar-mwh" placeholder="0" oninput="calcScope2()" step="1"></div>
+            <div class="calc-factor">Grid displaced: 0.045 t/MWh</div>
+            <div class="calc-result" id="s2-solar-result">0.00</div>
+          </div>
+          <div class="input-hint">Solar generation reduces Scope 2 by displacing grid electricity. Enter MWh generated.</div>
+        </div>
+
+        <div class="card" style="background:var(--green-50);border-color:var(--green-300)">
+          <div class="card-title" style="color:var(--green-800)">Scope 2 Total (location-based)</div>
+          <div class="flex-between">
+            <div>
+              <div class="text-sm text-muted">Electricity + steam + cooling, minus solar displacement</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:28px;font-weight:700;color:#378ADD" id="s2-grand-total">0.00</div>
+              <div class="text-sm text-muted">tCO₂e</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ SCOPE 3 PANEL ═══════════ -->
+      <div id="panel-scope3" class="scope-panel">
+
+        <div class="alert alert-amber reveal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--amber-500)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div><strong>Scope 3 — Value Chain Emissions (GRI 305-3)</strong>
+          All 15 categories per GHG Protocol Corporate Value Chain Standard. For NSE-listed companies, categories 1, 3, 4, 6, and 7 are typically the most material. Focus on these first, then expand.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            Scope 3 Category Breakdown
+            <span class="badge badge-gray" id="s3-cats-count">0 of 15 active</span>
+          </div>
+
+          <div id="s3-categories">
+            <!-- Categories are rendered by JS -->
+          </div>
+
+          <hr class="divider">
+          <div class="flex-between">
+            <div><span class="fw-600">Scope 3 Total</span><br><span class="text-muted text-xs">Selected categories only</span></div>
+            <div style="text-align:right">
+              <div style="font-size:24px;font-weight:700;color:var(--amber-500)" id="s3-grand-total">0.00</div>
+              <div class="text-sm text-muted">tCO₂e</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ SUMMARY PANEL ═══════════ -->
+      <div id="panel-summary" class="scope-panel">
+
+        <div class="summary-total reveal">
+          <div>
+            <div class="st-label">Total Carbon Footprint</div>
+            <div class="st-val" id="summary-grand-total">0</div>
+            <div class="st-unit">tonnes CO₂ equivalent (tCO₂e) · all scopes</div>
+          </div>
+          <div style="text-align:right;position:relative;z-index:2">
+            <div class="st-label">Per Unit Revenue</div>
+            <div class="st-val" style="font-size:22px" id="summary-intensity">—</div>
+            <div class="st-unit">tCO₂e / KES M</div>
+          </div>
+        </div>
+
+        <div class="summary-grid reveal">
+          <div class="summary-card s1">
+            <div class="sum-label">Scope 1 · Direct</div>
+            <div class="sum-val" id="sum-s1">0</div>
+            <div class="sum-unit">tCO₂e</div>
+            <div class="sum-pct text-sm" id="sum-s1-pct"></div>
+          </div>
+          <div class="summary-card s2">
+            <div class="sum-label">Scope 2 · Energy</div>
+            <div class="sum-val" id="sum-s2">0</div>
+            <div class="sum-unit">tCO₂e</div>
+            <div class="sum-pct text-sm" id="sum-s2-pct"></div>
+          </div>
+          <div class="summary-card s3">
+            <div class="sum-label">Scope 3 · Value Chain</div>
+            <div class="sum-val" id="sum-s3">0</div>
+            <div class="sum-unit">tCO₂e</div>
+            <div class="sum-pct text-sm" id="sum-s3-pct"></div>
+          </div>
+        </div>
+
+        <div class="two-col reveal">
+          <div class="card">
+            <div class="card-title">Emissions by Scope</div>
+            <div class="chart-container">
+              <canvas id="chart-pie"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">CO₂ Equivalencies</div>
+            <div class="equiv-grid">
+              <div class="equiv-card">
+                <div class="equiv-icon">🛫</div>
+                <div class="equiv-val" id="eq-flights">0</div>
+                <div class="equiv-label">NBO–LHR return flights</div>
+              </div>
+              <div class="equiv-card">
+                <div class="equiv-icon">🚗</div>
+                <div class="equiv-val" id="eq-cars">0</div>
+                <div class="equiv-label">Cars off road for 1 year</div>
+              </div>
+              <div class="equiv-card">
+                <div class="equiv-icon">🌳</div>
+                <div class="equiv-val" id="eq-trees">0</div>
+                <div class="equiv-label">Tree seedlings grown 10 yrs</div>
+              </div>
+              <div class="equiv-card">
+                <div class="equiv-icon">🏠</div>
+                <div class="equiv-val" id="eq-homes">0</div>
+                <div class="equiv-label">Households' energy/yr</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card reveal">
+          <div class="card-title">Decarbonisation Pathway <span class="badge badge-green">Net Zero 2050</span></div>
+          <div class="chart-container" style="height:240px">
+            <canvas id="chart-pathway"></canvas>
+          </div>
+          <div class="mt-8">
+            <div class="calc-row">
+              <div class="calc-label">Annual reduction target (%)</div>
+              <div class="calc-input"><input type="number" id="target-pct" value="5" oninput="drawPathway()" min="0" max="100" step="0.5"></div>
+              <div class="calc-factor">target/yr</div>
+              <div class="calc-result" id="target-year-val">2050</div>
+            </div>
+            <div class="flex-between mt-8">
+              <div class="text-xs text-muted">Projection assumes linear reduction from current baseline toward net zero by 2050.</div>
+              <div><span class="badge badge-gray" id="pathway-status">Adjust target above</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card reveal">
+          <div class="card-title">Emissions by Category — Full Breakdown</div>
+          <table>
+            <thead>
+              <tr><th>Scope / Category</th><th>tCO₂e</th><th>Share</th><th>Status</th></tr>
+            </thead>
+            <tbody id="breakdown-table">
+              <tr><td colspan="4" class="text-muted" style="text-align:center">Enter emissions data in Scope 1, 2 & 3 tabs</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══════════ ASSURANCE / AUDIT PANEL ═══════════ -->
+      <div id="panel-assurance" class="scope-panel">
+
+        <div class="alert alert-green reveal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green-700)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div><strong>GHG Protocol Assurance &amp; Audit Readiness</strong>
+          Complete this checklist to assess your inventory's readiness for internal audit or third-party verification. Covers organisational boundary, methodology, data quality, documentation, and assurance preparation per ISO 14064-3 and GHG Protocol Verification Guidance. Each item checked brings you closer to limited or reasonable assurance.</div>
+        </div>
+
+        <!-- ── AUDIT SCORE CARDS ── -->
+        <div class="audit-progress reveal">
+          <div class="audit-progress-card">
+            <div class="ap-label">Assurance Readiness</div>
+            <div class="audit-score-ring">
+              <svg width="100" height="100" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="42" fill="none" stroke="var(--ink-100)" stroke-width="8"/>
+                <circle id="audit-score-arc" cx="50" cy="50" r="42" fill="none" stroke="var(--green-500)" stroke-width="8" stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="263.9" transform="rotate(-90 50 50)"/>
+                <text id="audit-score-text" x="50" y="56" text-anchor="middle" font-size="20" font-weight="700" fill="var(--ink-900)">0%</text>
+              </svg>
+            </div>
+            <div class="ap-sub" id="audit-score-label">Not started — 0 of 0 items</div>
+          </div>
+          <div class="audit-progress-card">
+            <div class="ap-label">Critical Items</div>
+            <div class="ap-val" id="audit-critical-count" style="color:var(--red-500)">0</div>
+            <div class="ap-sub">remaining for assurance sign-off</div>
+          </div>
+          <div class="audit-progress-card">
+            <div class="ap-label">Documentation</div>
+            <div class="ap-val" id="audit-doc-count" style="color:var(--amber-500)">0%</div>
+            <div class="ap-sub">evidence completeness</div>
+          </div>
+          <div class="audit-progress-card">
+            <div class="ap-label">Data Quality</div>
+            <div class="ap-val" id="audit-dq-label" style="color:var(--amber-500)">Tier 1</div>
+            <div class="ap-sub">highest data tier achieved</div>
+          </div>
+        </div>
+
+        <div class="audit-summary-card reveal" id="audit-status-card">
+          <div>
+            <div class="fw-600" id="audit-status-title" style="font-size:14px">Complete the checklist below to assess your assurance readiness</div>
+            <div class="text-sm text-muted mt-8" id="audit-status-desc">Start by checking off items you have already completed. Critical items are required for third-party verification.</div>
+          </div>
+          <div>
+            <button class="btn btn-secondary btn-sm" onclick="exportAuditReport()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export Checklist
+            </button>
+          </div>
+        </div>
+
+        <!-- ── AUDIT CATEGORIES ── -->
+        <div class="card" id="audit-checklist-container">
+          <div class="card-title">
+            <span>Audit Readiness Checklist</span>
+            <div style="display:flex;gap:6px">
+              <span class="badge badge-red" id="audit-pill-critical">0 critical</span>
+              <span class="badge badge-amber" id="audit-pill-important">0 important</span>
+              <span class="badge badge-green" id="audit-pill-done">0 done</span>
+            </div>
+          </div>
+          <div id="audit-checklist">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <div class="two-col reveal">
+          <div class="card">
+            <div class="card-title">
+              Data Quality Assessment
+              <span class="badge badge-gray">Tier 1–3</span>
+            </div>
+            <div class="text-xs text-muted mb-16">The GHG Protocol defines three tiers of data quality. Tier 1 = default factors. Tier 2 = country/region-specific. Tier 3 = site-specific / direct measurement. The goal for assurance is Tier 2+ for material sources.</div>
+            <table>
+              <thead><tr><th>Tier</th><th>Source Type</th><th>Examples</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Tier 1</strong></td><td>Default factors</td><td>IPCC defaults, DEFRA averages</td><td id="dq-tier1" class="text-muted">○</td></tr>
+                <tr><td><strong>Tier 2</strong></td><td>Country-specific</td><td>Kenya grid factor, local fuel specs</td><td id="dq-tier2" class="text-muted">○</td></tr>
+                <tr><td><strong>Tier 3</strong></td><td>Site-specific</td><td>Stack monitoring, CEMS, mass balance</td><td id="dq-tier3" class="text-muted">○</td></tr>
+              </tbody>
+            </table>
+            <div class="mt-8 text-xs text-muted">Tier determined by the <strong>highest tier achieved</strong> for your most material emission source. Verifiers typically expect Tier 2+ for >80% of total emissions.</div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              Materiality Thresholds
+              <span class="badge badge-gray">Verification</span>
+            </div>
+            <div class="text-xs text-muted mb-16">Set your materiality thresholds for verification. Items below threshold may be excluded from assurance scope. Typical ranges: 1–5% for limited assurance, 0.5–2% for reasonable assurance.</div>
+            <div class="calc-row">
+              <div class="calc-label">Limited assurance threshold</div>
+              <div class="calc-input"><input type="number" id="mat-limited" value="5" oninput="updateAuditMateriality()" min="0" max="20" step="0.5"></div>
+              <div class="calc-factor">% of total</div>
+              <div class="calc-result" id="mat-limited-tonnes">—</div>
+            </div>
+            <div class="calc-row">
+              <div class="calc-label">Reasonable assurance threshold</div>
+              <div class="calc-input"><input type="number" id="mat-reasonable" value="2" oninput="updateAuditMateriality()" min="0" max="20" step="0.5"></div>
+              <div class="calc-factor">% of total</div>
+              <div class="calc-result" id="mat-reasonable-tonnes">—</div>
+            </div>
+            <div class="calc-row">
+              <div class="calc-label">Base year emissions (tCO₂e)</div>
+              <div class="calc-input"><input type="number" id="mat-base-year" placeholder="e.g. 2020" oninput="updateAuditMateriality()" step="1"></div>
+              <div class="calc-factor">reference year</div>
+              <div class="calc-result" id="mat-base-year-val">—</div>
+            </div>
+            <hr class="divider">
+            <div class="text-xs text-muted">Sources below these thresholds may be excluded from verification scope. At 5% materiality, anything under <strong id="mat-limited-display">— tCO₂e</strong> can be excluded from limited assurance.</div>
+          </div>
+        </div>
+
+        <div class="card reveal">
+          <div class="card-title">
+            Inventory Management Plan
+            <span class="badge badge-gray">IMP documentation</span>
+          </div>
+          <div class="text-xs text-muted mb-16">A GHG Inventory Management Plan (IMP) is required for third-party verification. Use this template structure to document your inventory process. Download the checklist to use as a gap analysis tool.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div style="padding:12px;border-radius:8px;background:var(--surface);border:1px solid var(--ink-100)">
+              <div class="fw-600 text-sm mb-8" style="color:var(--green-700)">IMP Requirements</div>
+              <ul style="font-size:11px;color:var(--ink-600);line-height:1.8;padding-left:16px">
+                <li>Organisational boundary description</li>
+                <li>Operational scope (S1, S2, S3 definitions)</li>
+                <li>Base year and recalculation policy</li>
+                <li>Emission factor sources and GWP values</li>
+                <li>Data collection procedures</li>
+                <li>Quality assurance/quality control (QA/QC)</li>
+                <li>Uncertainty assessment methodology</li>
+                <li>Documentation and record retention</li>
+                <li>Management review and approval</li>
+              </ul>
+            </div>
+            <div style="padding:12px;border-radius:8px;background:var(--surface);border:1px solid var(--ink-100)">
+              <div class="fw-600 text-sm mb-8" style="color:var(--green-700)">Verification Requirements (ISO 14064-3)</div>
+              <ul style="font-size:11px;color:var(--ink-600);line-height:1.8;padding-left:16px">
+                <li>Verification scope and boundary agreed</li>
+                <li>Materiality threshold documented</li>
+                <li>Site visits and data sampling plan</li>
+                <li>Third-party verifier qualifications</li>
+                <li>Limited or reasonable assurance level</li>
+                <li>Emissions data recalculated independently</li>
+                <li>Evidence traceable to source documents</li>
+                <li>Verification opinion / assurance statement</li>
+              </ul>
+            </div>
+          </div>
+          <div class="flex gap-8 mt-16">
+            <span class="template-download" onclick="exportAuditReport()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 17 12 23 18 17"/><polyline points="6 1 6 9 18 9 18 1"/></svg>
+              Export Audit Readiness Report
+            </span>
+            <span class="template-download" onclick="saveAuditData()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              Save Audit State
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── AUDIT CHECKLIST DATA ─────────────────────────────
+var auditCategories = [
+  {id:'boundary', name:'1. Organisational & Operational Boundary',
+   items:[
+    {id:'aud-bound-1', label:'Operational control approach documented', desc:'Confirm which entities use operational control vs equity share', critical:true},
+    {id:'aud-bound-2', label:'Boundary consistent with financial statements', desc:'Inventory boundary aligns with annual report consolidation', critical:true},
+    {id:'aud-bound-3', label:'All subsidiaries & acquisitions included', desc:'New entities added promptly; divestments removed', critical:true},
+    {id:'aud-bound-4', label:'Scope 1 sources fully identified', desc:'All direct emission sources (stationary, mobile, fugitive, process) catalogued', critical:true},
+    {id:'aud-bound-5', label:'Scope 2 sources fully identified', desc:'All purchased electricity, steam, heat, cooling accounted for', critical:true},
+    {id:'aud-bound-6', label:'Scope 3 relevant categories screened', desc:'GHG Protocol screening performed; material categories identified', important:true},
+    {id:'aud-bound-7', label:'Biogenic CO2 reported separately', desc:'Biomass/biogenic emissions noted but not included in scope totals', important:true},
+    {id:'aud-bound-8', label:'All seven GHGs covered (Kyoto gases)', desc:'CO2, CH4, N2O, HFCs, PFCs, SF6, NF3 — screen for relevance', standard:true}
+  ]},
+  {id:'baseyear', name:'2. Base Year & Targets',
+   items:[
+    {id:'aud-base-1', label:'Base year established and documented', desc:'Fixed base year with verified emissions data', critical:true},
+    {id:'aud-base-2', label:'Base year recalculation policy defined', desc:'Thresholds, triggers (structural changes, methodology changes) documented', critical:true},
+    {id:'aud-base-3', label:'Significant structural changes trigger recalculation', desc:'Acquisitions, divestments, outsourcing triggers base year restatement', important:true},
+    {id:'aud-base-4', label:'Methodology changes trigger recalculation', desc:'Factor updates, methodology improvements documented and restated', important:true},
+    {id:'aud-base-5', label:'Science-based emission reduction target set', desc:'SBTi aligned, or equivalent national commitment (Kenya NDC 32% by 2030)', important:true},
+    {id:'aud-base-6', label:'Progress against target tracked & disclosed', desc:'Annual progress against target with transparent methodology', standard:true}
+  ]},
+  {id:'factors', name:'3. Emission Factors & Methodology',
+   items:[
+    {id:'aud-fact-1', label:'Factor sources documented with citations', desc:'IPCC, DEFRA, local factors — full reference list maintained', critical:true},
+    {id:'aud-fact-2', label:'Tier level noted per emission source', desc:'Tier 1, 2, or 3 documented for each significant source', critical:true},
+    {id:'aud-fact-3', label:'Local/Kenya-specific factors used where available', desc:'Kenya grid emission factor, local fuel specs preferred', important:true},
+    {id:'aud-fact-4', label:'GWP values from latest IPCC report (AR6 / AR5)', desc:'Specify which IPCC assessment report used', important:true},
+    {id:'aud-fact-5', label:'Methodology consistent year-over-year', desc:'Changes documented with justification and recalculations', important:true},
+    {id:'aud-fact-6', label:'Custom/user-defined factors documented', desc:'If using site-specific factors, derive and reference methodology', standard:true}
+  ]},
+  {id:'dataquality', name:'4. Data Quality & Uncertainty',
+   items:[
+    {id:'aud-dq-1', label:'Primary data used for >80% of emissions', desc:'Metered, measured, or directly sourced data dominates', critical:true},
+    {id:'aud-dq-2', label:'Uncertainty assessment performed', desc:'Quantitative or qualitative uncertainty estimate for total inventory', important:true},
+    {id:'aud-dq-3', label:'Data quality assurance procedures documented', desc:'QA/QC plan with data checks, validation rules', important:true},
+    {id:'aud-dq-4', label:'Data gaps noted and extrapolated', desc:'Any missing periods accounted for with conservative estimates', important:true},
+    {id:'aud-dq-5', label:'Third-party data sources verified', desc:'Utility bills, fuel invoices, travel records cross-checked', standard:true},
+    {id:'aud-dq-6', label:'Emission factors appropriate for source type', desc:'Factor matches activity data unit and source characteristic', standard:true},
+    {id:'aud-dq-7', label:'Double counting avoided', desc:'Especially for Scope 2 market-based vs location-based, bioenergy', critical:true}
+  ]},
+  {id:'documentation', name:'5. Documentation & Evidence',
+   items:[
+    {id:'aud-doc-1', label:'Inventory Management Plan (IMP) in place', desc:'Formal IMP document covering all inventory processes', critical:true},
+    {id:'aud-doc-2', label:'Emission source register maintained', desc:'Complete register of all sources with IDs, descriptions', critical:true},
+    {id:'aud-doc-3', label:'Activity data records retained', desc:'Utility invoices, fuel receipts, meter logs archived', important:true},
+    {id:'aud-doc-4', label:'Factor source citations complete', desc:'Full bibliographic references for every factor used', important:true},
+    {id:'aud-doc-5', label:'Calculation methodology documented per source', desc:'Step-by-step calculation documentation for each source category', important:true},
+    {id:'aud-doc-6', label:'Management review & approval evidenced', desc:'Signed-off by sustainability director or CFO', important:true},
+    {id:'aud-doc-7', label:'Record retention policy defined', desc:'Minimum 7-year retention for verification purposes', standard:true}
+  ]},
+  {id:'assurance', name:'6. Third-Party Assurance Preparation',
+   items:[
+    {id:'aud-assur-1', label:'Internal audit/review performed', desc:'Independent internal review before external verification', critical:true},
+    {id:'aud-assur-2', label:'Verification scope & boundary clearly defined', desc:'What is in/out of scope, assurance level agreed', critical:true},
+    {id:'aud-assur-3', label:'Materiality threshold documented', desc:'Set and documented per ISO 14064-3 requirements', critical:true},
+    {id:'aud-assur-4', label:'Limited assurance engagement ready', desc:'All critical items complete; data traceable', important:true},
+    {id:'aud-assur-5', label:'Reasonable assurance engagement ready', desc:'Full data trails, third-party evidence, Tier 2+ factors', standard:true},
+    {id:'aud-assur-6', label:'Verifier qualifications documented', desc:'Accreditation body, scope, competency requirements', important:true},
+    {id:'aud-assur-7', label:'Site visit schedule prepared', desc:'Key sites identified for verifier site visits', standard:true}
+  ]}
+];
+
+// ── EMISSION FACTORS (Kenya-specific where available) ─────
+var EF = {
+  // Scope 1 - Stationary
+  gas: 0.0021,        // tCO₂e per m³ natural gas
+  diesel: 0.00268,    // tCO₂e per litre diesel
+  lpg: 0.00301,       // tCO₂e per kg LPG
+  biomass: 0.112,     // tCO₂e per tonne biomass
+  hfo: 0.00317,       // tCO₂e per litre HFO
+  // Scope 1 - Mobile
+  petrol: 0.0023,     // tCO₂e per litre petrol
+  dieselV: 0.00268,   // tCO₂e per litre diesel (vehicles)
+  jet: 0.00254,       // tCO₂e per litre jet fuel
+  // Scope 1 - Fugitive - GWP values
+  r134a: 1430,        // GWP
+  r410a: 2088,        // GWP
+  r32: 675,           // GWP
+  ch4: 0.028,         // tCO₂e per kg CH₄
+  // Scope 1 - Process
+  cement: 0.525,      // tCO₂e per tonne clinker
+  chemical: 1.5,      // estimated
+  // Scope 2
+  grid: 0.045,        // tCO₂e per MWh (Kenya grid, approximate)
+  steam: 0.065,       // tCO₂e per MWh steam
+  cooling: 0.048,     // tCO₂e per MWh cooling
+  // Scope 3 - Default factors (tCO₂e per unit)
+  s3_purchased: 0.0003,      // per KES spent
+  s3_capital: 0.0002,        // per KES spent
+  s3_fuel_energy: 0.00045,   // per KES
+  s3_upstream_transport: 0.001,  // per tkm
+  s3_waste: 0.6,              // per tonne waste
+  s3_business_travel: 0.00025,   // per km
+  s3_commuting: 0.00015,         // per km
+  s3_downstream_transport: 0.001, // per tkm
+  s3_use_sold: 0.05,             // per unit
+  s3_eol: 0.2,                  // per tonne
+};
+
+// ── SCOPE 3 CATEGORY DEFINITIONS ──────────────────────
+var s3Categories = [
+  { id:'s3-cat1', name:'Cat 1 · Purchased Goods & Services', desc:'Raw materials, components, office supplies', factor:'0.0003 t/KES', factorVal:0.0003, unit:'KES M spent' },
+  { id:'s3-cat2', name:'Cat 2 · Capital Goods', desc:'Machinery, equipment, buildings', factor:'0.0002 t/KES', factorVal:0.0002, unit:'KES M spent' },
+  { id:'s3-cat3', name:'Cat 3 · Fuel & Energy (not in S1/S2)', desc:'Upstream emissions of purchased fuels', factor:'0.00045 t/KES', factorVal:0.00045, unit:'KES M' },
+  { id:'s3-cat4', name:'Cat 4 · Upstream Transportation', desc:'Logistics, shipping, inbound freight', factor:'0.001 t/tkm', factorVal:0.001, unit:'tonne-km (000s)' },
+  { id:'s3-cat5', name:'Cat 5 · Waste Generated in Operations', desc:'Landfill, incineration, recycling', factor:'0.6 t/tonne', factorVal:0.6, unit:'tonnes waste' },
+  { id:'s3-cat6', name:'Cat 6 · Business Travel', desc:'Air travel, hotel stays, rental cars', factor:'0.00025 t/km', factorVal:0.00025, unit:'passenger-km' },
+  { id:'s3-cat7', name:'Cat 7 · Employee Commuting', desc:'Staff travel to/from work', factor:'0.00015 t/km', factorVal:0.00015, unit:'commuter-km (000s)' },
+  { id:'s3-cat8', name:'Cat 8 · Upstream Leased Assets', desc:'Leased buildings, vehicles', factor:'0.0004 t/KES', factorVal:0.0004, unit:'KES M' },
+  { id:'s3-cat9', name:'Cat 9 · Downstream Transportation', desc:'Outbound logistics, distribution', factor:'0.001 t/tkm', factorVal:0.001, unit:'tonne-km (000s)' },
+  { id:'s3-cat10', name:'Cat 10 · Processing of Sold Products', desc:'Further processing by customers', factor:'0.05 t/unit', factorVal:0.05, unit:'units processed' },
+  { id:'s3-cat11', name:'Cat 11 · Use of Sold Products', desc:'Energy/emissions from product use', factor:'0.05 t/unit', factorVal:0.05, unit:'units sold' },
+  { id:'s3-cat12', name:'Cat 12 · End-of-Life Treatment', desc:'Disposal, recycling of sold products', factor:'0.2 t/tonne', factorVal:0.2, unit:'tonnes disposed' },
+  { id:'s3-cat13', name:'Cat 13 · Downstream Leased Assets', desc:'Leased assets to others', factor:'0.0003 t/KES', factorVal:0.0003, unit:'KES M' },
+  { id:'s3-cat14', name:'Cat 14 · Franchises', desc:'Franchise operations', factor:'0.00025 t/KES', factorVal:0.00025, unit:'KES M revenue' },
+  { id:'s3-cat15', name:'Cat 15 · Investments', desc:'Equity investments, project finance', factor:'0.0002 t/KES', factorVal:0.0002, unit:'KES M invested' },
+];
+
+// ── GLOBALS ──────────────────────────────────────────
+var chartPie = null;
+var chartPathway = null;
+
+// ── SCOPE 1 CALCULATION ─────────────────────────────
+function calcScope1() {
+  // Stationary
+  function getVal(id) { return parseFloat(document.getElementById(id)?.value) || 0; }
+
+  var gas = getVal('s1-gas-m3') * EF.gas;
+  var diesel = getVal('s1-diesel-l') * EF.diesel;
+  var lpg = getVal('s1-lpg-kg') * EF.lpg;
+  var biomass = getVal('s1-biomass-t') * EF.biomass;
+  var hfo = getVal('s1-hfo-l') * EF.hfo;
+  setRes('s1-gas-result', gas);
+  setRes('s1-diesel-result', diesel);
+  setRes('s1-lpg-result', lpg);
+  setRes('s1-biomass-result', biomass);
+  setRes('s1-hfo-result', hfo);
+  var stationary = gas + diesel + lpg + biomass + hfo;
+  setRes('s1-stationary-total', stationary);
+
+  // Mobile
+  var petrol = getVal('s1-petrol-l') * EF.petrol;
+  var dieselV = getVal('s1-diesel-v-l') * EF.dieselV;
+  var jet = getVal('s1-jet-l') * EF.jet;
+  setRes('s1-petrol-result', petrol);
+  setRes('s1-diesel-v-result', dieselV);
+  setRes('s1-jet-result', jet);
+  var mobile = petrol + dieselV + jet;
+  setRes('s1-mobile-total', mobile);
+
+  // Fugitive
+  var r134a = getVal('s1-r134a-kg') * EF.r134a / 1000;
+  var r410a = getVal('s1-r410a-kg') * EF.r410a / 1000;
+  var r32 = getVal('s1-r32-kg') * EF.r32 / 1000;
+  var ch4 = getVal('s1-ch4-kg') * EF.ch4;
+  setRes('s1-r134a-result', r134a);
+  setRes('s1-r410a-result', r410a);
+  setRes('s1-r32-result', r32);
+  setRes('s1-ch4-result', ch4);
+  var fugitive = r134a + r410a + r32 + ch4;
+  setRes('s1-fugitive-total', fugitive);
+
+  // Process
+  var cement = getVal('s1-cement-t') * EF.cement;
+  var chemical = getVal('s1-chemical-t') * EF.chemical;
+  var industry = getVal('s1-industry-t');
+  setRes('s1-cement-result', cement);
+  setRes('s1-chemical-result', chemical);
+  setRes('s1-industry-result', industry);
+  var process = cement + chemical + industry;
+  setRes('s1-process-total', process);
+
+  var totalS1 = stationary + mobile + fugitive + process;
+  setRes('s1-grand-total', totalS1);
+
+  // Update KPIs
+  updateKPIs();
+  updateScopeTabs();
+}
+
+// ── SCOPE 2 CALCULATION ─────────────────────────────
+function calcScope2() {
+  function getVal(id) { return parseFloat(document.getElementById(id)?.value) || 0; }
+
+  var elec = getVal('s2-electricity-mwh') * EF.grid;
+  var elecMarket = getVal('s2-electricity-market-mwh') * EF.grid;
+  var steam = getVal('s2-steam-mwh') * EF.steam;
+  var cooling = getVal('s2-cooling-mwh') * EF.cooling;
+  var solar = getVal('s2-solar-mwh') * EF.grid; // negative = displacement
+
+  setRes('s2-electricity-result', elec);
+  setRes('s2-electricity-market-result', elecMarket);
+  setRes('s2-steam-result', steam);
+  setRes('s2-cooling-result', cooling);
+  setRes('s2-solar-result', -solar);
+
+  var totalS2 = elec + steam + cooling - solar;
+  setRes('s2-grand-total', totalS2);
+  updateKPIs();
+  updateScopeTabs();
+}
+
+// ── SCOPE 3 CALCULATION ─────────────────────────────
+function calcScope3() {
+  var totalS3 = 0;
+  var activeCount = 0;
+  var toggledOn = 0;
+
+  s3Categories.forEach(function(cat) {
+    var input = document.getElementById(cat.id + '-input');
+    var result = document.getElementById(cat.id + '-result');
+    var toggle = document.getElementById(cat.id + '-toggle');
+    if (!input || !result) return;
+
+    var isActive = toggle ? toggle.checked : true;
+    if (isActive) toggledOn++;
+    var val = parseFloat(input.value) || 0;
+    var em = val * cat.factorVal;
+
+    if (isActive && val > 0) { totalS3 += em; activeCount++; }
+    result.textContent = em.toFixed(2);
+  });
+
+  setRes('s3-grand-total', totalS3);
+  document.getElementById('s3-cats-count').textContent = activeCount + ' of ' + toggledOn + ' active'
+  updateKPIs();
+  updateScopeTabs();
+}
+
+// ── UPDATE KPIS ─────────────────────────────────────
+function updateKPIs() {
+  function getS1() { return parseFloat(document.getElementById('s1-grand-total')?.textContent) || 0; }
+  function getS2() { return parseFloat(document.getElementById('s2-grand-total')?.textContent) || 0; }
+  function getS3() { return parseFloat(document.getElementById('s3-grand-total')?.textContent) || 0; }
+
+  var s1 = getS1();
+  var s2 = getS2();
+  var s3 = getS3();
+  var total = s1 + s2 + s3;
+
+  // KPI row
+  document.getElementById('kpi-total').textContent = Math.round(total).toLocaleString();
+  document.getElementById('kpi-s1').textContent = Math.round(s1).toLocaleString();
+  document.getElementById('kpi-s2').textContent = Math.round(s2).toLocaleString();
+  document.getElementById('kpi-s3').textContent = Math.round(s3).toLocaleString();
+
+  if (total > 0) {
+    document.getElementById('kpi-s1-pct').innerHTML = s1 > 0 ? (s1/total*100).toFixed(1) + '% of total' : '—';
+    document.getElementById('kpi-s2-pct').innerHTML = s2 > 0 ? (s2/total*100).toFixed(1) + '% of total' : '—';
+    document.getElementById('kpi-s3-pct').innerHTML = s3 > 0 ? (s3/total*100).toFixed(1) + '% of total' : '—';
+    document.getElementById('kpi-trend').textContent = total > 0 ? 'Calculated live ✓' : '';
+    document.getElementById('kpi-trend').className = 'kpi-delta delta-up';
+  }
+
+  // Summary panel
+  document.getElementById('summary-grand-total').textContent = Math.round(total).toLocaleString();
+  document.getElementById('sum-s1').textContent = Math.round(s1);
+  document.getElementById('sum-s2').textContent = Math.round(s2);
+  document.getElementById('sum-s3').textContent = Math.round(s3);
+  if (total > 0) {
+    document.getElementById('sum-s1-pct').textContent = (s1/total*100).toFixed(1) + '%';
+    document.getElementById('sum-s2-pct').textContent = (s2/total*100).toFixed(1) + '%';
+    document.getElementById('sum-s3-pct').textContent = (s3/total*100).toFixed(1) + '%';
+  }
+
+  // Equivalencies
+  var flights = total / 1.8;  // NBO-LHR approx 1.8t per return
+  var cars = total / 4.6;    // avg car 4.6t/yr
+  var trees = total * 45;    // 1 tree sequesters ~0.022t/yr, 45 trees for 10yr
+  var homes = total / 6.0;   // avg home 6t/yr
+  document.getElementById('eq-flights').textContent = Math.round(flights).toLocaleString();
+  document.getElementById('eq-cars').textContent = Math.round(cars);
+  document.getElementById('eq-trees').textContent = Math.round(trees).toLocaleString();
+  document.getElementById('eq-homes').textContent = Math.round(homes);
+
+  // Breakdown table
+  renderBreakdown();
+
+  // Charts
+  drawPieChart();
+  drawPathway();
+}
+
+function setRes(id, val) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = val.toFixed(2);
+}
+
+// ── SCOPE TABS COUNTS ───────────────────────────────
+function updateScopeTabs() {
+  var s1 = parseFloat(document.getElementById('s1-grand-total')?.textContent) || 0;
+  var s2 = parseFloat(document.getElementById('s2-grand-total')?.textContent) || 0;
+  var s3 = parseFloat(document.getElementById('s3-grand-total')?.textContent) || 0;
+  document.getElementById('s1-count').textContent = Math.round(s1) + ' t';
+  document.getElementById('s2-count').textContent = Math.round(s2) + ' t';
+  document.getElementById('s3-count').textContent = Math.round(s3) + ' t';
+}
+
+// ── AUDIT CHECKLIST RENDER ──────────────────────────
+function renderAuditChecklist() {
+  var container = document.getElementById('audit-checklist');
+  if (!container) return;
+
+  container.innerHTML = auditCategories.map(function(cat) {
+    var checkedItems = cat.items.filter(function(it) { return isAuditChecked(it.id); }).length;
+    var totalItems = cat.items.length;
+    var pct = Math.round(checkedItems / totalItems * 100) || 0;
+
+    return '<div class="audit-cat" id="audit-cat-' + cat.id + '">' +
+      '<div class="audit-cat-header" onclick="toggleAuditCat(\'' + cat.id + '\')">' +
+        '<div class="audit-cat-name">' +
+          '<span>' + cat.name + '</span>' +
+          '<span class="badge badge-gray">' + checkedItems + '/' + totalItems + '</span>' +
+        '</div>' +
+        '<div class="audit-cat-progress">' +
+          '<span>' + pct + '%</span>' +
+          '<div class="prog-track"><div class="prog-fill fill-e" style="width:' + pct + '%"></div></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="audit-cat-body" id="audit-body-' + cat.id + '">' +
+        cat.items.map(function(it) {
+          var checked = isAuditChecked(it.id);
+          var cls = checked ? 'audit-item done' : 'audit-item';
+          var badge = it.critical ? '<span class="audit-item-badge badge-critical">Critical</span>' :
+                      it.important ? '<span class="audit-item-badge badge-important">Important</span>' :
+                      '<span class="audit-item-badge badge-standard">Standard</span>';
+          var evidenceId = 'aud-evidence-' + it.id;
+          var hasEvidence = localStorage.getItem(evidenceId) ? 'has-evidence' : '';
+          return '<div class="' + cls + '" id="audit-row-' + it.id + '">' +
+            '<input type="checkbox" id="' + it.id + '" ' + (checked ? 'checked' : '') + ' onchange="onAuditCheck()">' +
+            '<div class="audit-item-content">' +
+              '<div class="audit-item-title">' + it.label + '</div>' +
+              '<div class="audit-item-desc">' + it.desc + '</div>' +
+            '</div>' +
+            '<button class="audit-evidence-btn ' + hasEvidence + '" id="' + evidenceId + '-btn" onclick="promptAuditEvidence(\'' + it.id + '\')" title="Add evidence/reference">' +
+              '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+              (hasEvidence ? '✔' : '📎') +
+            '</button>' +
+            badge +
+          '</div>';
+        }).join('') +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function isAuditChecked(id) {
+  var data = JSON.parse(localStorage.getItem('mazingira_audit_state') || '{}');
+  return data[id] === true;
+}
+
+function toggleAuditCat(id) {
+  var body = document.getElementById('audit-body-' + id);
+  if (body) body.style.display = body.style.display === 'none' ? 'block' : 'none';
+}
+
+function onAuditCheck() {
+  var data = JSON.parse(localStorage.getItem('mazingira_audit_state') || '{}');
+  document.querySelectorAll('#audit-checklist input[type="checkbox"]').forEach(function(cb) {
+    data[cb.id] = cb.checked;
+    var row = document.getElementById('audit-row-' + cb.id);
+    if (row) row.classList.toggle('done', cb.checked);
+  });
+  localStorage.setItem('mazingira_audit_state', JSON.stringify(data));
+  updateAuditReadiness();
+}
+
+function promptAuditEvidence(id) {
+  var existing = localStorage.getItem('aud-evidence-' + id) || '';
+  var ref = prompt('Add evidence reference or note for this item (e.g. "See IMP section 3.2, verified by EY 2024"):', existing);
+  if (ref !== null) {
+    localStorage.setItem('aud-evidence-' + id, ref);
+    var btn = document.getElementById('aud-evidence-' + id + '-btn');
+    if (btn) {
+      btn.classList.add('has-evidence');
+      btn.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> ✔';
+    }
+    showToast('Evidence saved for "' + id + '"');
+  }
+}
+
+function updateAuditReadiness() {
+  var data = JSON.parse(localStorage.getItem('mazingira_audit_state') || '{}');
+  var total = 0, done = 0, critical = 0, criticalDone = 0, important = 0, importantDone = 0, evidenceCount = 0;
+
+  auditCategories.forEach(function(cat) {
+    cat.items.forEach(function(it) {
+      total++;
+      var checked = data[it.id] === true;
+      if (checked) done++;
+      if (it.critical) { critical++; if (checked) criticalDone++; }
+      if (it.important) { important++; if (checked) importantDone++; }
+      if (localStorage.getItem('aud-evidence-' + it.id)) evidenceCount++;
+    });
+  });
+
+  var pct = total > 0 ? Math.round(done / total * 100) : 0;
+  var readyType = done === total ? 'ready' : (pct >= 70 ? 'almost' : 'gap');
+
+  // Score ring
+  var arc = document.getElementById('audit-score-arc');
+  var text = document.getElementById('audit-score-text');
+  var label = document.getElementById('audit-score-label');
+  if (arc) {
+    var circumference = 2 * Math.PI * 42;
+    var offset = circumference - (pct / 100) * circumference;
+    arc.style.strokeDasharray = circumference;
+    arc.style.strokeDashoffset = offset;
+    arc.style.stroke = pct === 100 ? 'var(--green-500)' : pct >= 70 ? 'var(--amber-500)' : 'var(--red-500)';
+  }
+  if (text) text.textContent = pct + '%';
+  if (label) label.textContent = done + ' of ' + total + ' items complete';
+
+  // Counts
+  var remainingCritical = critical - criticalDone;
+  document.getElementById('audit-critical-count').textContent = remainingCritical;
+  var docPct = total > 0 ? Math.round(evidenceCount / total * 100) : 0;
+  document.getElementById('audit-doc-count').textContent = docPct + '%';
+
+  // Data tier
+  var dqTier = 'Tier 1';
+  if (data['aud-dq-1'] && data['aud-dq-2'] && data['aud-dq-4']) dqTier = 'Tier 2';
+  if (data['aud-dq-1'] && data['aud-dq-2'] && data['aud-dq-4'] && data['aud-assur-5']) dqTier = 'Tier 3';
+  document.getElementById('audit-dq-label').textContent = dqTier;
+
+  // DQ table
+  var dqTierNum = dqTier === 'Tier 3' ? 3 : dqTier === 'Tier 2' ? 2 : 1;
+  ['dq-tier1', 'dq-tier2', 'dq-tier3'].forEach(function(id, i) {
+    var el = document.getElementById(id);
+    if (el) {
+      var tierNum = i + 1;
+      el.textContent = tierNum <= dqTierNum ? '✅ Achieved' : '—';
+      el.style.color = tierNum <= dqTierNum ? 'var(--green-700)' : 'var(--ink-400)';
+    }
+  });
+
+  // Status card
+  var card = document.getElementById('audit-status-card');
+  var title = document.getElementById('audit-status-title');
+  var desc = document.getElementById('audit-status-desc');
+  if (card) {
+    card.className = 'audit-summary-card ' + readyType;
+    if (done === total) {
+      title.textContent = '✅ Assurance Ready — All ' + total + ' items complete';
+      desc.textContent = 'Your inventory is ready for third-party verification. Critical and important items complete.';
+    } else if (pct >= 70) {
+      title.textContent = '⚠ Almost ready — ' + (total - done) + ' items remaining';
+      desc.textContent = remainingCritical > 0 ? (remainingCritical + ' critical items still require action before verification.') : 'All critical items complete! Focus on important/standard items for reasonable assurance.';
+    } else {
+      title.textContent = '⏳ Gap identified — ' + (total - done) + ' items outstanding';
+      desc.textContent = 'Start with critical items (marked red) — ' + remainingCritical + ' still need attention for limited assurance readiness.';
+    }
+  }
+
+  // Pills
+  document.getElementById('audit-pill-critical').textContent = remainingCritical + ' critical';
+  document.getElementById('audit-pill-important').textContent = (important - importantDone) + ' important';
+  document.getElementById('audit-pill-done').textContent = done + ' done';
+
+  // Tab count
+  var countEl = document.getElementById('audit-count');
+  if (countEl) countEl.textContent = pct + '%';
+}
+
+function updateAuditMateriality() {
+  var total = parseFloat(document.getElementById('summary-grand-total')?.textContent?.replace(/,/g, '')) || 0;
+  var limitedPct = parseFloat(document.getElementById('mat-limited')?.value) || 5;
+  var reasonablePct = parseFloat(document.getElementById('mat-reasonable')?.value) || 2;
+  var baseYear = document.getElementById('mat-base-year')?.value || '';
+
+  var limitedT = total * limitedPct / 100;
+  var reasonableT = total * reasonablePct / 100;
+
+  document.getElementById('mat-limited-tonnes').textContent = limitedT.toFixed(1) + ' t';
+  document.getElementById('mat-reasonable-tonnes').textContent = reasonableT.toFixed(1) + ' t';
+  document.getElementById('mat-limited-display').textContent = limitedT.toFixed(1) + ' tCO₂e';
+  document.getElementById('mat-base-year-val').textContent = baseYear || '—';
+}
+
+function saveAuditData() {
+  // Already saved via onAuditCheck(), but also save materiality values
+  var matData = {
+    limited: document.getElementById('mat-limited')?.value || '5',
+    reasonable: document.getElementById('mat-reasonable')?.value || '2',
+    baseYear: document.getElementById('mat-base-year')?.value || ''
+  };
+  localStorage.setItem('mazingira_audit_mat', JSON.stringify(matData));
+  showToast('Audit state saved ✓');
+}
+
+function loadAuditData() {
+  var matData = JSON.parse(localStorage.getItem('mazingira_audit_mat') || '{}');
+  if (matData.limited) document.getElementById('mat-limited').value = matData.limited;
+  if (matData.reasonable) document.getElementById('mat-reasonable').value = matData.reasonable;
+  if (matData.baseYear) document.getElementById('mat-base-year').value = matData.baseYear;
+}
+
+function exportAuditReport() {
+  var data = JSON.parse(localStorage.getItem('mazingira_audit_state') || '{}');
+  var rows = [['Audit Checklist — GHG Protocol Assurance Readiness', '', '', '']];
+  rows.push(['Generated: ' + new Date().toLocaleString(), '', '', '']);
+  rows.push(['', '', '', '']);
+  rows.push(['Category', 'Item', 'Status', 'Evidence']);
+
+  auditCategories.forEach(function(cat) {
+    var catDone = 0;
+    cat.items.forEach(function(it) {
+      var checked = data[it.id] === true;
+      if (checked) catDone++;
+      var evidence = localStorage.getItem('aud-evidence-' + it.id) || '';
+      var badge = it.critical ? 'Critical' : it.important ? 'Important' : 'Standard';
+      rows.push([cat.name, it.label + ' [' + badge + ']', checked ? '✅ Complete' : '❌ Open', evidence]);
+    });
+    var pct = cat.items.length > 0 ? Math.round(catDone / cat.items.length * 100) + '%' : '0%';
+    rows.push([cat.name + ' — Progress: ' + catDone + '/' + cat.items.length + ' (' + pct + ')', '', '', '']);
+    rows.push(['', '', '', '']);
+  });
+
+  var totalItems = 0, totalDone = 0;
+  auditCategories.forEach(function(cat) { cat.items.forEach(function(it) { totalItems++; if (data[it.id]) totalDone++; }); });
+  var totalPct = totalItems > 0 ? Math.round(totalDone / totalItems * 100) + '%' : '0%';
+  rows.push(['OVERALL READINESS: ' + totalDone + '/' + totalItems + ' (' + totalPct + ')', '', '', '']);
+
+  var csv = rows.map(function(r) {
+    return r.map(function(c) {
+      var s = String(c);
+      return s.indexOf(',') > -1 ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }).join(',');
+  }).join('\n');
+
+  var blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'mazingira-audit-checklist-' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Audit checklist exported ✓');
+}
+
+// ── SCOPE PANEL NAVIGATION ──────────────────────────
+function showScope(scope) {
+  document.querySelectorAll('.scope-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.scope-tab').forEach(function(t) { t.classList.remove('active'); });
+
+  var panel = document.getElementById('panel-' + scope);
+  if (panel) panel.classList.add('active');
+
+  var tabs = document.querySelectorAll('.scope-tab');
+  var map = {scope1:0, scope2:1, scope3:2, summary:3, assurance:4};
+  var idx = map[scope] !== undefined ? map[scope] : 0;
+  if (tabs[idx]) tabs[idx].classList.add('active');
+
+  var titles = {
+    scope1: 'Scope 1 · Direct Emissions',
+    scope2: 'Scope 2 · Energy Emissions',
+    scope3: 'Scope 3 · Value Chain Emissions',
+    summary: 'Summary & Report',
+    assurance: 'Assurance & Audit Readiness'
+  };
+  document.getElementById('topbar-title').textContent = titles[scope] || 'Emissions Calculator';
+
+  if (scope === 'summary') {
+    updateKPIs();
+    drawPieChart();
+    drawPathway();
+  }
+  if (scope === 'assurance') {
+    renderAuditChecklist();
+    updateAuditReadiness();
+    updateAuditMateriality();
+  }
+}
+
+// ── RENDER SCOPE 3 CATEGORIES ──────────────────────
+function renderScope3Categories() {
+  var container = document.getElementById('s3-categories');
+  container.innerHTML = s3Categories.map(function(cat, i) {
+    return '<div class="s3-cat" id="' + cat.id + '-cat">' +
+      '<div class="s3-cat-header" onclick="toggleS3Cat(\'' + cat.id + '\')">' +
+        '<div>' +
+          '<div class="s3-cat-name">' + cat.name + '</div>' +
+          '<div class="s3-cat-desc">' + cat.desc + '</div>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:10px">' +
+          '<span class="text-xs text-muted">' + cat.factor + '</span>' +
+          '<span class="s3-cat-toggle">▼</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="s3-cat-body">' +
+        '<div class="calc-toggle">' +
+          '<input type="checkbox" id="' + cat.id + '-toggle" checked onchange="calcScope3()">' +
+          '<label for="' + cat.id + '-toggle">Include this category</label>' +
+        '</div>' +
+        '<div class="calc-row">' +
+          '<div class="calc-label">Activity data <span class="calc-sub">' + cat.unit + '</span></div>' +
+          '<div class="calc-input"><input type="number" id="' + cat.id + '-input" placeholder="0" oninput="calcScope3()" step="1"></div>' +
+          '<div class="calc-factor">× ' + cat.factorVal + '</div>' +
+          '<div class="calc-result" id="' + cat.id + '-result">0.00</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function toggleS3Cat(id) {
+  var el = document.getElementById(id + '-cat');
+  if (el) el.classList.toggle('open');
+}
+
+// ── BREAKDOWN TABLE ────────────────────────────────
+function renderBreakdown() {
+  var tbody = document.getElementById('breakdown-table');
+  var s1 = parseFloat(document.getElementById('s1-grand-total')?.textContent) || 0;
+  var s2 = parseFloat(document.getElementById('s2-grand-total')?.textContent) || 0;
+  var s3 = parseFloat(document.getElementById('s3-grand-total')?.textContent) || 0;
+  var total = s1 + s2 + s3;
+  if (total === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" class="text-muted" style="text-align:center">Enter emissions data in Scope 1, 2 & 3 tabs</td></tr>';
+    return;
+  }
+
+  function pct(v) { return (v/total*100).toFixed(1) + '%'; }
+  function status(v) {
+    if (v > 50) return '<span class="badge badge-red">Major</span>';
+    if (v > 20) return '<span class="badge badge-amber">Significant</span>';
+    return '<span class="badge badge-blue">Minor</span>';
+  }
+
+  var rows = [
+    ['<strong>Scope 1 · Direct</strong>', s1, pct(s1), status(s1)],
+    ['<strong>Scope 2 · Energy</strong>', s2, pct(s2), status(s2)],
+    ['<strong>Scope 3 · Value Chain</strong>', s3, pct(s3), status(s3)],
+  ];
+
+  // Add S3 categories that have data
+  s3Categories.forEach(function(cat) {
+    var result = document.getElementById(cat.id + '-result');
+    var toggle = document.getElementById(cat.id + '-toggle');
+    if (!result || !toggle) return;
+    var val = parseFloat(result.textContent) || 0;
+    if (val > 0 && toggle.checked) {
+      rows.push(['&nbsp;&nbsp;' + cat.name, val, pct(val), status(val)]);
+    }
+  });
+
+  rows.push(['<strong>Total</strong>', total, '100%', '<span class="badge badge-green">Total footprint</span>']);
+
+  tbody.innerHTML = rows.map(function(r) {
+    return '<tr><td>' + r[0] + '</td><td><strong>' + (Math.round(r[1]*100)/100).toLocaleString() + '</strong></td><td>' + r[2] + '</td><td>' + r[3] + '</td></tr>';
+  }).join('');
+}
+
+// ── PIE CHART ───────────────────────────────────────
+function drawPieChart() {
+  var canvas = document.getElementById('chart-pie');
+  if (!canvas) return;
+
+  var s1 = parseFloat(document.getElementById('s1-grand-total')?.textContent) || 0;
+  var s2 = parseFloat(document.getElementById('s2-grand-total')?.textContent) || 0;
+  var s3 = parseFloat(document.getElementById('s3-grand-total')?.textContent) || 0;
+  var total = s1 + s2 + s3;
+
+  if (total === 0) {
+    if (chartPie) { chartPie.destroy(); chartPie = null; }
+    return;
+  }
+
+  var ctx = canvas.getContext('2d');
+  if (chartPie) { chartPie.destroy(); }
+
+  chartPie = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Scope 1 · Direct', 'Scope 2 · Energy', 'Scope 3 · Value Chain'],
+      datasets: [{
+        data: [s1, s2, s3],
+        backgroundColor: ['#C0392B', '#378ADD', '#E8A020'],
+        borderWidth: 2,
+        borderColor: '#fff'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '60%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { boxWidth: 12, font: { size: 11 }, padding: 12 }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              var v = ctx.parsed || 0;
+              var pct = total > 0 ? (v/total*100).toFixed(1) : 0;
+              return ctx.label + ': ' + Math.round(v).toLocaleString() + ' tCO₂e (' + pct + '%)';
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+// ── PATHWAY CHART ───────────────────────────────────
+function drawPathway() {
+  var canvas = document.getElementById('chart-pathway');
+  if (!canvas) return;
+
+  var total = parseFloat(document.getElementById('summary-grand-total')?.textContent?.replace(/,/g, '')) || 0;
+  var targetPct = parseFloat(document.getElementById('target-pct')?.value) || 5;
+  if (total === 0) {
+    if (chartPathway) { chartPathway.destroy(); chartPathway = null; }
+    document.getElementById('pathway-status').textContent = 'Enter emissions first';
+    return;
+  }
+
+  var currentYear = new Date().getFullYear();
+  var years = [];
+  var current = [];
+  var target = [];
+
+  var baseVal = total;
+
+  for (var y = currentYear; y <= 2050; y += 5) {
+    years.push(y);
+    var yearsFromNow = y - currentYear;
+    current.push(baseVal * Math.pow(1 - targetPct/100, yearsFromNow));
+    // Net zero linear target
+    var targetVal = baseVal * (1 - (y - currentYear) / (2050 - currentYear));
+    target.push(Math.max(0, targetVal));
+  }
+
+  var ctx = canvas.getContext('2d');
+  if (chartPathway) { chartPathway.destroy(); }
+
+  chartPathway = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: years,
+      datasets: [
+        {
+          label: 'Current trajectory (' + targetPct + '%/yr)',
+          data: current,
+          borderColor: '#E8A020',
+          backgroundColor: 'rgba(232,160,32,0.1)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 4,
+          pointBackgroundColor: '#E8A020'
+        },
+        {
+          label: 'Net Zero 2050 pathway',
+          data: target,
+          borderColor: '#1D9E75',
+          backgroundColor: 'rgba(29,158,117,0.15)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 4,
+          pointBackgroundColor: '#1D9E75',
+          borderDash: [5, 3]
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) { return ctx.dataset.label + ': ' + Math.round(ctx.parsed.y).toLocaleString() + ' tCO₂e'; }
+          }
+        }
+      },
+      scales: {
+        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, title: { display: true, text: 'tCO₂e', font: { size: 10 } } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+
+  // Find net-zero year
+  var nzYear = 2050;
+  document.getElementById('target-year-val').textContent = nzYear;
+  document.getElementById('pathway-status').textContent = 'Target: ' + targetPct + '% annual reduction → Net Zero ' + nzYear;
+}
+
+// ── SAVE & LOAD ────────────────────────────────────
+function saveEmissionsData() {
+  // Collect all input values
+  var data = { savedAt: new Date().toISOString() };
+
+  document.querySelectorAll('input[type="number"]').forEach(function(el) {
+    if (el.id) data[el.id] = el.value;
+  });
+
+  document.querySelectorAll('input[type="checkbox"]').forEach(function(el) {
+    if (el.id) data[el.id] = el.checked ? 'true' : 'false';
+  });
+
+  localStorage.setItem('mazingira_emissions_data', JSON.stringify(data));
+
+  // Also sync to main dashboard format
+  var yearlyData = JSON.parse(localStorage.getItem('esg_yearly_data') || '{}');
+  var year = new Date().getFullYear().toString();
+  if (!yearlyData[year]) yearlyData[year] = {};
+  yearlyData[year].scope1 = (parseFloat(document.getElementById('s1-grand-total')?.textContent) || 0).toString();
+  yearlyData[year].scope2 = (parseFloat(document.getElementById('s2-grand-total')?.textContent) || 0).toString();
+  yearlyData[year].scope3 = (parseFloat(document.getElementById('s3-grand-total')?.textContent) || 0).toString();
+  yearlyData[year].scope1_breakdown = document.getElementById('s1-grand-total')?.textContent || '0';
+  yearlyData[year].scope2_breakdown = document.getElementById('s2-grand-total')?.textContent || '0';
+  yearlyData[year].scope3_breakdown = document.getElementById('s3-grand-total')?.textContent || '0';
+  localStorage.setItem('esg_yearly_data', JSON.stringify(yearlyData));
+
+  // Update timestamp
+  var now = new Date();
+  document.getElementById('last-saved').textContent = 'Saved at ' + now.toLocaleTimeString();
+  showToast('Emissions data saved to dashboard ✓');
+}
+
+function loadEmissionsData() {
+  var data = JSON.parse(localStorage.getItem('mazingira_emissions_data') || '{}');
+  Object.keys(data).forEach(function(key) {
+    if (key === 'savedAt') return;
+    var el = document.getElementById(key);
+    if (el) {
+      if (el.type === 'checkbox') {
+        el.checked = data[key] === 'true';
+      } else {
+        el.value = data[key];
+      }
+    }
+  });
+
+  // Recalculate
+  calcScope1();
+  calcScope2();
+  calcScope3();
+  updateKPIs();
+
+  if (data.savedAt) {
+    document.getElementById('last-saved').textContent = 'Loaded saved data';
+  }
+}
+
+function resetAll() {
+  if (!confirm('Reset all emissions data?')) return;
+  localStorage.removeItem('mazingira_emissions_data');
+  document.querySelectorAll('input[type="number"]').forEach(function(el) { el.value = ''; });
+  document.querySelectorAll('input[type="checkbox"]').forEach(function(el) { el.checked = true; });
+  calcScope1();
+  calcScope2();
+  calcScope3();
+  updateKPIs();
+  showToast('All emissions data reset');
+}
+
+// ── EXPORT CSV ─────────────────────────────────────
+function exportEmissionsCSV() {
+  var rows = [['Scope', 'Category', 'Activity', 'Factor', 'tCO₂e']];
+
+  // Scope 1 rows
+  var s1Map = [
+    ['Scope 1', 'Stationary', 'Natural gas (m³)', EF.gas, 's1-gas-result'],
+    ['Scope 1', 'Stationary', 'Diesel generators (L)', EF.diesel, 's1-diesel-result'],
+    ['Scope 1', 'Stationary', 'LPG (kg)', EF.lpg, 's1-lpg-result'],
+    ['Scope 1', 'Stationary', 'Biomass (tonnes)', EF.biomass, 's1-biomass-result'],
+    ['Scope 1', 'Stationary', 'HFO (L)', EF.hfo, 's1-hfo-result'],
+    ['Scope 1', 'Mobile', 'Petrol fleet (L)', EF.petrol, 's1-petrol-result'],
+    ['Scope 1', 'Mobile', 'Diesel fleet (L)', EF.dieselV, 's1-diesel-v-result'],
+    ['Scope 1', 'Mobile', 'Jet fuel (L)', EF.jet, 's1-jet-result'],
+    ['Scope 1', 'Fugitive', 'R-134a (kg GWP)', EF.r134a, 's1-r134a-result'],
+    ['Scope 1', 'Fugitive', 'R-410A (kg GWP)', EF.r410a, 's1-r410a-result'],
+    ['Scope 1', 'Fugitive', 'R-32 (kg GWP)', EF.r32, 's1-r32-result'],
+    ['Scope 1', 'Fugitive', 'Methane leaks (kg)', EF.ch4, 's1-ch4-result'],
+    ['Scope 1', 'Process', 'Cement/clinker (tonnes)', EF.cement, 's1-cement-result'],
+    ['Scope 1', 'Process', 'Chemical (tonnes)', EF.chemical, 's1-chemical-result'],
+    ['Scope 1', 'Process', 'Other industrial', 1, 's1-industry-result'],
+  ];
+
+  s1Map.forEach(function(r) {
+    var val = parseFloat(document.getElementById(r[3])?.textContent) || 0;
+    if (val > 0) rows.push([r[0], r[1], r[2], r[3], val]);
+  });
+
+  // Scope 2
+  var s2Total = parseFloat(document.getElementById('s2-grand-total')?.textContent) || 0;
+  var s2Elec = parseFloat(document.getElementById('s2-electricity-result')?.textContent) || 0;
+  var s2Steam = parseFloat(document.getElementById('s2-steam-result')?.textContent) || 0;
+  var s2Cool = parseFloat(document.getElementById('s2-cooling-result')?.textContent) || 0;
+  if (s2Elec > 0) rows.push(['Scope 2', 'Electricity', 'Grid purchased (MWh)', EF.grid, s2Elec]);
+  if (s2Steam > 0) rows.push(['Scope 2', 'Steam', 'Purchased steam (MWh)', EF.steam, s2Steam]);
+  if (s2Cool > 0) rows.push(['Scope 2', 'Cooling', 'Chilled water (MWh)', EF.cooling, s2Cool]);
+
+  // Scope 3
+  s3Categories.forEach(function(cat) {
+    var result = document.getElementById(cat.id + '-result');
+    var toggle = document.getElementById(cat.id + '-toggle');
+    if (!result || !toggle) return;
+    var val = parseFloat(result.textContent) || 0;
+    if (val > 0 && toggle.checked) {
+      rows.push(['Scope 3', cat.name, cat.unit, cat.factorVal, val]);
+    }
+  });
+
+  // Totals
+  var s1 = parseFloat(document.getElementById('s1-grand-total')?.textContent) || 0;
+  var s3 = parseFloat(document.getElementById('s3-grand-total')?.textContent) || 0;
+  rows.push(['', '', '', 'Scope 1 Total', s1]);
+  rows.push(['', '', '', 'Scope 2 Total', s2Total]);
+  rows.push(['', '', '', 'Scope 3 Total', s3]);
+  rows.push(['', '', '', 'GRAND TOTAL', s1 + s2Total + s3]);
+
+  var csv = rows.map(function(r) {
+    return r.map(function(c) {
+      var s = String(c);
+      return s.indexOf(',') > -1 ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }).join(',');
+  }).join('\n');
+
+  var blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'mazingira-emissions-' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Emissions CSV exported ✓');
+}
+
+// ── TOAST ──────────────────────────────────────────
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show';
+  setTimeout(function() { t.className = 'toast'; }, 2500);
+}
+
+// ── BUTTON RIPPLE ──────────────────────────────────
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('.btn');
+  if (!btn) return;
+  var rect = btn.getBoundingClientRect();
+  var x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
+  var y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
+  btn.style.setProperty('--rx', x + '%');
+  btn.style.setProperty('--ry', y + '%');
+});
+
+// ── INIT ───────────────────────────────────────────
+(function() {
+  renderScope3Categories();
+  loadEmissionsData();
+  calcScope1();
+  calcScope2();
+  calcScope3();
+  updateKPIs();
+  updateScopeTabs();
+
+  setTimeout(function() {
+    // Reveal animations
+    document.querySelectorAll('.reveal').forEach(function(el, i) {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(16px)';
+      setTimeout(function() {
+        el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        el.style.opacity = '1';
+        el.style.transform = 'translateY(0)';
+      }, 100 + i * 80);
+    });
+  }, 200);
+})();
+</script>
+</body>
+</html>

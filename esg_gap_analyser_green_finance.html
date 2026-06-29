@@ -1,0 +1,428 @@
+
+<link rel="stylesheet" href="animations.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:var(--color-background-tertiary,#f7f8fa);color:var(--color-text-primary,#1a1a2e);font-size:14px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+.wrap{padding:20px}
+.toprow{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px}
+.metric{background:var(--color-background-secondary,#f3f4f6);border-radius:8px;padding:14px 16px}
+.metric-label{font-size:11px;color:var(--color-text-secondary,#6b7280);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.metric-val{font-size:24px;font-weight:700;line-height:1}
+.metric-sub{font-size:11px;color:var(--color-text-secondary,#6b7280);margin-top:4px}
+.card{background:var(--color-background-primary,#fff);border:0.5px solid var(--color-border-tertiary,#e5e7eb);border-radius:12px;padding:18px;margin-bottom:14px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:8px;flex-wrap:wrap}
+.card-title{font-size:14px;font-weight:500;color:var(--color-text-primary,#1a1a2e)}
+.card-sub{font-size:12px;color:var(--color-text-secondary,#6b7280);margin-top:2px}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.b-red{background:var(--color-background-danger,#fee2e2);color:var(--color-text-danger,#b91c1c)}
+.b-amber{background:var(--color-background-warning,#fef3c7);color:var(--color-text-warning,#92400e)}
+.b-green{background:var(--color-background-success,#dcfce7);color:var(--color-text-success,#166534)}
+.b-blue{background:var(--color-background-info,#dbeafe);color:var(--color-text-info,#1e40af)}
+.b-gray{background:var(--color-background-secondary,#f3f4f6);color:var(--color-text-secondary,#374151)}
+.b-emerald{background:#d1fae5;color:#065f46}
+.b-teal{background:#ccfbf1;color:#134e4a}
+.filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-btn{padding:6px 14px;border-radius:20px;border:0.5px solid var(--color-border-secondary,#d1d5db);background:var(--color-background-primary,#fff);color:var(--color-text-secondary,#374151);font-size:12px;font-weight:500;cursor:pointer;transition:all 0.15s}
+.filter-btn.active{background:var(--color-text-primary,#1a1a2e);color:var(--color-background-primary,#fff);border-color:var(--color-text-primary,#1a1a2e)}
+.gap-item{border:0.5px solid var(--color-border-tertiary,#e5e7eb);border-radius:10px;padding:14px 16px;margin-bottom:10px;transition:border-color 0.15s}
+.gap-item:hover{border-color:var(--color-border-secondary,#9ca3af)}
+.gap-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;margin-top:1px}
+.gap-icon-red{background:var(--color-background-danger,#fee2e2);color:var(--color-text-danger,#b91c1c)}
+.gap-icon-amber{background:var(--color-background-warning,#fef3c7);color:var(--color-text-warning,#92400e)}
+.gap-icon-blue{background:var(--color-background-info,#dbeafe);color:var(--color-text-info,#1e40af)}
+.gap-icon-green{background:#d1fae5;color:#065f46}
+.gap-meta{flex:1;min-width:0}
+.gap-title{font-size:13px;font-weight:500;color:var(--color-text-primary,#1a1a2e);margin-bottom:4px}
+.gap-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.gap-why{font-size:12px;color:var(--color-text-secondary,#374151);line-height:1.6;margin-bottom:10px;padding:10px 12px;background:var(--color-background-secondary,#f9fafb);border-radius:8px;border-left:3px solid var(--color-border-secondary,#d1d5db)}
+.gap-why.red{border-left-color:#ef4444}
+.gap-why.amber{border-left-color:#f59e0b}
+.gap-why.blue{border-left-color:#3b82f6}
+.gap-why.green{border-left-color:#10b981}
+.gap-actions{display:flex;gap:8px;flex-wrap:wrap}
+.act-btn{padding:5px 12px;border-radius:6px;border:0.5px solid var(--color-border-secondary,#d1d5db);background:var(--color-background-primary,#fff);color:var(--color-text-secondary,#374151);font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all 0.15s;font-weight:500}
+.act-btn:hover{background:var(--color-background-secondary,#f3f4f6)}
+.act-btn.primary{background:var(--color-text-primary,#1a1a2e);color:var(--color-background-primary,#fff);border-color:var(--color-text-primary,#1a1a2e)}
+.act-btn.primary:hover{opacity:0.88}
+.prog-bar{height:6px;background:var(--color-background-secondary,#e5e7eb);border-radius:99px;overflow:hidden;margin-top:6px}
+.prog-fill{height:100%;border-radius:99px}
+.ai-box{border:0.5px solid var(--color-border-tertiary,#e5e7eb);border-radius:10px;padding:14px 16px;margin-bottom:10px;min-height:80px}
+.ai-prompt-row{display:flex;gap:10px;align-items:flex-end;margin-bottom:14px}
+.ai-prompt-row input{flex:1;border:0.5px solid var(--color-border-secondary,#d1d5db);border-radius:8px;padding:9px 12px;font-size:13px;background:var(--color-background-primary,#fff);color:var(--color-text-primary,#1a1a2e);outline:none}
+.ai-prompt-row input:focus{border-color:#2d9b5a;box-shadow:0 0 0 3px rgba(45,155,90,0.1)}
+.ai-response{font-size:13px;color:var(--color-text-secondary,#374151);line-height:1.7;white-space:pre-wrap}
+.ai-thinking{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-secondary,#6b7280)}
+.dot-pulse{display:flex;gap:4px}
+.dot-pulse span{width:6px;height:6px;border-radius:50%;background:#2d9b5a;animation:pulse 1.2s infinite}
+.dot-pulse span:nth-child(2){animation-delay:0.2s}
+.dot-pulse span:nth-child(3){animation-delay:0.4s}
+@keyframes pulse{0%,80%,100%{opacity:0.3;transform:scale(0.8)}40%{opacity:1;transform:scale(1)}}
+.score-ring-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:4px}
+.mini-ring{display:flex;flex-direction:column;align-items:center;gap:4px}
+.prio-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary,#f3f4f6)}
+.prio-row:last-child{border-bottom:none}
+.prio-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.prio-info{flex:1;min-width:0}
+.prio-name{font-size:13px;font-weight:500;color:var(--color-text-primary,#1a1a2e)}
+.prio-std{font-size:11px;color:var(--color-text-secondary,#6b7280);margin-top:1px}
+.impact-bar-wrap{width:80px}
+.impact-bar{height:5px;border-radius:99px}
+/* GREEN FINANCE SPECIFIC */
+.gf-pillar{border:0.5px solid var(--color-border-tertiary,#e5e7eb);border-radius:10px;padding:14px;margin-bottom:10px}
+.gf-pillar-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.gf-pillar-name{font-size:13px;font-weight:500;color:var(--color-text-primary,#1a1a2e)}
+.gf-check-row{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:0.5px solid var(--color-border-tertiary,#f3f4f6)}
+.gf-check-row:last-child{border-bottom:none}
+.gf-dot{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px}
+.gf-complete{background:#d1fae5;color:#065f46}
+.gf-partial{background:#fef3c7;color:#92400e}
+.gf-missing{background:#fee2e2;color:#b91c1c}
+.gf-check-info{flex:1}
+.gf-check-name{font-size:12px;font-weight:500;color:var(--color-text-primary,#1a1a2e)}
+.gf-check-note{font-size:11px;color:var(--color-text-secondary,#6b7280);margin-top:2px;line-height:1.4}
+.instrument-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:0}
+.instrument-card{border:0.5px solid var(--color-border-tertiary,#e5e7eb);border-radius:10px;padding:14px}
+.instrument-name{font-size:13px;font-weight:500;color:var(--color-text-primary,#1a1a2e);margin-bottom:4px}
+.instrument-desc{font-size:11px;color:var(--color-text-secondary,#6b7280);line-height:1.5;margin-bottom:8px}
+.instrument-ready{font-size:11px;font-weight:600}
+.ready-yes{color:#065f46}
+.ready-no{color:#b91c1c}
+.ready-partial{color:#92400e}
+
+
+  .btn, .act-btn, .filter-btn {
+    position: relative; overflow: hidden;
+  }
+  .btn::after, .act-btn::after, .filter-btn::after {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at var(--rx, 50%) var(--ry, 50%), rgba(255,255,255,0.3) 0%, transparent 60%);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .btn:active::after, .act-btn:active::after, .filter-btn:active::after {
+    opacity: 1; animation: ripple 0.6s ease-out forwards;
+  }
+
+  .card, .metric, .stat-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card:hover, .metric:hover, .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.06);
+  }
+</style>
+
+<h2 class="sr-only">AI-powered ESG gap analyser with green finance principles — identifies missing disclosures across GRI, TCFD, SASB, SDGs, and Green Bond/Loan frameworks for your Nairobi organisation</h2>
+
+<div class="wrap">
+
+<div class="toprow reveal">
+  <div class="metric reveal">
+    <div class="metric-label">Total gaps found</div>
+    <div class="metric-val" style="color:#b91c1c">19</div>
+    <div class="metric-sub">across 5 frameworks</div>
+  </div>
+  <div class="metric reveal">
+    <div class="metric-label">Critical gaps</div>
+    <div class="metric-val" style="color:#b91c1c">7</div>
+    <div class="metric-sub">block report sign-off</div>
+  </div>
+  <div class="metric reveal">
+    <div class="metric-label">Moderate gaps</div>
+    <div class="metric-val" style="color:#92400e">8</div>
+    <div class="metric-sub">reduce score materially</div>
+  </div>
+  <div class="metric reveal">
+    <div class="metric-label">Minor gaps</div>
+    <div class="metric-val" style="color:#166534">4</div>
+    <div class="metric-sub">good-practice additions</div>
+  </div>
+  <div class="metric reveal">
+    <div class="metric-label">Green finance readiness</div>
+    <div class="metric-val" style="color:#065f46">48%</div>
+    <div class="metric-sub">GBP / GLP / SLB aligned</div>
+  </div>
+</div>
+
+<div class="card reveal">
+  <div class="card-header">
+    <div><div class="card-title">Coverage across all frameworks</div></div>
+  </div>
+  <div class="score-ring-row">
+    <div class="mini-ring">
+      <svg width="58" height="58" viewBox="0 0 60 60"><circle cx="30" cy="30" r="24" fill="none" stroke="#e5e7eb" stroke-width="5"/><circle cx="30" cy="30" r="24" fill="none" stroke="#2d9b5a" stroke-width="5" stroke-dasharray="150.8" stroke-dashoffset="27.1" stroke-linecap="round" transform="rotate(-90 30 30)"/><text x="30" y="35" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1a2e">82%</text></svg>
+      <div style="font-size:11px;color:var(--color-text-secondary,#6b7280);text-align:center;margin-top:3px">GRI</div>
+    </div>
+    <div class="mini-ring">
+      <svg width="58" height="58" viewBox="0 0 60 60"><circle cx="30" cy="30" r="24" fill="none" stroke="#e5e7eb" stroke-width="5"/><circle cx="30" cy="30" r="24" fill="none" stroke="#0e7490" stroke-width="5" stroke-dasharray="150.8" stroke-dashoffset="43.7" stroke-linecap="round" transform="rotate(-90 30 30)"/><text x="30" y="35" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1a2e">71%</text></svg>
+      <div style="font-size:11px;color:var(--color-text-secondary,#6b7280);text-align:center;margin-top:3px">TCFD</div>
+    </div>
+    <div class="mini-ring">
+      <svg width="58" height="58" viewBox="0 0 60 60"><circle cx="30" cy="30" r="24"/><circle cx="30" cy="30" r="24" fill="none" stroke="#e5e7eb" stroke-width="5"/><circle cx="30" cy="30" r="24" fill="none" stroke="#1e40af" stroke-width="5" stroke-dasharray="150.8" stroke-dashoffset="52.8" stroke-linecap="round" transform="rotate(-90 30 30)"/><text x="30" y="35" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1a2e">65%</text></svg>
+      <div style="font-size:11px;color:var(--color-text-secondary,#6b7280);text-align:center;margin-top:3px">SASB</div>
+    </div>
+    <div class="mini-ring">
+      <svg width="58" height="58" viewBox="0 0 60 60"><circle cx="30" cy="30" r="24" fill="none" stroke="#e5e7eb" stroke-width="5"/><circle cx="30" cy="30" r="24" fill="none" stroke="#6d28d9" stroke-width="5" stroke-dasharray="150.8" stroke-dashoffset="70.9" stroke-linecap="round" transform="rotate(-90 30 30)"/><text x="30" y="35" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1a2e">53%</text></svg>
+      <div style="font-size:11px;color:var(--color-text-secondary,#6b7280);text-align:center;margin-top:3px">SDGs</div>
+    </div>
+    <div class="mini-ring">
+      <svg width="58" height="58" viewBox="0 0 60 60"><circle cx="30" cy="30" r="24" fill="none" stroke="#e5e7eb" stroke-width="5"/><circle cx="30" cy="30" r="24" fill="none" stroke="#065f46" stroke-width="5" stroke-dasharray="150.8" stroke-dashoffset="78.4" stroke-linecap="round" transform="rotate(-90 30 30)"/><text x="30" y="35" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1a2e">48%</text></svg>
+      <div style="font-size:11px;color:var(--color-text-secondary,#6b7280);text-align:center;margin-top:3px">Green finance</div>
+    </div>
+    <div style="flex:1;min-width:160px">
+      <div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="color:var(--color-text-secondary,#6b7280)">Overall ESG readiness</span><span style="font-weight:600">74%</span></div>
+        <div class="prog-bar"><div class="prog-fill" style="width:74%;background:#2d9b5a"></div></div>
+      </div>
+      <div style="font-size:12px;color:var(--color-text-secondary,#6b7280);line-height:1.5">Closing all critical gaps — including green finance — could unlock <strong style="color:var(--color-text-primary,#1a1a2e)">KES 2–5B</strong> in green bond and sustainability-linked loan eligibility on the Nairobi Securities Exchange.</div>
+    </div>
+  </div>
+</div>
+
+<div class="card reveal">
+  <div class="card-header">
+    <div><div class="card-title">Green finance framework readiness</div><div class="card-sub">ICMA Green Bond Principles · Green Loan Principles · Sustainability-Linked Bond Principles · CMA Kenya Green Finance Taxonomy</div></div>
+    <span class="badge b-emerald"><i class="ti ti-leaf" style="font-size:11px"></i> New</span>
+  </div>
+
+  <div class="gf-pillar" style="border-left:3px solid #10b981;border-radius:0 10px 10px 0">
+    <div class="gf-pillar-header">
+      <div class="gf-pillar-name"><i class="ti ti-target" style="font-size:14px;margin-right:6px;color:#065f46"></i>1. Use of proceeds</div>
+      <span class="badge b-amber">Partial — 60%</span>
+    </div>
+    <div class="gf-check-row"><div class="gf-dot gf-complete"><i class="ti ti-check" style="font-size:10px"></i></div><div class="gf-check-info"><div class="gf-check-name">Eligible green project categories identified</div><div class="gf-check-note">Solar PV (80kWp), water recycling, Karura Forest — all qualify under ICMA GBP categories</div></div></div>
+    <div class="gf-check-row"><div class="gf-dot gf-partial"><i class="ti ti-clock" style="font-size:10px"></i></div><div class="gf-check-info"><div class="gf-check-name">Quantified environmental benefit per project</div><div class="gf-check-note">Solar tCO₂e avoided not calculated; water recycling m³ saved not monetised</div></div></div>
+    <div class="gf-check-row"><div class="gf-dot gf-missing"><i class="ti ti-x" style="font-size:10px"></i></div><div class="gf-check-info"><div class="gf-check-name">Ring-fenced proceeds account / tracking system</div><div class="gf-check-note">Required by GBP Component 1 — no segregated account or tracking process documented</div></div></div>
+    <div class="gf-check-row"><div class="gf-dot gf-missing"><i class="ti ti-x" style="font-size:10px"></i></div><div class="gf-check-info"><div class="gf-check-name">CMA Kenya Green Taxonomy alignment confirmed</div><div class="gf-check-note">CMA Kenya Green Finance Taxonomy (2023) classification required for NSE-listed green bonds</div></div></div>
+  </div>
+
+  <div class="gf-pillar" style="border-left:3px solid #10b981;border-radius:0 10px 10px 0">
+    <div class="gf-pillar-header">
+      <div class="gf-pillar-name"><i class="ti ti-clipboard-check" style="font-size:14px;margin-right:6px;color:#065f46"></i>2. Process for project evaluation & selection</div>
+      <span class="badge b-amber">Partial — 50%</span>
+    </div>
+    <div class="gf-check-row"><div class="gf-dot gf-complete"><i class="ti ti-check" style="font-size:10px"></i></div><div class="gf-check-info"><div class="gf-check-name">Environmental objectives clearly stated</div><div class="gf-check-note">Net-zero target by 2040, renewable energy target 40% by 2027 — documented</div></div></div>
+    <div class="gf-check-row"><div class="gf-dot gf-missing"><i class="ti ti-x" style="font-size:10px"></i></div><div class="gf-check-info"><div class="gf-check-name">Formal green project selection criteria & governance</div><div class="gf-check-note">No documented committee or decision framework for approving green-eligible spend</div></div></div>
+    <div class="gf-check-row"><div class="gf-dot gf-missing"><i class="ti ti-x" style="font-size:10px"></i></div><div class="gf-check-info"><div class="gf-check-name">Do No Significant Harm (DNSH) assessment</div><div class="gf-check-note">Required by EU Taxonomy (relevant for DFI investors e.g. EIB, IFC active in Nairobi)</div></div></div>
+    <div class="gf-check-row"><div class="gf-dot gf-partial"><i class="ti ti-clock" style="font-size:10px"></i></div><div class="gf-check-info"><div class="gf-check-name">Social safeguards / exclusion list</div><div class="gf-check-note">Community programme exists but no formal exclusion list aligned to IFC Performance Standards</div></div></div>
+  </div>
+
+  <div class="gf-pillar" style="border-left:3px solid #10b981;border-radius:0 10px 10px 0">
+    <div class="gf-pillar-header">
+      <div class="gf-pillar-name"><i class="ti ti-report-analytics" style="font-size:14px;margin-right:6px;color:#065f46"></i>3. Management of proceeds</div>
+      <span class="badge b-red">Not started — 10%</span>
+    </div>
+    <div class="gf-check-row"><div class="gf-dot gf-missing"><i class="ti ti-x" style="font-size:10px"></i></div><div class="gf-check-info"><div class="gf-check-name">Segregated or tracked green proceeds account</div><div class="gf-check-note">GBP Component 3 is non-negotiable for any green bond issuance — must be set up pre-issuance</div></div></div>
+    <div class="gf-check-row"><div class="gf-dot gf-missing"><i class="ti ti-x" style="font-size:10px"></i></div><div class="gf-check-info"><div class="gf-check-name">Unallocated proceeds investment policy</div><div class="gf-check-note">Policy for holding unallocated funds in liquid, low-carbon instruments required</div></div></div>
+    <div class="gf-check-row"><div class="gf-dot gf-partial"><i class="ti ti-clock" style="font-size:10px"></i></div><div class="gf-check-info"><div class="gf-check-name">Internal audit of green spend tracking</div><div class="gf-check-note">Finance audit function exists but not scoped to green finance verification</div></div></div>
+  </div>
+
+  <div class="gf-pillar" style="border-left:3px solid #10b981;border-radius:0 10px 10px 0">
+    <div class="gf-pillar-header">
+      <div class="gf-pillar-name"><i class="ti ti-chart-line" style="font-size:14px;margin-right:6px;color:#065f46"></i>4. Reporting</div>
+      <span class="badge b-amber">Partial — 55%</span>
+    </div>
+    <div class="gf-check-row"><div class="gf-dot gf-complete"><i class="ti ti-check" style="font-size:10px"></i></div><div class="gf-check-info"><div class="gf-check-name">Annual allocation report (where funds went)</div><div class="gf-check-note">ESG report covers investment spend — adaptable to green bond allocation reporting</div></div></div>
+    <div class="gf-check-row"><div class="gf-dot gf-missing"><i class="ti ti-x" style="font-size:10px"></i></div><div class="gf-check-info"><div class="gf-check-name">Impact report with quantified metrics (tCO₂e avoided, kWh generated, m³ saved)</div><div class="gf-check-note">ICMA Harmonised Framework for Impact Reporting requires project-level environmental KPIs — currently missing</div></div></div>
+    <div class="gf-check-row"><div class="gf-dot gf-missing"><i class="ti ti-x" style="font-size:10px"></i></div><div class="gf-check-info"><div class="gf-check-name">Second Party Opinion (SPO) from accredited verifier</div><div class="gf-check-note">Required before NSE green bond listing. Kenyan verifiers: PwC Kenya, ERM, Sustainalytics (remote)</div></div></div>
+    <div class="gf-check-row"><div class="gf-dot gf-partial"><i class="ti ti-clock" style="font-size:10px"></i></div><div class="gf-check-info"><div class="gf-check-name">Sustainability-Linked KPI targets (SLBP)</div><div class="gf-check-note">Net-zero target exists but SPTs (Sustainability Performance Targets) not formally defined with step-up coupon mechanics</div></div></div>
+  </div>
+</div>
+
+<div class="card reveal">
+  <div class="card-header">
+    <div><div class="card-title">Green finance instruments — your eligibility</div><div class="card-sub">Nairobi market · NSE, DFIs, commercial banks</div></div>
+  </div>
+  <div class="instrument-grid">
+    <div class="instrument-card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="width:28px;height:28px;border-radius:6px;background:#d1fae5;display:flex;align-items:center;justify-content:center;font-size:14px;color:#065f46"><i class="ti ti-certificate"></i></div><div class="instrument-name">Green bond (NSE)</div></div>
+      <div class="instrument-desc">ICMA GBP aligned. CMA Kenya Green Finance Taxonomy required. Minimum KES 500M typical. Acorn Holdings (2019) was East Africa's first.</div>
+      <div class="instrument-ready ready-partial"><i class="ti ti-clock" style="font-size:11px"></i> 48% ready — close GBP gaps first</div>
+    </div>
+    <div class="instrument-card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="width:28px;height:28px;border-radius:6px;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:14px;color:#1e40af"><i class="ti ti-building-bank"></i></div><div class="instrument-name">Green loan (GLP)</div></div>
+      <div class="instrument-desc">LMA/APLMA Green Loan Principles. Available via KCB, Equity Bank, Stanbic Kenya. Typically for capex (solar, EV fleet, retrofit).</div>
+      <div class="instrument-ready ready-partial"><i class="ti ti-clock" style="font-size:11px"></i> 55% ready — use of proceeds needed</div>
+    </div>
+    <div class="instrument-card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="width:28px;height:28px;border-radius:6px;background:#fef3c7;display:flex;align-items:center;justify-content:center;font-size:14px;color:#92400e"><i class="ti ti-link"></i></div><div class="instrument-name">Sustainability-linked bond</div></div>
+      <div class="instrument-desc">ICMA SLBP. KPIs tied to your ESG targets (e.g. 40% renewable by 2027). Coupon steps up if targets missed. More flexible than green bonds.</div>
+      <div class="instrument-ready ready-partial"><i class="ti ti-clock" style="font-size:11px"></i> 60% ready — formalise SPTs</div>
+    </div>
+    <div class="instrument-card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="width:28px;height:28px;border-radius:6px;background:#d1fae5;display:flex;align-items:center;justify-content:center;font-size:14px;color:#065f46"><i class="ti ti-world"></i></div><div class="instrument-name">DFI / blended finance</div></div>
+      <div class="instrument-desc">IFC, AfDB, FSD Africa, OPIC/DFC active in Kenya. Often lower rates + TA grants. Strong ESG disclosure is prerequisite for due diligence.</div>
+      <div class="instrument-ready ready-yes"><i class="ti ti-check" style="font-size:11px"></i> 74% ready — strongest near-term path</div>
+    </div>
+  </div>
+</div>
+
+<div class="card reveal">
+  <div class="card-header">
+    <div><div class="card-title">All gaps — detailed breakdown</div></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <span class="badge b-red"><i class="ti ti-circle-x" style="font-size:11px"></i> 7 critical</span>
+      <span class="badge b-amber">8 moderate</span>
+      <span class="badge b-blue">4 minor</span>
+    </div>
+  </div>
+  <div class="filters">
+    <button class="filter-btn active" onclick="filterGaps('all',this)">All (19)</button>
+    <button class="filter-btn" onclick="filterGaps('critical',this)">Critical</button>
+    <button class="filter-btn" onclick="filterGaps('moderate',this)">Moderate</button>
+    <button class="filter-btn" onclick="filterGaps('minor',this)">Minor</button>
+    <button class="filter-btn" onclick="filterGaps('gri',this)">GRI</button>
+    <button class="filter-btn" onclick="filterGaps('tcfd',this)">TCFD</button>
+    <button class="filter-btn" onclick="filterGaps('sasb',this)">SASB</button>
+    <button class="filter-btn" onclick="filterGaps('sdg',this)">SDGs</button>
+    <button class="filter-btn" onclick="filterGaps('greenfinance',this)">Green finance</button>
+  </div>
+  <div id="gaps-list"></div>
+</div>
+
+<div class="card reveal">
+  <div class="card-header">
+    <div><div class="card-title">Ask the AI gap analyst</div><div class="card-sub">Powered by OpenRouter · ESG + green finance, Nairobi context</div></div>
+    <span class="badge b-green"><i class="ti ti-sparkles" style="font-size:11px"></i> AI</span>
+  </div>
+  <div style="padding:10px 0 12px;display:flex;align-items:center;gap:8px">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1A7050" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    <input id="or-api-key" type="password" placeholder="Paste your OpenRouter API key…" style="flex:1;border:1px solid #d1d5db;border-radius:8px;padding:7px 10px;font-size:12px;outline:none" oninput="saveApiKey()">
+    <a href="https://openrouter.ai/keys" target="_blank" style="font-size:11px;color:#1A7050;white-space:nowrap">Get key ↗</a>
+  </div>
+    <span class="badge b-green"><i class="ti ti-sparkles" style="font-size:11px"></i> AI</span>
+  </div>
+  <div class="ai-prompt-row">
+    <input id="ai-input" type="text" placeholder="e.g. How do I qualify for a green bond on the NSE?" onkeydown="if(event.key==='Enter')runAI()"/>
+    <button class="act-btn primary" onclick="runAI()"><i class="ti ti-send"></i> Ask</button>
+  </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+    <button class="act-btn" onclick="setQ('What green finance instruments are most realistic for a Nairobi SME in the next 12 months?')">Best green instrument for us ↗</button>
+    <button class="act-btn" onclick="setQ('What is a Second Party Opinion and who provides it in Kenya?')">What is an SPO in Kenya? ↗</button>
+    <button class="act-btn" onclick="setQ('How do I define Sustainability Performance Targets for a sustainability-linked bond?')">Define SPTs for SLB ↗</button>
+    <button class="act-btn" onclick="setQ('What does the CMA Kenya Green Finance Taxonomy cover?')">CMA Green Taxonomy ↗</button>
+  </div>
+  <div id="ai-out" class="ai-box" style="display:none"></div>
+</div>
+
+</div>
+
+<script>
+const gaps = [
+  {id:1,sev:'critical',standard:'tcfd',title:'TCFD climate scenario analysis missing',icon:'ti-temperature',why:'Investors and lenders require TCFD scenario analysis (1.5°C transition vs 4°C physical risk) before financing decisions. For Nairobi, physical risks — Nairobi River flooding, drought-driven water stress — must be quantified. This is also a prerequisite for any green bond SPO and DFI due diligence.',deadline:'Jun 30',effort:'High',tags:['TCFD','Strategy','Climate risk']},
+  {id:2,sev:'critical',standard:'gri',title:'GRI 2-29 — stakeholder engagement not documented',icon:'ti-users-group',why:'Mandatory for GRI alignment. Without it your report cannot claim GRI "in accordance" — blocking MSCI/Sustainalytics ESG ratings and NSE ESG disclosure requirements. Green finance lenders (IFC, AfDB) also screen for stakeholder engagement as part of their E&S due diligence.',deadline:'Report sign-off',effort:'Medium',tags:['GRI 2-29','Universal Standards','Mandatory']},
+  {id:3,sev:'critical',standard:'gri',title:'GRI 306-2 — waste by type & disposal method',icon:'ti-trash',why:'Material for NEMA compliance under Kenya\'s Sustainable Waste Management Act 2022. Without GRI 306-2, you cannot demonstrate circular economy credentials required for green loan eligibility. IFC Performance Standard 3 (waste) is screened by all DFI lenders active in Nairobi.',deadline:'Report sign-off',effort:'Low',tags:['GRI 306','Environmental','NEMA Kenya']},
+  {id:4,sev:'critical',standard:'gri',title:'GRI 2-22 — CEO statement on sustainable development',icon:'ti-flag',why:'Required for GRI alignment. Green bond issuers and SLB issuers must demonstrate board-level commitment to sustainability strategy — the CEO statement is the most visible proof of this for investors and rating agencies.',deadline:'Report sign-off',effort:'Low',tags:['GRI 2-22','Board','Strategy']},
+  {id:5,sev:'critical',standard:'sasb',title:'SASB FN-CB-240a.1 — data security risk approach',icon:'ti-lock',why:'Kenya Data Protection Act 2019 and CBK Cybersecurity Guidance 2023 require documented cyber risk approaches. ESG data providers flag absence as governance red flag. DFI lenders include data security governance in their E&S pre-screening.',deadline:'Report sign-off',effort:'Medium',tags:['SASB','Data security','CBK Kenya']},
+  {id:6,sev:'critical',standard:'greenfinance',title:'Green Bond Principles — proceeds ring-fencing missing',icon:'ti-safe',why:'GBP Component 3 (Management of Proceeds) is non-negotiable for any green bond or green loan. Without a segregated or formally tracked proceeds account, no NSE green bond listing, no IFC green lending, and no LMA Green Loan Principles compliance is possible. This is the single biggest blocker to green finance access.',deadline:'Pre-issuance',effort:'Medium',tags:['GBP','GLP','NSE Kenya','Critical blocker']},
+  {id:7,sev:'critical',standard:'greenfinance',title:'Impact reporting metrics not quantified (ICMA standard)',icon:'ti-chart-bar',why:'ICMA\'s Harmonised Framework for Impact Reporting requires project-level KPIs: tCO₂e avoided by solar, kWh generated, m³ water saved, hectares of forest maintained. Without these, no green bond SPO can be issued — and DFI investors will reject impact claims as unverifiable.',deadline:'Pre-issuance',effort:'High',tags:['ICMA','Impact reporting','Green bond']},
+  {id:8,sev:'moderate',standard:'tcfd',title:'TCFD — climate-related targets not formalised',icon:'ti-target',why:'Incomplete TCFD Metrics & Targets pillar. Kenya NDC commits to 32% emissions reduction by 2030 — aligning your targets strengthens credibility. Sustainability-Linked Bond Principles (SLBP) require formally defined Sustainability Performance Targets (SPTs) with baseline years and step-up coupon mechanics.',deadline:'Q3 2024',effort:'Medium',tags:['TCFD','Net zero','SLBP']},
+  {id:9,sev:'moderate',standard:'gri',title:'GRI 305-3 — Scope 3 category breakdown (15 categories)',icon:'ti-arrows-transfer-up',why:'Estimated total Scope 3 only — not broken into GHG Protocol\'s 15 categories. Categories 1 (purchased goods) and 11 (use of sold products) are typically most material. Science-based target setting and supply chain decarbonisation — increasingly required by international buyers and green lenders — is not possible without this.',deadline:'Q3 2024',effort:'High',tags:['GRI 305-3','Scope 3','Value chain']},
+  {id:10,sev:'moderate',standard:'greenfinance',title:'Green project selection criteria & governance not documented',icon:'ti-clipboard-check',why:'GBP Component 2 requires a formal process for evaluating and selecting green-eligible projects, including decision-making authority. Without this, a Second Party Opinion provider cannot assess your framework. Establish a green finance committee with documented criteria aligned to CMA Kenya\'s Green Taxonomy categories.',deadline:'Q3 2024',effort:'Medium',tags:['GBP','GLP','Governance','CMA Kenya']},
+  {id:11,sev:'moderate',standard:'greenfinance',title:'Do No Significant Harm (DNSH) assessment missing',icon:'ti-shield-x',why:'Required by EU Taxonomy (relevant for EIB, European DFIs active in Nairobi) and best practice under IFC Performance Standards. DNSH ensures green projects don\'t trade off environmental benefits against other categories (e.g. solar panels using conflict minerals). This assessment is screened in every DFI due diligence process.',deadline:'Q3 2024',effort:'Medium',tags:['DNSH','EU Taxonomy','IFC','DFI']},
+  {id:12,sev:'moderate',standard:'greenfinance',title:'Second Party Opinion (SPO) not commissioned',icon:'ti-certificate',why:'NSE requires an SPO from an accredited verifier before listing a green bond. Kenyan and regional options: PwC Kenya, ERM Africa, Sustainalytics (remote), Vigeo Eiris. SPO process typically takes 6–10 weeks and requires a completed green finance framework. Budget KES 3–8M.',deadline:'Pre-issuance',effort:'Medium',tags:['SPO','NSE Kenya','Verification']},
+  {id:13,sev:'moderate',standard:'sdg',title:'SDG 12 — responsible consumption not linked',icon:'ti-recycle',why:'Directly relevant given Sustainable Waste Management Act obligations and supply chain footprint. Without linking SDG 12, your SDG coverage stays below the 10-goal threshold recommended by UN Global Compact. Green bond investors screen for circular economy credentials under SDG 12.',deadline:'Q4 2024',effort:'Low',tags:['SDG 12','Circular economy','Procurement']},
+  {id:14,sev:'moderate',standard:'gri',title:'GRI 413-1 — local community impact assessment',icon:'ti-building-community',why:'Community investment spend exists but lacks structured impact assessment. NSE guidelines and Kenya Vision 2030 Social Pillar expect measurable outcomes. Green bond Social co-benefit claims (for mixed green-social bonds) require IFC PS5-aligned community engagement evidence.',deadline:'Q3 2024',effort:'Medium',tags:['GRI 413','Social','Community']},
+  {id:15,sev:'moderate',standard:'sdg',title:'SDG 4 — workforce training breakdown missing',icon:'ti-school',why:'Training hours captured (36 hrs) but not by type, gender, or job category as SDG 4 and GRI 404-2 require. NITA partnerships and youth employment claims need structured data. SLB issuers increasingly include workforce development KPIs as social SPTs.',deadline:'Q4 2024',effort:'Low',tags:['SDG 4','GRI 404','Training']},
+  {id:16,sev:'minor',standard:'greenfinance',title:'CMA Kenya Green Finance Taxonomy alignment not confirmed',icon:'ti-tag',why:'CMA Kenya published its Green Finance Taxonomy in 2023, classifying eligible activities for green bonds and loans on the NSE. Formally mapping your activities (solar, water, forestry) to Taxonomy categories is required for NSE listing and strengthens any DFI application.',deadline:'Next cycle',effort:'Low',tags:['CMA Kenya','Green Taxonomy','NSE']},
+  {id:17,sev:'minor',standard:'gri',title:'GRI 2-9 — governance structure detail',icon:'ti-sitemap',why:'Board committee structure for ESG referenced but not formally documented under GRI 2-9. Strengthens CMA Kenya Corporate Governance scorecard. Green finance frameworks require clear ESG governance as part of Component 2 (project evaluation).',deadline:'Next cycle',effort:'Low',tags:['GRI 2-9','Governance','CMA Kenya']},
+  {id:18,sev:'minor',standard:'tcfd',title:'TCFD — transition risk financial quantification',icon:'ti-coin',why:'Risk identification complete but KES financial impact of transition risks not quantified. As Kenya accelerates green energy transition under LCPDP, quantifying stranded asset or carbon cost risk adds depth valued by institutional investors and is increasingly required in SLB frameworks.',deadline:'Next cycle',effort:'High',tags:['TCFD','Transition risk','Financial']},
+  {id:19,sev:'minor',standard:'sdg',title:'SDG 15 — Karura Forest biodiversity not formally reported',icon:'ti-tree',why:'Tree-planting initiative creates SDG 15 (Life on Land) reporting opportunity. Formally link with hectares, species, and carbon sequestration — activating Nature-based Solutions (NbS) credentials valued by green bond investors and conservation finance (e.g. Wildlife Conservation Bond structures used in Kenya).',deadline:'Next cycle',effort:'Low',tags:['SDG 15','Biodiversity','NbS','Karura']},
+];
+
+function renderGaps(filter='all') {
+  const list = document.getElementById('gaps-list');
+  const filtered = gaps.filter(g => {
+    if(filter==='all') return true;
+    if(['critical','moderate','minor'].includes(filter)) return g.sev===filter;
+    return g.standard===filter;
+  });
+  list.innerHTML = filtered.map(g => {
+    const sevColor = g.sev==='critical'?'red':g.sev==='moderate'?'amber':'blue';
+    const sevLabel = g.sev==='critical'?'Critical gap':g.sev==='moderate'?'Moderate gap':'Minor gap';
+    const badgeClass = g.sev==='critical'?'b-red':g.sev==='moderate'?'b-amber':'b-blue';
+    const iconClass = g.standard==='greenfinance'?'gap-icon-green':g.sev==='critical'?'gap-icon-red':g.sev==='moderate'?'gap-icon-amber':'gap-icon-blue';
+    return `<div class="gap-item" id="gap-${g.id}">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <div class="gap-icon ${iconClass}"><i class="ti ${g.icon}"></i></div>
+        <div class="gap-meta">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+            <span class="badge ${badgeClass}">${sevLabel}</span>
+            <span class="badge ${g.standard==='greenfinance'?'b-emerald':'b-gray'}">${g.standard==='greenfinance'?'Green finance':g.standard.toUpperCase()}</span>
+            <span class="badge b-gray">Effort: ${g.effort}</span>
+            ${g.deadline?`<span class="badge b-gray"><i class="ti ti-calendar" style="font-size:10px"></i> ${g.deadline}</span>`:''}
+          </div>
+          <div class="gap-title">${g.title}</div>
+          <div class="gap-tags">${g.tags.map(t=>`<span class="badge b-gray" style="font-size:10px">${t}</span>`).join('')}</div>
+          <div class="gap-why ${sevColor}">${g.why}</div>
+          <div class="gap-actions">
+            <button class="act-btn primary" onclick="askAboutGap(${g.id})"><i class="ti ti-sparkles"></i> Ask AI how to fix this ↗</button>
+            <button class="act-btn" onclick="markDone(${g.id})"><i class="ti ti-check"></i> Mark resolved</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('') || `<div style="padding:24px;text-align:center;color:var(--color-text-secondary,#6b7280);font-size:13px">No gaps in this category</div>`;
+}
+
+function filterGaps(f,btn){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGaps(f);
+}
+function markDone(id){const el=document.getElementById('gap-'+id);if(el){el.style.opacity='0.4';el.style.pointerEvents='none';}}
+function askAboutGap(id){
+  const g=gaps.find(x=>x.id===id);if(!g)return;
+  const q=`How do I fix the gap: "${g.title}" for a Nairobi-based organisation? Give me specific steps, data to collect, and any Kenya-specific considerations.`;
+  document.getElementById('ai-input').value=q;
+  document.getElementById('ai-out').style.display='block';
+  document.getElementById('ai-out').scrollIntoView({behavior:'smooth',block:'nearest'});
+  runAI();
+}
+function setQ(q){document.getElementById('ai-input').value=q;document.getElementById('ai-out').style.display='block';runAI();}
+
+function saveApiKey() {
+  var key = document.getElementById('or-api-key').value.trim();
+  if (key) localStorage.setItem('or_api_key', key);
+}
+function getApiKey() {
+  var saved = localStorage.getItem('or_api_key') || '';
+  var input = document.getElementById('or-api-key');
+  if (input && saved && !input.value) input.value = saved;
+  return saved;
+}
+
+async function runAI(){
+  var input=document.getElementById('ai-input');
+  var out=document.getElementById('ai-out');
+  var q=input.value.trim(); if(!q) return;
+  out.style.display='block';
+  out.innerHTML='<div class="ai-thinking"><div class="dot-pulse"><span></span><span></span><span></span></div><span>Analysing your ESG and green finance data...</span></div>';
+  
+  var key = getApiKey();
+  if (!key) {
+    out.innerHTML = '<div class="ai-response" style="color:var(--color-text-danger,#b91c1c)">Please paste your OpenRouter API key above to use the AI analyst.</div>';
+    input.value='';
+    return;
+  }
+  
+  var sys='You are an expert ESG and green finance analyst specialising in GRI, TCFD, SASB, UN SDGs, ICMA GBP, GLP, SLBP for organisations based in Nairobi, Kenya. CMA Kenya Green Finance Taxonomy, NSE guidelines. GRI 82%, TCFD 71%, SASB 65%, SDGs 53%, Green finance 48%. Nairobi context. Give concise Kenya-specific advice under 300 words.';
+  try{
+    var res=await fetch('https://openrouter.ai/api/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model:'openai/gpt-4o-mini',max_tokens:1000,messages:[{role:'system',content:sys},{role:'user',content:q}]})});
+    if(!res.ok){out.innerHTML='<div class="ai-response" style="color:var(--color-text-danger,#b91c1c)">API error: '+res.status+'</div>';return;}
+    var data=await res.json();
+    var text=data.choices?.[0]?.message?.content||'No response.';
+    out.innerHTML='<div class="ai-response">'+text.replace(/\n/g,'<br>')+'</div>';
+  }catch(e){out.innerHTML='<div class="ai-response" style="color:var(--color-text-danger,#b91c1c)">Error: '+e.message+'</div>';}
+  input.value='';
+}
+
+setTimeout(function() { getApiKey(); }, 100);
+renderGaps('all');
+
+
+// Animate main container on page load
+setTimeout(function() { animatePanel(".wrap"); }, 200);
+</script>
+<script src="animations.js"></script>

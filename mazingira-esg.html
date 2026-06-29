@@ -1,0 +1,2921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mazingira — ESG & Green Finance Platform</title>
+<!-- Security Headers and Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<script src="https://unpkg.com/dompurify@3.0.8/dist/purify.min.js"></script>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; connect-src 'self'; frame-src 'none'; object-src 'none';">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="X-XSS-Protection" content="1; mode=block">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+<style>
+  :root {
+    --green-900: #0D4A35;
+    --green-800: #145C42;
+    --green-700: #1A7050;
+    --green-500: #1D9E75;
+    --green-300: #5DCAA5;
+    --green-100: #E1F5EE;
+    --green-50:  #F0FAF6;
+    --amber-500: #E8A020;
+    --amber-100: #FEF3DC;
+    --amber-50:  #FFFBF2;
+    --red-500:   #C0392B;
+    --red-100:   #FDECEA;
+    --surface:   #F7F5F0;
+    --white:     #FFFFFF;
+    --ink-900:   #1A1A1A;
+    --ink-600:   #4A4A4A;
+    --ink-400:   #7A7A7A;
+    --ink-200:   #DEDEDE;
+    --ink-100:   #F0EFEC;
+    --sidebar-w: 240px;
+    --header-h:  60px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--surface); color: var(--ink-900); font-size: 14px; line-height: 1.5; }
+
+  /* ── LAYOUT ─────────────────────────────── */
+  .layout { display: flex; height: 100vh; overflow: hidden; }
+
+  /* ── SIDEBAR ────────────────────────────── */
+  .sidebar {
+    width: var(--sidebar-w); flex-shrink: 0;
+    background: var(--green-900); color: #fff;
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+  }
+  .sidebar-logo {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .logo-mark {
+    font-size: 18px; font-weight: 700; letter-spacing: -0.5px; color: #fff;
+  }
+  .logo-mark span { color: var(--amber-500); }
+  .logo-sub { font-size: 10px; color: rgba(255,255,255,0.45); letter-spacing: 0.8px; text-transform: uppercase; margin-top: 2px; }
+
+  .sidebar-section { padding: 16px 12px 8px; }
+  .sidebar-label { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.35); padding: 0 8px; margin-bottom: 4px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 10px; border-radius: 8px;
+    font-size: 13px; font-weight: 400; color: rgba(255,255,255,0.7);
+    cursor: pointer; transition: all 0.2s ease; margin-bottom: 2px;
+    border: none; background: none; width: 100%; text-align: left;
+    position: relative;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.07); color: #fff; transform: translateX(2px); }
+  .nav-item.active { background: rgba(255,255,255,0.12); color: #fff; font-weight: 500; }
+  .nav-item.active::before {
+    content: ''; position: absolute; left: -12px; top: 50%; transform: translateY(-50%);
+    width: 3px; height: 20px; border-radius: 0 3px 3px 0;
+    background: var(--amber-500); animation: slideInLeft 0.3s ease;
+  }
+  .nav-item svg { flex-shrink: 0; opacity: 0.7; transition: transform 0.2s ease; }
+  .nav-item:hover svg { transform: scale(1.1); }
+  .nav-item.active svg { opacity: 1; }
+  .nav-badge {
+    margin-left: auto; font-size: 10px; font-weight: 600;
+    background: var(--amber-500); color: var(--green-900);
+    padding: 2px 7px; border-radius: 99px;
+  }
+
+  .sidebar-footer {
+    margin-top: auto; padding: 16px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .company-pill {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; background: rgba(255,255,255,0.08);
+    border-radius: 8px; cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .company-pill:hover { background: rgba(255,255,255,0.12); transform: translateY(-1px); }
+  .company-avatar {
+    width: 28px; height: 28px; border-radius: 6px;
+    background: var(--amber-500); display: flex; align-items: center;
+    justify-content: center; font-size: 11px; font-weight: 700; color: var(--green-900);
+    flex-shrink: 0;
+  }
+  .company-name { font-size: 12px; font-weight: 500; color: #fff; }
+  .company-meta { font-size: 10px; color: rgba(255,255,255,0.4); }
+
+  /* ── MAIN ───────────────────────────────── */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  .topbar {
+    height: var(--header-h); flex-shrink: 0;
+    background: var(--white); border-bottom: 1px solid var(--ink-200);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px;
+  }
+  .topbar-title { font-size: 15px; font-weight: 600; color: var(--ink-900); }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .topbar-tag {
+    font-size: 11px; font-weight: 600; padding: 4px 10px;
+    border-radius: 99px; background: var(--green-100); color: var(--green-700);
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all 0.2s ease; border: none;
+    position: relative; overflow: hidden;
+  }
+  .btn::after {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at var(--rx, 50%) var(--ry, 50%), rgba(255,255,255,0.3) 0%, transparent 60%);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .btn:active::after { opacity: 1; animation: ripple 0.6s ease-out forwards; }
+  .btn:active { transform: scale(0.96); }
+  .btn-primary { background: var(--green-700); color: #fff; }
+  .btn-primary:hover { background: var(--green-800); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(26,112,80,0.25); }
+  .btn-secondary { background: var(--white); color: var(--ink-600); border: 1px solid var(--ink-200); }
+  .btn-secondary:hover { background: var(--surface); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+  .btn-amber { background: var(--amber-500); color: var(--green-900); font-weight: 600; }
+  .btn-amber:hover { background: #d4901a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(232,160,32,0.3); }
+
+  .content { flex: 1; overflow-y: auto; padding: 28px; }
+
+  /* ── PANELS ─────────────────────────────── */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── DASHBOARD ──────────────────────────── */
+  .welcome-bar {
+    background: var(--green-900); border-radius: 12px;
+    padding: 24px 28px; margin-bottom: 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: relative; overflow: hidden;
+  }
+  .welcome-bar::after {
+    content: ''; position: absolute; right: -20px; top: -20px;
+    width: 160px; height: 160px; border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+  .welcome-bar::before {
+    content: ''; position: absolute; right: 60px; top: 40px;
+    width: 80px; height: 80px; border-radius: 50%;
+    background: rgba(232,160,32,0.12);
+  }
+  .welcome-text h2 { font-size: 20px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .welcome-text p { font-size: 13px; color: rgba(255,255,255,0.55); }
+  .welcome-deadline {
+    background: rgba(232,160,32,0.15); border: 1px solid rgba(232,160,32,0.3);
+    border-radius: 10px; padding: 12px 18px; text-align: right; flex-shrink: 0;
+  }
+  .deadline-label { font-size: 10px; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.8px; }
+  .deadline-val { font-size: 22px; font-weight: 700; color: var(--amber-500); }
+  .deadline-sub { font-size: 11px; color: rgba(255,255,255,0.4); }
+
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+  .kpi-card {
+    background: var(--white); border-radius: 10px; padding: 18px;
+    border: 1px solid var(--ink-200);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.07);
+  }
+  .kpi-label { font-size: 11px; color: var(--ink-400); font-weight: 500; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
+  .kpi-val { font-size: 28px; font-weight: 700; color: var(--ink-900); line-height: 1; }
+  .kpi-unit { font-size: 12px; color: var(--ink-400); margin-top: 3px; }
+  .kpi-delta { font-size: 12px; margin-top: 8px; display: flex; align-items: center; gap: 4px; }
+  .delta-up { color: var(--green-500); }
+  .delta-warn { color: var(--amber-500); }
+  .delta-bad { color: var(--red-500); }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+  .card {
+    background: var(--white); border-radius: 10px; padding: 20px;
+    border: 1px solid var(--ink-200);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.06);
+  }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--ink-900); margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+  .card-title-left { display: flex; align-items: center; gap: 8px; }
+
+  /* NSE Compliance gauge */
+  .compliance-ring { position: relative; width: 100px; height: 100px; margin: 0 auto 12px; }
+  .compliance-ring svg { transform: rotate(-90deg); }
+  .compliance-ring-val {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    font-size: 20px; font-weight: 700; color: var(--ink-900);
+  }
+  .compliance-ring-sub { text-align: center; font-size: 11px; color: var(--ink-400); }
+
+  /* Progress bars */
+  .prog-row { margin-bottom: 12px; }
+  .prog-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
+  .prog-header span:first-child { color: var(--ink-600); }
+  .prog-header span:last-child { font-weight: 600; color: var(--ink-900); }
+  .prog-track { height: 7px; background: var(--ink-100); border-radius: 99px; overflow: hidden; }
+  .prog-fill { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
+  .fill-e { background: var(--green-500); }
+  .fill-s { background: #378ADD; }
+  .fill-g { background: #7F77DD; }
+  .fill-gf { background: var(--amber-500); }
+
+  /* Activity feed */
+  .feed-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--ink-100); transition: background 0.15s ease, padding-left 0.15s ease; }
+  .feed-item:last-child { border-bottom: none; }
+  .feed-item:hover { background: var(--surface); padding-left: 6px; border-radius: 4px; }
+  .feed-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .dot-green { background: var(--green-500); }
+  .dot-amber { background: var(--amber-500); }
+  .dot-blue { background: #378ADD; }
+  .feed-text { font-size: 13px; color: var(--ink-600); }
+  .feed-text strong { color: var(--ink-900); font-weight: 500; }
+  .feed-time { font-size: 11px; color: var(--ink-400); margin-top: 2px; }
+
+  /* Alert banner */
+  .alert { border-radius: 10px; padding: 14px 18px; margin-bottom: 18px; display: flex; align-items: flex-start; gap: 12px; }
+  .alert-amber { background: var(--amber-50); border: 1px solid rgba(232,160,32,0.3); }
+  .alert-green { background: var(--green-50); border: 1px solid rgba(29,158,117,0.3); }
+  .alert svg { flex-shrink: 0; margin-top: 1px; }
+  .alert-body { font-size: 13px; color: var(--ink-600); }
+  .alert-body strong { color: var(--ink-900); font-weight: 600; display: block; margin-bottom: 2px; }
+
+  /* ── FORMS / INPUTS ─────────────────────── */
+  .form-section { margin-bottom: 24px; }
+  .form-section-title {
+    font-size: 13px; font-weight: 600; color: var(--ink-900);
+    padding-bottom: 10px; border-bottom: 1px solid var(--ink-200);
+    margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .form-row-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label { font-size: 12px; font-weight: 500; color: var(--ink-600); }
+  label span.req { color: var(--red-500); margin-left: 2px; }
+  input[type=text], input[type=number], input[type=email], select, textarea {
+    padding: 9px 12px; border: 1px solid var(--ink-200);
+    border-radius: 7px; font-size: 13px; font-family: 'Inter', sans-serif;
+    color: var(--ink-900); background: var(--white);
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none; border-color: var(--green-500);
+    box-shadow: 0 0 0 3px rgba(29,158,117,0.12);
+  }
+  textarea { resize: vertical; min-height: 80px; }
+  .input-hint { font-size: 11px; color: var(--ink-400); margin-top: 3px; }
+
+  /* Checkbox list */
+  .check-list { display: flex; flex-direction: column; gap: 8px; }
+  .check-row {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 11px 14px; border-radius: 8px; border: 1px solid var(--ink-200);
+    cursor: pointer; transition: all 0.2s ease;
+  }
+  .check-row:hover { background: var(--surface); border-color: var(--green-300); transform: translateX(2px); }
+  .check-row input[type=checkbox] { margin-top: 2px; accent-color: var(--green-500); }
+  .check-row.checked { border-color: var(--green-300); background: var(--green-50); }
+  .check-row.checked input[type=checkbox] { animation: checkPulse 0.4s ease; }
+  .check-label { font-size: 13px; color: var(--ink-900); font-weight: 500; }
+  .check-sub { font-size: 11px; color: var(--ink-400); margin-top: 2px; }
+  .check-badge-right { margin-left: auto; flex-shrink: 0; }
+
+  /* Badges */
+  .badge {
+    display: inline-flex; align-items: center; font-size: 11px; font-weight: 600;
+    padding: 3px 9px; border-radius: 99px;
+  }
+  .badge-green { background: var(--green-100); color: var(--green-800); }
+  .badge-amber { background: var(--amber-100); color: #7A5000; }
+  .badge-blue { background: #EBF4FF; color: #1A5FA8; }
+  .badge-purple { background: #EEEDFE; color: #3C3489; }
+  .badge-red { background: var(--red-100); color: #8B1A14; }
+  .badge-gray { background: var(--ink-100); color: var(--ink-600); }
+
+  /* Pills selector */
+  .pill-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill {
+    font-size: 12px; padding: 6px 14px; border-radius: 99px;
+    border: 1px solid var(--ink-200); cursor: pointer; color: var(--ink-600);
+    background: var(--white); font-weight: 500; transition: all 0.2s ease;
+  }
+  .pill:hover { border-color: var(--green-500); color: var(--green-700); transform: translateY(-1px); }
+  .pill.active { background: var(--green-700); color: #fff; border-color: var(--green-700); }
+  .pill:active { transform: scale(0.95); }
+
+  /* Instrument cards */
+  .instrument-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .instrument-card {
+    padding: 14px; border-radius: 10px; border: 1.5px solid var(--ink-200);
+    cursor: pointer; transition: all 0.2s ease;
+  }
+  .instrument-card:hover { border-color: var(--green-500); transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+  .instrument-card:active { transform: scale(0.98); }
+  .instrument-card.selected { border-color: var(--green-500); background: var(--green-50); }
+  .instrument-card .ic-name { font-size: 13px; font-weight: 600; color: var(--ink-900); margin-bottom: 4px; }
+  .instrument-card .ic-desc { font-size: 12px; color: var(--ink-400); }
+  .instrument-card .ic-tag { margin-top: 8px; }
+
+  /* ── TABLES ─────────────────────────────── */
+  table { width: 100%; border-collapse: collapse; }
+  th { font-size: 11px; font-weight: 600; color: var(--ink-400); text-transform: uppercase; letter-spacing: 0.5px; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--ink-200); }
+  td { padding: 12px 14px; font-size: 13px; color: var(--ink-600); border-bottom: 1px solid var(--ink-100); }
+  tr:last-child td { border-bottom: none; }
+  tr { transition: background 0.15s ease; }
+  tr:hover td { background: var(--surface); }
+  tr:first-child { transition-delay: 0s; }
+  tr:nth-child(2) { transition-delay: 0.03s; }
+  tr:nth-child(3) { transition-delay: 0.06s; }
+  tr:nth-child(4) { transition-delay: 0.09s; }
+  tr:nth-child(5) { transition-delay: 0.12s; }
+  td strong { color: var(--ink-900); font-weight: 500; }
+
+  /* ── AI CHAT ─────────────────────────────── */
+  .chat-wrap { display: flex; flex-direction: column; height: calc(100vh - var(--header-h) - 56px); }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .chat-bubble { max-width: 75%; padding: 12px 16px; border-radius: 12px; font-size: 13px; line-height: 1.6; }
+  .chat-bubble { animation: slideUp 0.3s ease; }
+  .chat-bubble.user { background: var(--green-700); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+  .chat-bubble.ai { background: var(--white); border: 1px solid var(--ink-200); color: var(--ink-900); align-self: flex-start; border-bottom-left-radius: 4px; }
+  .chat-bubble.ai .ai-label { font-size: 10px; font-weight: 600; color: var(--green-500); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .chat-bar {
+    padding: 16px 20px; background: var(--white);
+    border-top: 1px solid var(--ink-200);
+    display: flex; gap: 10px; align-items: flex-end;
+  }
+  .chat-bar textarea {
+    flex: 1; min-height: 42px; max-height: 120px; resize: none;
+    border: 1px solid var(--ink-200); border-radius: 10px;
+    padding: 10px 14px; font-size: 13px;
+  }
+  .chat-suggestions { display: flex; gap: 8px; flex-wrap: wrap; padding: 10px 20px 0; }
+  .suggestion-chip {
+    font-size: 12px; padding: 5px 12px; border-radius: 99px;
+    background: var(--green-50); border: 1px solid var(--green-100);
+    color: var(--green-700); cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
+  }
+  .suggestion-chip:hover { background: var(--green-100); transform: translateY(-1px); box-shadow: 0 2px 8px rgba(29,158,117,0.15); }
+  .suggestion-chip:active { transform: scale(0.95); }
+
+  /* ── NSE COMPLIANCE PAGE ────────────────── */
+  .compliance-timeline { position: relative; padding-left: 24px; }
+  .compliance-timeline::before { content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 1px; background: var(--ink-200); }
+  .timeline-item { position: relative; margin-bottom: 20px; }
+  .timeline-dot { position: absolute; left: -24px; top: 4px; width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--white); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+  .timeline-item:hover .timeline-dot { transform: scale(1.3); }
+  .tl-done { background: var(--green-500); box-shadow: 0 0 0 0 rgba(29,158,117,0.3); }
+  .tl-current { background: var(--amber-500); box-shadow: 0 0 0 4px rgba(232,160,32,0.2); animation: pulse 2s ease-in-out infinite; }
+  .tl-future { background: var(--ink-200); }
+  .timeline-title { font-size: 13px; font-weight: 600; color: var(--ink-900); transition: color 0.2s ease; }
+  .timeline-item:hover .timeline-title { color: var(--green-700); }
+  .timeline-body { font-size: 12px; color: var(--ink-400); margin-top: 3px; }
+
+  /* ── REPORT PAGE ─────────────────────────── */
+  .report-output {
+    background: var(--white); border: 1px solid var(--ink-200);
+    border-radius: 10px; padding: 28px; font-size: 14px;
+    line-height: 1.8; color: var(--ink-900); white-space: pre-wrap;
+    display: none; margin-top: 18px; font-family: 'Inter', sans-serif;
+  }
+
+  /* ── UTILITY ─────────────────────────────── */
+  .mt-4 { margin-top: 4px; }
+  .mt-8 { margin-top: 8px; }
+  .mt-16 { margin-top: 16px; }
+  .mt-20 { margin-top: 20px; }
+  .mb-16 { margin-bottom: 16px; }
+  .flex { display: flex; }
+  .flex-between { display: flex; justify-content: space-between; align-items: center; }
+  .gap-8 { gap: 8px; }
+  .gap-12 { gap: 12px; }
+  .text-sm { font-size: 12px; }
+  .text-muted { color: var(--ink-400); }
+  .text-green { color: var(--green-700); }
+  .fw-600 { font-weight: 600; }
+  .divider { border: none; border-top: 1px solid var(--ink-200); margin: 20px 0; }
+  .empty-state { text-align: center; padding: 48px 20px; color: var(--ink-400); }
+  .empty-state svg { opacity: 0.3; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; }
+  .spinner { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Panel entrance — JS handles child staggering via animatePanel() */
+  .panel.active { animation: fadeIn 0.3s ease; }
+
+  /* Welcome bar floating decoration */
+  .welcome-bar::after { animation: float 6s ease-in-out infinite; }
+  .welcome-bar::before { animation: float 5s ease-in-out infinite reverse; }
+
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 999;
+    background: var(--green-900); color: #fff; padding: 12px 20px;
+    border-radius: 10px; font-size: 13px; font-weight: 500;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    opacity: 0;    transform: translateY(8px);
+    transition: all 0.25s; pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); animation: bounceIn 0.4s cubic-bezier(.22,.61,.36,1); }
+
+  @media (max-width: 900px) {
+    .sidebar { width: 56px; }
+    .logo-sub, .nav-item span, .company-name, .company-meta, .sidebar-label { display: none; }
+    .logo-mark { font-size: 14px; }
+    .nav-badge { display: none; }
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .two-col, .form-row { grid-template-columns: 1fr; }
+    .instrument-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── DOCUMENT VAULT ─────────────────────── */
+  .doc-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; border-radius: 8px;
+    border: 1px solid var(--ink-200); margin-bottom: 8px;
+    transition: all 0.2s ease;
+  }
+  .doc-item:hover { background: var(--surface); transform: translateX(2px); }
+  .doc-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; flex-shrink: 0;
+  }
+  .doc-icon-pdf { background: #FDECEA; color: var(--red-500); }
+  .doc-icon-doc { background: #EBF4FF; color: #1A5FA8; }
+  .doc-icon-xls { background: var(--green-100); color: var(--green-800); }
+  .doc-icon-img { background: #F3EEFF; color: #5B3FA8; }
+  .doc-name { font-size: 13px; font-weight: 500; color: var(--ink-900); }
+  .doc-meta { font-size: 11px; color: var(--ink-400); margin-top: 2px; }
+  .doc-remove { margin-left: auto; background: none; border: none; cursor: pointer; color: var(--ink-400); padding: 4px; border-radius: 4px; }
+  .doc-remove:hover { color: var(--red-500); background: var(--red-100); }
+  .doc-req-item { font-size: 13px; color: var(--ink-600); padding: 8px 0; border-bottom: 1px solid var(--ink-100); display: flex; align-items: center; }
+  .doc-req-item:last-child { border-bottom: none; }
+
+  /* ── MATERIALITY ─────────────────────────── */
+  .mat-slider-row { display: flex; flex-direction: column; gap: 4px; }
+  .mat-slider-row label { font-size: 12px; font-weight: 500; color: var(--ink-700); }
+  .mat-slider-row .slider-row { display: flex; align-items: center; gap: 8px; }
+  .mat-slider-row input[type=range] { flex: 1; accent-color: var(--green-500); }
+  .mat-val { font-size: 12px; font-weight: 600; color: var(--ink-900); width: 20px; text-align: right; }
+  .mat-sub { font-size: 11px; color: var(--ink-400); }
+
+  /* ── EMISSIONS TOOLS ───────────────────── */
+  .em-calc-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--ink-100); }
+  .em-calc-row:last-child { border-bottom: none; }
+  .em-calc-label { font-size: 12px; font-weight: 500; color: var(--ink-600); min-width: 160px; }
+  .em-calc-input { width: 120px; }
+  .em-calc-input input { width: 100%; padding: 6px 10px; border: 1px solid var(--ink-200); border-radius: 6px; font-size: 13px; font-family: 'Inter', sans-serif; color: var(--ink-900); background: var(--white); outline: none; }
+  .em-calc-input input:focus { border-color: var(--green-500); box-shadow: 0 0 0 3px rgba(29,158,117,0.12); }
+  .em-calc-result { font-size: 13px; font-weight: 600; color: var(--green-700); min-width: 80px; text-align: right; }
+  .em-calc-factor { font-size: 11px; color: var(--ink-400); min-width: 100px; text-align: right; }
+  .em-total-row { background: var(--green-50); border-radius: 8px; padding: 12px 16px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .em-total-label { font-size: 14px; font-weight: 600; color: var(--ink-900); }
+  .em-total-val { font-size: 22px; font-weight: 700; color: var(--green-700); }
+  .em-total-sub { font-size: 11px; color: var(--ink-400); margin-top: 2px; text-align: right; }
+  .em-factor-ref { font-size: 11px; color: var(--ink-400); line-height: 1.5; padding: 12px; background: var(--surface); border-radius: 8px; margin-top: 10px; }
+  .em-factor-ref strong { color: var(--ink-600); }
+  .em-scope3-cat { padding: 10px 14px; border: 1px solid var(--ink-200); border-radius: 8px; margin-bottom: 6px; transition: border-color 0.15s; }
+  .em-scope3-cat:hover { border-color: var(--green-300); }
+  .em-scope3-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+  .em-scope3-name { font-size: 12px; font-weight: 500; color: var(--ink-900); }
+  .em-scope3-desc { font-size: 11px; color: var(--ink-400); margin-top: 2px; }
+  .em-scope3-input-row { display: flex; gap: 10px; margin-top: 8px; align-items: center; }
+  .em-scope3-input-row input { flex: 1; max-width: 140px; }
+  .em-scope3-input-row .em-calc-result { min-width: 60px; }
+  .em-pathway-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--ink-100); }
+  .em-pathway-year { font-size: 12px; font-weight: 600; color: var(--ink-900); min-width: 50px; }
+  .em-pathway-bar-wrap { flex: 1; }
+  .em-pathway-bar { height: 10px; border-radius: 99px; transition: width 0.4s ease; }
+  .em-pathway-val { font-size: 12px; color: var(--ink-600); min-width: 60px; text-align: right; }
+  .em-pathway-current { background: var(--green-500); }
+  .em-pathway-target { background: var(--amber-500); opacity: 0.6; }
+  .em-pathway-gap { background: var(--red-500); opacity: 0.4; }
+  .em-kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+  .em-kpi-card { background: var(--white); border: 1px solid var(--ink-200); border-radius: 10px; padding: 14px; }
+  .em-kpi-label { font-size: 10px; color: var(--ink-400); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .em-kpi-val { font-size: 22px; font-weight: 700; color: var(--ink-900); line-height: 1; }
+  .em-kpi-unit { font-size: 11px; color: var(--ink-400); margin-top: 2px; }
+  .em-scope3-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .em-scope3-table th { font-size: 10px; font-weight: 600; color: var(--ink-400); text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--ink-200); }
+  .em-scope3-table td { padding: 8px 10px; border-bottom: 1px solid var(--ink-100); color: var(--ink-600); }
+  .em-scope3-table td strong { color: var(--ink-900); }
+  .em-scope3-table tr:hover td { background: var(--surface); }
+  .em-legend { display: flex; gap: 16px; font-size: 11px; color: var(--ink-400); margin-top: 10px; }
+  .em-legend span { display: flex; align-items: center; gap: 5px; }
+  .em-legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="animations.css">
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ── SIDEBAR ── -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">Mazingira<span>.</span></div>
+      <div class="logo-sub">ESG &amp; Green Finance</div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Overview</div>
+      <button class="nav-item active" onclick="showPanel('dashboard', this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </button>
+      <button class="nav-item" onclick="showPanel('compliance', this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <span>NSE Compliance</span>
+        <span class="nav-badge">!</span>
+      </button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">ESG Data</div>
+      <button class="nav-item" onclick="showPanel('environmental', this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span>Environmental</span>
+      </button>
+      <button class="nav-item" onclick="showPanel('social', this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Social</span>
+      </button>
+      <button class="nav-item" onclick="showPanel('governance', this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span>Governance</span>
+      </button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Green Finance</div>
+      <button class="nav-item" onclick="showPanel('greenfinance', this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        <span>Green Finance</span>
+      </button>
+      <button class="nav-item" onclick="showPanel('cbktaxonomy', this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span>CBK Taxonomy</span>
+      </button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">EU Trade</div>
+      <button class="nav-item" onclick="showPanel('euhorticulture', this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 11l2 2 4-4"/></svg>
+        <span>EU Horticulture</span>
+      </button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Carbon</div>
+      <a class="nav-item" href="esg_emissions_calculator.html">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        <span>Scope 1, 2 &amp; 3 Calculator</span>
+        <span class="nav-badge">New</span>
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Analytics</div>
+      <button class="nav-item" onclick="showPanel('trends', this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span>Trends &amp; Charts</span>
+      </button>
+      <button class="nav-item" onclick="showPanel('materiality', this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>Materiality</span>
+      </button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Reports</div>
+      <button class="nav-item" onclick="showPanel('report', this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span>Draft Report</span>
+      </button>
+      <button class="nav-item" onclick="showPanel('documents', this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        <span>Document Vault</span>
+      </button>
+      <button class="nav-item" onclick="showPanel('advisor', this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>AI Advisor</span>
+      </button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Account</div>
+      <button class="nav-item" onclick="showPanel('settings', this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Settings</span>
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="company-pill">
+        <div class="company-avatar">AK</div>
+        <div>
+          <div class="company-name" id="sidebar-company">Acacia Kenya Ltd</div>
+          <div class="company-meta" id="sidebar-meta">NSE Listed · FY 2024</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── MAIN ── -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="topbar-right">
+        <span class="topbar-tag">FY 2024 Report</span>
+        <button class="btn btn-secondary" onclick="saveFormData();showToast('Data saved ✓')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save
+        </button>
+        <button class="btn btn-secondary" onclick="toggleAIFill()" id="ai-fill-btn" title="AI Form Assistant">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 8v4l2 2"/><path d="M18 2l4 4-4 4"/><path d="M22 2l-4 4"/></svg>
+          AI Fill
+        </button>
+        <button class="btn btn-amber" onclick="showPanel('report', document.querySelectorAll('.nav-item')[8])">Generate Report</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ── DASHBOARD PANEL ── -->
+      <div id="panel-dashboard" class="panel active">
+        <div class="welcome-bar reveal">
+          <div class="welcome-text">
+            <h2>Habari, <span id="welcome-company">Acacia Kenya</span> 👋</h2>
+            <p>Your FY 2024 ESG report is due to the NSE. You're 62% complete — keep going.</p>
+          </div>
+          <div class="welcome-deadline">
+            <div class="deadline-label">NSE deadline</div>
+            <div class="deadline-val" id="days-left">—</div>
+            <div class="deadline-sub">days remaining</div>
+          </div>
+        </div>
+
+        <div class="alert alert-amber reveal" style="transition-delay:0.1s">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E8A020" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <div class="alert-body">
+            <strong>NSE ESG Disclosure Manual — action required</strong>
+            Your Governance section is incomplete. NSE requires board composition data, ethics policies, and executive pay disclosure for full compliance with the 2021 ESG Guidance Manual.
+          </div>
+        </div>
+
+        <div class="kpi-grid reveal" style="transition-delay:0.2s">
+          <div class="kpi-card">
+            <div class="kpi-label">ESG Score</div>
+            <div class="kpi-val" id="dash-esg">62</div>
+            <div class="kpi-unit">out of 100</div>
+            <div class="kpi-delta delta-up">↑ +8 from FY 2023</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">GF Readiness</div>
+            <div class="kpi-val" id="dash-gf">38</div>
+            <div class="kpi-unit">Green Bond ready</div>
+            <div class="kpi-delta delta-warn">⚠ 3 principles missing</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Total Emissions (calc)</div>
+            <div class="kpi-val" id="dash-emissions-total">—</div>
+            <div class="kpi-unit">tCO₂e (Scope 1 + 2 + selected 3)</div>
+            <div class="kpi-delta" id="dash-emissions-delta" style="color:var(--green-500)">Enter data in Carbon panel →</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">NSE Compliance</div>
+            <div class="kpi-val">62<span style="font-size:16px;font-weight:400;color:var(--ink-400)">%</span></div>
+            <div class="kpi-unit">of disclosures complete</div>
+            <div class="kpi-delta delta-warn">⚠ Governance gap</div>
+          </div>
+        </div>
+
+        <div class="two-col reveal" style="transition-delay:0.3s">
+          <div class="card">
+            <div class="card-title">ESG pillar progress</div>
+            <div class="prog-row">
+              <div class="prog-header"><span>Environmental</span><span>78%</span></div>
+              <div class="prog-track"><div class="prog-fill fill-e" style="width:78%"></div></div>
+            </div>
+            <div class="prog-row">
+              <div class="prog-header"><span>Social</span><span>65%</span></div>
+              <div class="prog-track"><div class="prog-fill fill-s" style="width:65%"></div></div>
+            </div>
+            <div class="prog-row">
+              <div class="prog-header"><span>Governance</span><span>44%</span></div>
+              <div class="prog-track"><div class="prog-fill fill-g" style="width:44%"></div></div>
+            </div>
+            <div class="prog-row">
+              <div class="prog-header"><span>Green Finance</span><span>38%</span></div>
+              <div class="prog-track"><div class="prog-fill fill-gf" style="width:38%"></div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Recent activity</div>
+            <div class="feed-item">
+              <div class="feed-dot dot-green"></div>
+              <div>
+                <div class="feed-text"><strong>Scope 1 emissions</strong> updated — 1,200 tCO₂e entered</div>
+                <div class="feed-time">Today, 10:24 AM</div>
+              </div>
+            </div>
+            <div class="feed-item">
+              <div class="feed-dot dot-amber"></div>
+              <div>
+                <div class="feed-text"><strong>Board composition</strong> — women on board data missing</div>
+                <div class="feed-time">Yesterday</div>
+              </div>
+            </div>
+            <div class="feed-item">
+              <div class="feed-dot dot-blue"></div>
+              <div>
+                <div class="feed-text"><strong>GRI report draft</strong> generated by AI Advisor</div>
+                <div class="feed-time">2 days ago</div>
+              </div>
+            </div>
+            <div class="feed-item">
+              <div class="feed-dot dot-green"></div>
+              <div>
+                <div class="feed-text"><strong>Renewable energy</strong> — 45% share confirmed</div>
+                <div class="feed-time">3 days ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card reveal" style="transition-delay:0.4s">
+          <div class="card-title">
+            <div class="card-title-left">NSE-listed peer benchmarks <span class="badge badge-gray" style="margin-left:8px">Nairobi Exchange</span></div>
+            <span class="text-sm text-muted">FY 2024 average</span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Sector</th>
+                <th>ESG Score</th>
+                <th>E</th><th>S</th><th>G</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Safaricom PLC</strong></td>
+                <td>Telecom</td>
+                <td><strong>84</strong></td>
+                <td>88</td><td>81</td><td>82</td>
+                <td><span class="badge badge-green">Compliant</span></td>
+              </tr>
+              <tr>
+                <td><strong>Equity Group</strong></td>
+                <td>Banking</td>
+                <td><strong>79</strong></td>
+                <td>72</td><td>80</td><td>85</td>
+                <td><span class="badge badge-green">Compliant</span></td>
+              </tr>
+              <tr>
+                <td><strong>EABL</strong></td>
+                <td>Consumer</td>
+                <td><strong>76</strong></td>
+                <td>80</td><td>74</td><td>74</td>
+                <td><span class="badge badge-green">Compliant</span></td>
+              </tr>
+              <tr style="background:var(--green-50)">
+                <td><strong>Acacia Kenya ★</strong></td>
+                <td>Your company</td>
+                <td><strong>62</strong></td>
+                <td>78</td><td>65</td><td>44</td>
+                <td><span class="badge badge-amber">In Progress</span></td>
+              </tr>
+              <tr>
+                <td><strong>NSE Average</strong></td>
+                <td>All sectors</td>
+                <td><strong>58</strong></td>
+                <td>61</td><td>56</td><td>57</td>
+                <td><span class="badge badge-gray">Partial</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card reveal" style="transition-delay:0.45s">
+          <div class="card-title">
+            <div class="card-title-left">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green-700)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 11l2 2 4-4"/></svg>
+              EU Horticulture Export Readiness
+            </div>
+            <span class="text-sm text-muted">
+              <span class="badge badge-blue" style="cursor:pointer" onclick="showPanel('euhorticulture', document.querySelectorAll('.nav-item')[7])">View EU Trade details →</span>
+            </span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+            <div>
+              <div class="kpi-label" style="font-size:10px;margin-bottom:6px">MRL Compliance</div>
+              <div class="kpi-val" id="dash-eu-mrl" style="font-size:24px;line-height:1;color:var(--amber-500)">—</div>
+              <div class="kpi-unit">pesticide residue</div>
+            </div>
+            <div>
+              <div class="kpi-label" style="font-size:10px;margin-bottom:6px">Phytosanitary</div>
+              <div class="kpi-val" id="dash-eu-phyto" style="font-size:24px;line-height:1;color:var(--amber-500)">—</div>
+              <div class="kpi-unit">KEPHIS cert</div>
+            </div>
+            <div>
+              <div class="kpi-label" style="font-size:10px;margin-bottom:6px">Due Diligence</div>
+              <div class="kpi-val" id="dash-eu-due" style="font-size:24px;line-height:1;color:var(--amber-500)">—</div>
+              <div class="kpi-unit">CSDDD ready</div>
+            </div>
+            <div>
+              <div class="kpi-label" style="font-size:10px;margin-bottom:6px">Export Readiness</div>
+              <div class="kpi-val" id="dash-eu-overall" style="font-size:24px;line-height:1;color:var(--green-500)">—</div>
+              <div class="kpi-unit">overall score</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── NSE COMPLIANCE PANEL ── -->
+      <div id="panel-compliance" class="panel">
+        <div class="alert alert-green reveal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green-700)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div class="alert-body">
+            <strong>NSE ESG Disclosure Guidance Manual (2021)</strong>
+            Mandatory annual reporting for all 63 NSE-listed companies. GRI Standards recommended. Reports due alongside or within the annual integrated report.
+          </div>
+        </div>
+
+        <div class="two-col reveal" style="transition-delay:0.1s">
+          <div class="card">
+            <div class="card-title">Compliance checklist</div>
+            <div class="check-list">
+              <label class="check-row checked">
+                <input type="checkbox" checked> 
+                <div><div class="check-label">GRI materiality assessment</div><div class="check-sub">Identify and prioritise material ESG topics</div></div>
+                <div class="check-badge-right"><span class="badge badge-green">Done</span></div>
+              </label>
+              <label class="check-row checked">
+                <input type="checkbox" checked>
+                <div><div class="check-label">Environmental metrics disclosed</div><div class="check-sub">GHG emissions, energy, water, waste</div></div>
+                <div class="check-badge-right"><span class="badge badge-green">Done</span></div>
+              </label>
+              <label class="check-row">
+                <input type="checkbox">
+                <div><div class="check-label">Social metrics disclosed</div><div class="check-sub">Workforce diversity, H&S, training, community</div></div>
+                <div class="check-badge-right"><span class="badge badge-amber">Partial</span></div>
+              </label>
+              <label class="check-row">
+                <input type="checkbox">
+                <div><div class="check-label">Governance structure disclosed</div><div class="check-sub">Board composition, independence, ESG oversight</div></div>
+                <div class="check-badge-right"><span class="badge badge-red">Missing</span></div>
+              </label>
+              <label class="check-row">
+                <input type="checkbox">
+                <div><div class="check-label">Executive remuneration linked to ESG</div><div class="check-sub">NSE Manual section 4.3 requirement</div></div>
+                <div class="check-badge-right"><span class="badge badge-red">Missing</span></div>
+              </label>
+              <label class="check-row checked">
+                <input type="checkbox" checked>
+                <div><div class="check-label">Stakeholder engagement documented</div><div class="check-sub">Community, investor, and employee engagement</div></div>
+                <div class="check-badge-right"><span class="badge badge-green">Done</span></div>
+              </label>
+              <label class="check-row">
+                <input type="checkbox">
+                <div><div class="check-label">Climate risk disclosure (CBK guidance)</div><div class="check-sub">TCFD-aligned physical and transition risk</div></div>
+                <div class="check-badge-right"><span class="badge badge-amber">Partial</span></div>
+              </label>
+              <label class="check-row">
+                <input type="checkbox">
+                <div><div class="check-label">Third-party verification</div><div class="check-sub">Recommended for listed companies</div></div>
+                <div class="check-badge-right"><span class="badge badge-gray">Optional</span></div>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <div class="card mb-16">
+              <div class="card-title">Reporting timeline</div>
+              <div class="compliance-timeline">
+                <div class="timeline-item">
+                  <div class="timeline-dot tl-done"></div>
+                  <div class="timeline-title">Nov 2021 — NSE ESG Manual published</div>
+                  <div class="timeline-body">Grace period granted to all listed companies</div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot tl-done"></div>
+                  <div class="timeline-title">Nov 2022 — Mandatory reporting begins</div>
+                  <div class="timeline-body">Annual ESG disclosure required for all 63 NSE-listed firms</div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot tl-done"></div>
+                  <div class="timeline-title">2024 — CBK Green Finance Taxonomy</div>
+                  <div class="timeline-body">First edition published; aligns with green lending standards</div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot tl-current"></div>
+                  <div class="timeline-title">FY 2024 Report — due now</div>
+                  <div class="timeline-body">Submit alongside annual integrated report to NSE</div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot tl-future"></div>
+                  <div class="timeline-title">2025–2026 — Enforcement expected to tighten</div>
+                  <div class="timeline-body">CMA and NSE signalling stronger enforcement action</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">Key contacts</div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div class="flex-between">
+                  <span class="text-muted text-sm">NSE Regulation</span>
+                  <a href="https://www.nse.co.ke" style="color:var(--green-700);font-size:12px">nse.co.ke</a>
+                </div>
+                <div class="flex-between">
+                  <span class="text-muted text-sm">CBK Green Taxonomy</span>
+                  <a href="https://www.centralbank.go.ke" style="color:var(--green-700);font-size:12px">centralbank.go.ke</a>
+                </div>
+                <div class="flex-between">
+                  <span class="text-muted text-sm">CMA Kenya</span>
+                  <a href="https://www.cma.or.ke" style="color:var(--green-700);font-size:12px">cma.or.ke</a>
+                </div>
+                <div class="flex-between">
+                  <span class="text-muted text-sm">GRI Standards</span>
+                  <a href="https://www.globalreporting.org" style="color:var(--green-700);font-size:12px">globalreporting.org</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ENVIRONMENTAL PANEL ── -->
+      <div id="panel-environmental" class="panel">
+        <div class="form-section reveal" style="transition-delay:0.1s">
+          <div class="form-section-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green-700)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            GHG Emissions (GRI 305)
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Scope 1 emissions (tCO₂e) <span class="req">*</span></label>
+              <input type="number" id="scope1" placeholder="e.g. 1200" oninput="recalc()">
+              <div class="input-hint">Direct emissions from owned/controlled sources</div>
+            </div>
+            <div class="form-group">
+              <label>Scope 2 emissions (tCO₂e) <span class="req">*</span></label>
+              <input type="number" id="scope2" placeholder="e.g. 850" oninput="recalc()">
+              <div class="input-hint">Indirect from purchased electricity (location-based)</div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Scope 3 emissions (tCO₂e)</label>
+              <input type="number" id="scope3" placeholder="e.g. 4200">
+              <div class="input-hint">Value chain emissions — disclose if material</div>
+            </div>
+            <div class="form-group">
+              <label>Emission intensity (tCO₂e / KES M revenue)</label>
+              <input type="number" id="em-intensity" placeholder="Auto-calculated" readonly style="background:var(--surface)">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Reduction target (%)</label>
+              <input type="number" id="em-target" placeholder="e.g. 30" oninput="recalc()">
+            </div>
+            <div class="form-group">
+              <label>Base year</label>
+              <input type="number" id="em-base" placeholder="e.g. 2019">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green-700)" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            Energy (GRI 302)
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Total energy consumption (MWh) <span class="req">*</span></label>
+              <input type="number" id="energy" placeholder="e.g. 4500" oninput="recalc()">
+            </div>
+            <div class="form-group">
+              <label>Renewable energy share (%)</label>
+              <input type="number" id="renewable" placeholder="e.g. 45" oninput="recalc()">
+              <div class="input-hint">Kenya grid is ~90% renewable — verify your source mix</div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Energy from solar PV (MWh)</label>
+              <input type="number" id="solar" placeholder="e.g. 800">
+            </div>
+            <div class="form-group">
+              <label>Energy intensity (MWh / KES M revenue)</label>
+              <input type="number" id="en-intensity" placeholder="Auto-calculated" readonly style="background:var(--surface)">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green-700)" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+            Water (GRI 303)
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Total water withdrawal (m³)</label>
+              <input type="number" id="water" placeholder="e.g. 12000" oninput="recalc()">
+              <div class="input-hint">Nairobi Water Company or borehole sources</div>
+            </div>
+            <div class="form-group">
+              <label>Water recycled / reused (m³)</label>
+              <input type="number" id="water-recycled" placeholder="e.g. 2000">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green-700)" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Waste (GRI 306)
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Total waste generated (tonnes)</label>
+              <input type="number" id="waste" placeholder="e.g. 300" oninput="recalc()">
+            </div>
+            <div class="form-group">
+              <label>Waste diverted from landfill (%)</label>
+              <input type="number" id="waste-div" placeholder="e.g. 60" oninput="recalc()">
+              <div class="input-hint">Recycled, reused, or composted</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-8">
+          <button class="btn btn-primary" onclick="showToast('Environmental data saved ✓')">Save section</button>
+          <button class="btn btn-secondary" onclick="showPanel('social', document.querySelectorAll('.nav-item')[4])">Next: Social →</button>
+        </div>
+      </div>
+
+      <!-- ── SOCIAL PANEL ── -->
+      <div id="panel-social" class="panel">
+        <div class="form-section">
+          <div class="form-section-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#378ADD" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            Workforce (GRI 401–405)
+          </div>
+          <div class="form-row form-row-3">
+            <div class="form-group">
+              <label>Total employees <span class="req">*</span></label>
+              <input type="number" id="emp-total" placeholder="e.g. 850" oninput="recalc()">
+            </div>
+            <div class="form-group">
+              <label>Women in workforce (%)</label>
+              <input type="number" id="emp-women" placeholder="e.g. 42" oninput="recalc()">
+            </div>
+            <div class="form-group">
+              <label>Local employees — Kenyan nationals (%)</label>
+              <input type="number" id="emp-local" placeholder="e.g. 96">
+            </div>
+          </div>
+          <div class="form-row form-row-3">
+            <div class="form-group">
+              <label>Women in management (%)</label>
+              <input type="number" id="lead-women" placeholder="e.g. 35" oninput="recalc()">
+            </div>
+            <div class="form-group">
+              <label>Youth employees under 35 (%)</label>
+              <input type="number" id="emp-youth" placeholder="e.g. 48">
+              <div class="input-hint">Kenya's youth bulge — material for social score</div>
+            </div>
+            <div class="form-group">
+              <label>Employee turnover rate (%)</label>
+              <input type="number" id="turnover" placeholder="e.g. 12" oninput="recalc()">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#378ADD" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            Health &amp; Safety (GRI 403)
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Lost-time injury rate (LTIR)</label>
+              <input type="number" id="ltir" placeholder="e.g. 0.8" step="0.01" oninput="recalc()">
+            </div>
+            <div class="form-group">
+              <label>Training hours per employee (avg)</label>
+              <input type="number" id="training" placeholder="e.g. 24" oninput="recalc()">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#378ADD" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+            Community &amp; Supply Chain
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Community investment (KES)</label>
+              <input type="number" id="community" placeholder="e.g. 15000000" oninput="recalc()">
+              <div class="input-hint">CSR spend, foundation contributions, in-kind</div>
+            </div>
+            <div class="form-group">
+              <label>Suppliers screened for ESG (%)</label>
+              <input type="number" id="suppliers" placeholder="e.g. 70" oninput="recalc()">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Local / Kenyan suppliers (%)</label>
+              <input type="number" id="local-suppliers" placeholder="e.g. 62">
+              <div class="input-hint">Disclosure recommended by NSE Manual</div>
+            </div>
+            <div class="form-group">
+              <label>SME suppliers (%)</label>
+              <input type="number" id="sme-suppliers" placeholder="e.g. 38">
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-8">
+          <button class="btn btn-primary" onclick="showToast('Social data saved ✓')">Save section</button>
+          <button class="btn btn-secondary" onclick="showPanel('governance', document.querySelectorAll('.nav-item')[5])">Next: Governance →</button>
+        </div>
+      </div>
+
+      <!-- ── GOVERNANCE PANEL ── -->
+      <div id="panel-governance" class="panel">
+        <div class="form-section">
+          <div class="form-section-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7F77DD" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+            Board composition (GRI 102)
+          </div>
+          <div class="form-row form-row-3">
+            <div class="form-group">
+              <label>Board size <span class="req">*</span></label>
+              <input type="number" id="board-size" placeholder="e.g. 9" oninput="recalc()">
+            </div>
+            <div class="form-group">
+              <label>Independent directors (%)</label>
+              <input type="number" id="independent" placeholder="e.g. 67" oninput="recalc()">
+            </div>
+            <div class="form-group">
+              <label>Women on board (%)</label>
+              <input type="number" id="board-women" placeholder="e.g. 33" oninput="recalc()">
+              <div class="input-hint">Kenya: one-third gender rule guidance</div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>ESG board oversight</label>
+              <select id="board-esg" onchange="recalc()">
+                <option value="">Select…</option>
+                <option value="committee">Dedicated ESG / Sustainability Committee</option>
+                <option value="audit">Audit &amp; Risk Committee covers ESG</option>
+                <option value="full-board">Full board responsibility</option>
+                <option value="none">No formal oversight</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Board meetings per year</label>
+              <input type="number" id="board-meetings" placeholder="e.g. 6">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7F77DD" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Ethics &amp; compliance policies
+          </div>
+          <div class="check-list" id="gov-checks">
+            <label class="check-row" onclick="toggleCheck(this)">
+              <input type="checkbox" onchange="recalc()">
+              <div><div class="check-label">Anti-corruption policy</div><div class="check-sub">Bribery Act compliance; whistleblower protections</div></div>
+              <div class="check-badge-right"><span class="badge badge-purple">Required</span></div>
+            </label>
+            <label class="check-row" onclick="toggleCheck(this)">
+              <input type="checkbox" onchange="recalc()">
+              <div><div class="check-label">Code of conduct — publicly available</div><div class="check-sub">Covers employees, directors, and suppliers</div></div>
+              <div class="check-badge-right"><span class="badge badge-purple">Required</span></div>
+            </label>
+            <label class="check-row" onclick="toggleCheck(this)">
+              <input type="checkbox" onchange="recalc()">
+              <div><div class="check-label">Whistleblower / ethics hotline</div><div class="check-sub">Anonymous reporting channel available</div></div>
+              <div class="check-badge-right"><span class="badge badge-purple">Required</span></div>
+            </label>
+            <label class="check-row" onclick="toggleCheck(this)">
+              <input type="checkbox" onchange="recalc()">
+              <div><div class="check-label">Executive remuneration linked to ESG</div><div class="check-sub">NSE Manual 4.3 — disclose pay-performance link</div></div>
+              <div class="check-badge-right"><span class="badge badge-purple">Required</span></div>
+            </label>
+            <label class="check-row" onclick="toggleCheck(this)">
+              <input type="checkbox" onchange="recalc()">
+              <div><div class="check-label">Data protection / privacy policy</div><div class="check-sub">Kenya Data Protection Act 2019 compliance</div></div>
+              <div class="check-badge-right"><span class="badge badge-blue">Recommended</span></div>
+            </label>
+            <label class="check-row" onclick="toggleCheck(this)">
+              <input type="checkbox" onchange="recalc()">
+              <div><div class="check-label">Third-party ESG verification</div><div class="check-sub">Independent assurance of sustainability disclosures</div></div>
+              <div class="check-badge-right"><span class="badge badge-gray">Optional</span></div>
+            </label>
+            <label class="check-row" onclick="toggleCheck(this)">
+              <input type="checkbox" onchange="recalc()">
+              <div><div class="check-label">Tax transparency report</div><div class="check-sub">KRA compliance; country-by-country reporting</div></div>
+              <div class="check-badge-right"><span class="badge badge-gray">Optional</span></div>
+            </label>
+          </div>
+        </div>
+
+        <div class="flex gap-8">
+          <button class="btn btn-primary" onclick="showToast('Governance data saved ✓')">Save section</button>
+          <button class="btn btn-secondary" onclick="showPanel('greenfinance', document.querySelectorAll('.nav-item')[6])">Next: Green Finance →</button>
+        </div>
+      </div>
+
+      <!-- ── GREEN FINANCE PANEL ── -->
+      <div id="panel-greenfinance" class="panel">
+        <div class="alert alert-green">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green-700)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div class="alert-body">
+            <strong>CBK Green Finance Taxonomy (2024)</strong>
+            Kenya's first green taxonomy identifies eligible economic activities for green finance. Align your instrument use-of-proceeds against this taxonomy for local bank and DFI financing.
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Select your instrument</div>
+          <div class="instrument-grid reveal" id="instrument-grid">
+            <div class="instrument-card" onclick="selectInstrument(this, 'green-bond')">
+              <div class="ic-name">Green Bond</div>
+              <div class="ic-desc">Fixed income aligned to ICMA Green Bond Principles (GBP). Use of proceeds ring-fenced to eligible projects.</div>
+              <div class="ic-tag"><span class="badge badge-green">GBP / ICMA</span></div>
+            </div>
+            <div class="instrument-card" onclick="selectInstrument(this, 'green-loan')">
+              <div class="ic-name">Green Loan</div>
+              <div class="ic-desc">Bank financing aligned to LMA Green Loan Principles (GLP). Suitable for project-specific funding from Kenyan banks.</div>
+              <div class="ic-tag"><span class="badge badge-green">GLP / LMA</span></div>
+            </div>
+            <div class="instrument-card" onclick="selectInstrument(this, 'sll')">
+              <div class="ic-name">Sustainability-Linked Loan</div>
+              <div class="ic-desc">KPI-linked pricing — margin adjusts based on hitting sustainability targets. Safaricom's KSh 30B facility used this structure.</div>
+              <div class="ic-tag"><span class="badge badge-amber">SLLP / LMA</span></div>
+            </div>
+            <div class="instrument-card" onclick="selectInstrument(this, 'slb')">
+              <div class="ic-name">Sustainability-Linked Bond</div>
+              <div class="ic-desc">Coupon linked to sustainability performance targets (SPTs). Growing market with NSE as potential listing venue.</div>
+              <div class="ic-tag"><span class="badge badge-amber">SLBP / ICMA</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Core principles alignment (GBP / GLP)</div>
+          <div class="check-list">
+            <label class="check-row" onclick="toggleCheck(this)">
+              <input type="checkbox" onchange="recalc()">
+              <div><div class="check-label">1 · Use of proceeds defined</div><div class="check-sub">Eligible green categories documented and mapped to CBK Taxonomy</div></div>
+              <div class="check-badge-right"><span class="badge badge-green">Core</span></div>
+            </label>
+            <label class="check-row" onclick="toggleCheck(this)">
+              <input type="checkbox" onchange="recalc()">
+              <div><div class="check-label">2 · Project evaluation &amp; selection process</div><div class="check-sub">Formal eligibility criteria and environmental objectives stated</div></div>
+              <div class="check-badge-right"><span class="badge badge-green">Core</span></div>
+            </label>
+            <label class="check-row" onclick="toggleCheck(this)">
+              <input type="checkbox" onchange="recalc()">
+              <div><div class="check-label">3 · Management of proceeds</div><div class="check-sub">Dedicated account or sub-account tracking at Kenyan bank</div></div>
+              <div class="check-badge-right"><span class="badge badge-green">Core</span></div>
+            </label>
+            <label class="check-row" onclick="toggleCheck(this)">
+              <input type="checkbox" onchange="recalc()">
+              <div><div class="check-label">4 · Annual reporting on use of proceeds</div><div class="check-sub">Allocation report + impact metrics published each year</div></div>
+              <div class="check-badge-right"><span class="badge badge-green">Core</span></div>
+            </label>
+            <label class="check-row" onclick="toggleCheck(this)">
+              <input type="checkbox" onchange="recalc()">
+              <div><div class="check-label">5 · Second-party opinion (SPO) obtained</div><div class="check-sub">Independent review by Sustainalytics, Vigeo, or local equivalent</div></div>
+              <div class="check-badge-right"><span class="badge badge-blue">Recommended</span></div>
+            </label>
+            <label class="check-row" onclick="toggleCheck(this)">
+              <input type="checkbox" onchange="recalc()">
+              <div><div class="check-label">6 · KPIs &amp; SPTs defined (SLL / SLB only)</div><div class="check-sub">Material, measurable sustainability performance targets with ambit</div></div>
+              <div class="check-badge-right"><span class="badge badge-amber">SLL / SLB</span></div>
+            </label>
+            <label class="check-row" onclick="toggleCheck(this)">
+              <input type="checkbox" onchange="recalc()">
+              <div><div class="check-label">7 · EU Taxonomy DNSH assessment</div><div class="check-sub">Do No Significant Harm review for international investors</div></div>
+              <div class="check-badge-right"><span class="badge badge-blue">If EU investors</span></div>
+            </label>
+            <label class="check-row" onclick="toggleCheck(this)">
+              <input type="checkbox" onchange="recalc()">
+              <div><div class="check-label">8 · Social safeguards</div><div class="check-sub">ILO core labour standards; community consultation records</div></div>
+              <div class="check-badge-right"><span class="badge badge-blue">Recommended</span></div>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Eligible project categories (CBK Taxonomy)</div>
+          <div class="pill-row" id="elig-pills">
+            <span class="pill active" onclick="this.classList.toggle('active');recalc()">Renewable energy</span>
+            <span class="pill" onclick="this.classList.toggle('active');recalc()">Energy efficiency</span>
+            <span class="pill" onclick="this.classList.toggle('active');recalc()">Clean transport</span>
+            <span class="pill" onclick="this.classList.toggle('active');recalc()">Sustainable water &amp; sanitation</span>
+            <span class="pill" onclick="this.classList.toggle('active');recalc()">Pollution prevention</span>
+            <span class="pill" onclick="this.classList.toggle('active');recalc()">Biodiversity &amp; land use</span>
+            <span class="pill" onclick="this.classList.toggle('active');recalc()">Green buildings</span>
+            <span class="pill" onclick="this.classList.toggle('active');recalc()">Circular economy</span>
+            <span class="pill" onclick="this.classList.toggle('active');recalc()">Climate adaptation</span>
+            <span class="pill" onclick="this.classList.toggle('active');recalc()">Agriculture &amp; food systems</span>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Instrument details</div>
+          <div class="form-row form-row-3">
+            <div class="form-group">
+              <label>Issuance size (KES millions)</label>
+              <input type="number" id="gf-size" placeholder="e.g. 5000" oninput="recalc()">
+            </div>
+            <div class="form-group">
+              <label>Tenor (years)</label>
+              <input type="number" id="gf-tenor" placeholder="e.g. 7">
+            </div>
+            <div class="form-group">
+              <label>Expected CO₂ avoided (tCO₂e / yr)</label>
+              <input type="number" id="gf-co2" placeholder="e.g. 25000" oninput="recalc()">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Renewable capacity funded (MW)</label>
+              <input type="number" id="gf-mw" placeholder="e.g. 80">
+            </div>
+            <div class="form-group">
+              <label>Listing venue</label>
+              <select id="gf-listing">
+                <option value="">Select…</option>
+                <option>Nairobi Securities Exchange (NSE)</option>
+                <option>London Stock Exchange (LSE)</option>
+                <option>Luxembourg Green Exchange (LGX)</option>
+                <option>Private placement — unlisted</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-8">
+          <button class="btn btn-primary" onclick="showToast('Green Finance data saved ✓')">Save section</button>
+          <button class="btn btn-secondary" onclick="showPanel('report', document.querySelectorAll('.nav-item')[8])">Next: Generate Report →</button>
+        </div>
+      </div>
+
+      <!-- ── CBK TAXONOMY PANEL ── -->
+      <div id="panel-cbktaxonomy" class="panel">
+        <div class="card mb-16">
+          <div class="card-title">Kenya Green Finance Taxonomy — eligible activities</div>
+          <p class="text-sm text-muted" style="margin-bottom:16px">Published by the Central Bank of Kenya (CBK), 2024. Maps to international standards including EU Taxonomy and ICMA GBP. Use this to determine which of your projects qualify for green finance proceeds.</p>
+          <table>
+            <thead><tr><th>Category</th><th>Examples</th><th>CBK Objective</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Renewable energy</strong></td><td>Solar, wind, geothermal, small hydro</td><td>Climate mitigation</td><td><span class="badge badge-green">Eligible</span></td></tr>
+              <tr><td><strong>Energy efficiency</strong></td><td>Industrial upgrades, green buildings, LED retrofit</td><td>Climate mitigation</td><td><span class="badge badge-green">Eligible</span></td></tr>
+              <tr><td><strong>Clean transport</strong></td><td>EVs, BRT, rail, non-motorised transport</td><td>Climate mitigation</td><td><span class="badge badge-green">Eligible</span></td></tr>
+              <tr><td><strong>Sustainable water</strong></td><td>Wastewater treatment, water efficiency, WASH</td><td>Water protection</td><td><span class="badge badge-green">Eligible</span></td></tr>
+              <tr><td><strong>Biodiversity</strong></td><td>Forest conservation, wildlife corridors, REDD+</td><td>Ecosystem protection</td><td><span class="badge badge-green">Eligible</span></td></tr>
+              <tr><td><strong>Circular economy</strong></td><td>Waste-to-energy, recycling, extended producer responsibility</td><td>Pollution prevention</td><td><span class="badge badge-green">Eligible</span></td></tr>
+              <tr><td><strong>Climate adaptation</strong></td><td>Drought-resilient agriculture, flood defences</td><td>Adaptation &amp; resilience</td><td><span class="badge badge-green">Eligible</span></td></tr>
+              <tr><td><strong>Green buildings</strong></td><td>EDGE certified, passive design, affordable housing</td><td>Climate mitigation</td><td><span class="badge badge-green">Eligible</span></td></tr>
+              <tr><td><strong>Fossil fuels (upstream)</strong></td><td>Oil &amp; gas exploration, coal</td><td>—</td><td><span class="badge badge-red">Excluded</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-title">Key institutions</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div style="padding:14px;background:var(--surface);border-radius:8px">
+              <div class="fw-600 text-sm" style="margin-bottom:4px">Central Bank of Kenya (CBK)</div>
+              <div class="text-muted text-sm">Published Green Finance Taxonomy 2024. Guides climate-related disclosures for banks.</div>
+            </div>
+            <div style="padding:14px;background:var(--surface);border-radius:8px">
+              <div class="fw-600 text-sm" style="margin-bottom:4px">Nairobi Securities Exchange (NSE)</div>
+              <div class="text-muted text-sm">ESG Disclosure Guidance Manual 2021. Listing venue for green bonds.</div>
+            </div>
+            <div style="padding:14px;background:var(--surface);border-radius:8px">
+              <div class="fw-600 text-sm" style="margin-bottom:4px">FSD Africa</div>
+              <div class="text-muted text-sm">Co-founded Kenya Green Bond Programme. Technical assistance for issuers.</div>
+            </div>
+            <div style="padding:14px;background:var(--surface);border-radius:8px">
+              <div class="fw-600 text-sm" style="margin-bottom:4px">Dhamana Guarantee Co.</div>
+              <div class="text-muted text-sm">2024 launch. Local currency credit guarantees for green finance — backed by AfDB.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── REPORT PANEL ── -->
+      <div id="panel-report" class="panel">
+        <div class="two-col">
+          <div>
+            <div class="card mb-16">
+              <div class="card-title">Report settings</div>
+              <div class="form-group mb-16" style="margin-bottom:12px">
+                <label>Company name</label>
+                <input type="text" id="company-name" value="Acacia Kenya Limited">
+              </div>
+              <div class="form-row" style="margin-bottom:12px">
+                <div class="form-group">
+                  <label>Reporting year</label>
+                  <input type="number" id="rep-year" value="2024">
+                </div>
+                <div class="form-group">
+                  <label>Sector</label>
+                  <select id="sector">
+                    <option>Manufacturing</option>
+                    <option>Financial Services</option>
+                    <option>Technology</option>
+                    <option>Energy &amp; Utilities</option>
+                    <option>Consumer Goods</option>
+                    <option>Real Estate</option>
+                    <option>Agriculture &amp; Food</option>
+                    <option>Transport &amp; Logistics</option>
+                    <option>Healthcare</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom:12px">
+                <label>Reporting frameworks</label>
+                <div class="pill-row" style="margin-top:6px">
+                  <span class="pill active" onclick="this.classList.toggle('active')">GRI Standards</span>
+                  <span class="pill" onclick="this.classList.toggle('active')">NSE Manual</span>
+                  <span class="pill" onclick="this.classList.toggle('active')">TCFD</span>
+                  <span class="pill" onclick="this.classList.toggle('active')">GBP (ICMA)</span>
+                  <span class="pill" onclick="this.classList.toggle('active')">UN SDGs</span>
+                  <span class="pill" onclick="this.classList.toggle('active')">CBK Taxonomy</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Key achievements to highlight</label>
+                <textarea id="achievements" placeholder="e.g. Reduced Scope 1 emissions by 15%, launched renewable energy programme, appointed first female board chair…"></textarea>
+              </div>
+            </div>
+
+            <button class="btn btn-amber" style="width:100%;justify-content:center;padding:13px" onclick="generateReport()" id="gen-btn">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              Generate NSE ESG Report Draft
+            </button>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Report readiness</div>
+            <div class="prog-row">
+              <div class="prog-header"><span>Environmental</span><span id="r-epct">0%</span></div>
+              <div class="prog-track"><div class="prog-fill fill-e" id="r-ebar" style="width:0%"></div></div>
+            </div>
+            <div class="prog-row">
+              <div class="prog-header"><span>Social</span><span id="r-spct">0%</span></div>
+              <div class="prog-track"><div class="prog-fill fill-s" id="r-sbar" style="width:0%"></div></div>
+            </div>
+            <div class="prog-row">
+              <div class="prog-header"><span>Governance</span><span id="r-gpct">0%</span></div>
+              <div class="prog-track"><div class="prog-fill fill-g" id="r-gbar" style="width:0%"></div></div>
+            </div>
+            <div class="prog-row">
+              <div class="prog-header"><span>Green Finance</span><span id="r-gfpct">0%</span></div>
+              <div class="prog-track"><div class="prog-fill fill-gf" id="r-gfbar" style="width:0%"></div></div>
+            </div>
+            <hr class="divider">
+            <div class="flex-between">
+              <span class="text-sm text-muted">Overall ESG score</span>
+              <span class="fw-600" id="r-total" style="font-size:20px;color:var(--green-700)">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-output" id="report-output"></div>
+      </div>
+
+      <!-- ── AI ADVISOR PANEL ── -->
+      <div id="panel-advisor" class="panel" style="padding:0;margin:-28px">
+        <div class="chat-suggestions">
+          <span class="suggestion-chip" onclick="askAdvisor(this.textContent)">What does the NSE ESG Manual require?</span>
+          <span class="suggestion-chip" onclick="askAdvisor(this.textContent)">How do I qualify for a green bond in Kenya?</span>
+          <span class="suggestion-chip" onclick="askAdvisor(this.textContent)">What is the CBK Green Finance Taxonomy?</span>
+          <span class="suggestion-chip" onclick="askAdvisor(this.textContent)">How does Safaricom structure their sustainability report?</span>
+          <span class="suggestion-chip" onclick="askAdvisor(this.textContent)">What KPIs work best for a sustainability-linked loan?</span>
+          <span class="suggestion-chip" onclick="askAdvisor(this.textContent)">What EU MRL regulations apply to Kenyan flowers?</span>
+          <span class="suggestion-chip" onclick="askAdvisor(this.textContent)">How does CSDDD affect Kenyan horticulture exporters?</span>
+          <span class="suggestion-chip" onclick="askAdvisor(this.textContent)">What certifications do I need to export herbs to the EU?</span>
+        </div>
+        <div class="chat-wrap">
+          <div class="chat-messages" id="chat-messages">
+            <div class="chat-bubble ai">
+              <div class="ai-label">Mazingira Advisor</div>
+              Habari! I'm your ESG and Green Finance advisor, specialised for the Kenyan market. I can help with NSE disclosure requirements, CBK Green Finance Taxonomy, structuring green bonds and sustainability-linked loans, GRI reporting, and TCFD climate disclosures. What would you like to know?
+            </div>
+          </div>
+          <div class="chat-bar">
+            <textarea id="chat-input" placeholder="Ask about NSE compliance, green bonds, CBK taxonomy, GRI reporting…" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"></textarea>
+            <button class="btn btn-primary" onclick="sendChat()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Send
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TRENDS PANEL ── -->
+      <div id="panel-trends" class="panel">
+        <div class="kpi-grid reveal" style="margin-bottom:20px">
+          <div class="kpi-card">
+            <div class="kpi-label">Emissions trend</div>
+            <div class="kpi-val" style="color:var(--green-500)">↓ 12%</div>
+            <div class="kpi-unit">Scope 1+2 YoY</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Renewable energy</div>
+            <div class="kpi-val" style="color:var(--green-500)">↑ 18%</div>
+            <div class="kpi-unit">Share YoY</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Gender parity</div>
+            <div class="kpi-val" style="color:var(--amber-500)">↑ 3%</div>
+            <div class="kpi-unit">Women in workforce</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">ESG score</div>
+            <div class="kpi-val" style="color:var(--green-500)">↑ 8pts</div>
+            <div class="kpi-unit">vs FY 2023</div>
+          </div>
+        </div>
+        <div style="margin-bottom:16px">
+          <div style="font-size:11px;font-weight:600;color:var(--ink-400);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:8px">Data years <span class="badge badge-gray" style="margin-left:6px">Click to load year</span></div>
+          <div class="pill-row" id="year-pills"></div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-title">GHG Emissions (tCO₂e) — 5 year trend</div>
+            <canvas id="chart-emissions" height="200"></canvas>
+          </div>
+          <div class="card">
+            <div class="card-title">Renewable energy share (%)</div>
+            <canvas id="chart-renewable" height="200"></canvas>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-title">ESG score breakdown by year</div>
+            <canvas id="chart-esg" height="200"></canvas>
+          </div>
+          <div class="card">
+            <div class="card-title">Workforce diversity (%)</div>
+            <canvas id="chart-diversity" height="200"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Water &amp; Waste intensity — indexed to earliest year baseline</div>
+          <canvas id="chart-water" height="120"></canvas>
+        </div>
+      </div>
+
+      <!-- ── MATERIALITY PANEL ── -->
+      <div id="panel-materiality" class="panel">
+        <div class="alert alert-green" style="margin-bottom:20px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green-700)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div class="alert-body">
+            <strong>GRI Materiality Assessment (GRI 3-1)</strong>
+            Rate each topic by its impact on society/environment and its importance to your stakeholders. Topics scoring high on both axes are material and must be disclosed. NSE requires this assessment to be documented.
+          </div>
+        </div>
+
+        <div class="two-col" style="margin-bottom:20px">
+          <div class="card">
+            <div class="card-title">Materiality matrix</div>
+            <canvas id="chart-materiality" height="280"></canvas>
+          </div>
+          <div class="card">
+            <div class="card-title">Rate topics — drag sliders</div>
+            <div style="position:relative;margin-bottom:10px">
+              <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--ink-400);pointer-events:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="mat-search" placeholder="Search topics…" oninput="filterMaterialityTopics()" style="width:100%;padding:7px 10px 7px 32px;border:1px solid var(--ink-200);border-radius:7px;font-size:12px;font-family:Inter,sans-serif;background:var(--surface);color:var(--ink-900);outline:none;transition:border-color 0.15s">
+            </div>
+            <div id="materiality-inputs" style="display:flex;flex-direction:column;gap:14px;max-height:280px;overflow-y:auto;padding-right:4px"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title flex-between">
+            <span>Material topics — priority list</span>
+            <span style="display:flex;align-items:center;gap:10px">
+              <span class="badge badge-green" id="material-count">0 material topics</span>
+              <button class="btn" style="padding:4px 10px;font-size:11px;background:var(--surface);color:var(--ink-600);border:1px solid var(--ink-200);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:4px" onclick="exportMaterialityCSV()" title="Export as CSV">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                CSV
+              </button>
+            </span>
+          </div>
+          <table>
+            <thead><tr><th>Topic</th><th>Pillar</th><th>Impact score</th><th>Stakeholder score</th><th>Status</th></tr></thead>
+            <tbody id="material-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── DOCUMENTS PANEL ── -->
+      <div id="panel-documents" class="panel">
+        <div class="flex-between" style="margin-bottom:20px">
+          <div>
+            <div style="font-size:15px;font-weight:600;color:var(--ink-900);margin-bottom:4px">Document Vault</div>
+            <div class="text-muted text-sm">Store evidence, policies, and supporting documents for your NSE ESG disclosure</div>
+          </div>
+          <button class="btn btn-primary" onclick="document.getElementById('doc-upload').click()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Upload document
+          </button>
+          <input type="file" id="doc-upload" style="display:none" accept=".pdf,.docx,.xlsx,.png,.jpg" onchange="handleDocUpload(event)">
+        </div>
+
+        <div class="three-col" style="margin-bottom:20px">
+          <div class="kpi-card">
+            <div class="kpi-label">Documents</div>
+            <div class="kpi-val" id="doc-count">0</div>
+            <div class="kpi-unit">uploaded</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Required docs</div>
+            <div class="kpi-val" id="doc-required-count" style="color:var(--amber-500)">8</div>
+            <div class="kpi-unit">still missing</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Last upload</div>
+            <div class="kpi-val" style="font-size:16px" id="doc-last">—</div>
+            <div class="kpi-unit">most recent file</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-title">Uploaded documents</div>
+            <div id="doc-list">
+              <div class="empty-state">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                <p>No documents uploaded yet.<br>Click "Upload document" to begin.</p>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Required evidence checklist</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div class="doc-req-item" data-key="ghg-audit"><span class="badge badge-red" style="margin-right:8px">Missing</span>GHG emissions audit / data summary</div>
+              <div class="doc-req-item" data-key="board-charter"><span class="badge badge-red" style="margin-right:8px">Missing</span>Board charter / terms of reference</div>
+              <div class="doc-req-item" data-key="anti-corruption"><span class="badge badge-red" style="margin-right:8px">Missing</span>Anti-corruption policy</div>
+              <div class="doc-req-item" data-key="code-conduct"><span class="badge badge-red" style="margin-right:8px">Missing</span>Code of conduct</div>
+              <div class="doc-req-item" data-key="materiality-report"><span class="badge badge-red" style="margin-right:8px">Missing</span>Materiality assessment report</div>
+              <div class="doc-req-item" data-key="stakeholder-map"><span class="badge badge-red" style="margin-right:8px">Missing</span>Stakeholder engagement map</div>
+              <div class="doc-req-item" data-key="sdg-mapping"><span class="badge badge-amber" style="margin-right:8px">Optional</span>UN SDG mapping</div>
+              <div class="doc-req-item" data-key="spo"><span class="badge badge-amber" style="margin-right:8px">Optional</span>Second-party opinion (green bond)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── EU HORTICULTURE PANEL ── -->
+      <div id="panel-euhorticulture" class="panel">
+        <div class="alert alert-green reveal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green-700)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div class="alert-body">
+            <strong>EU Regulatory Framework for Kenyan Horticulture Exports</strong>
+            Kenya exported <strong>KES 155B</strong> in horticulture (flowers, herbs, vegetables) to the EU in 2024. Compliance with EU regulations — MRLs, phytosanitary standards, organic certification, and supply chain due diligence — is essential for continued market access. Track your readiness below.
+          </div>
+        </div>
+
+        <div class="kpi-grid reveal" style="transition-delay:0.1s">
+          <div class="kpi-card">
+            <div class="kpi-label">MRL Compliance</div>
+            <div class="kpi-val" id="eu-mrl-score" style="color:var(--amber-500)">—</div>
+            <div class="kpi-unit">pesticide residue standards</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Phytosanitary</div>
+            <div class="kpi-val" id="eu-phyto-score" style="color:var(--amber-500)">—</div>
+            <div class="kpi-unit">KEPHIS certification ready</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Due Diligence</div>
+            <div class="kpi-val" id="eu-due-score" style="color:var(--amber-500)">—</div>
+            <div class="kpi-unit">CSDDD supply chain readiness</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">EU Export Readiness</div>
+            <div class="kpi-val" id="eu-overall-score" style="color:var(--green-500)">—</div>
+            <div class="kpi-unit">overall compliance score</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px" class="reveal">
+          <span style="font-size:12px;font-weight:500;color:var(--ink-600)">Product type:</span>
+          <span class="pill active" onclick="this.classList.toggle('active');recalcEUHort()">Cut flowers</span>
+          <span class="pill active" onclick="this.classList.toggle('active');recalcEUHort()">Fresh herbs</span>
+          <span class="pill" onclick="this.classList.toggle('active');recalcEUHort()">Vegetables</span>
+        </div>
+
+        <div class="two-col reveal" style="transition-delay:0.3s">
+          <div class="card">
+            <div class="card-title">EU regulations — key frameworks</div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div style="padding:12px;background:var(--surface);border-radius:8px;display:flex;gap:10px">
+                <span style="width:6px;height:6px;border-radius:50%;background:#378ADD;flex-shrink:0;margin-top:5px"></span>
+                <div>
+                  <div class="fw-600 text-sm" style="margin-bottom:2px">EU MRL Regulation (EC) 396/2005</div>
+                  <div class="text-muted" style="font-size:11px">Sets maximum pesticide residue levels for all food and feed imported into the EU. Updated regularly. EU retailers often impose stricter private standards (e.g. 50–70% of legal MRL). Non-compliance = border rejection.</div>
+                </div>
+              </div>
+              <div style="padding:12px;background:var(--surface);border-radius:8px;display:flex;gap:10px">
+                <span style="width:6px;height:6px;border-radius:50%;background:var(--green-500);flex-shrink:0;margin-top:5px"></span>
+                <div>
+                  <div class="fw-600 text-sm" style="margin-bottom:2px">EU Plant Health Reg. (EU) 2019/2072</div>
+                  <div class="text-muted" style="font-size:11px">Phytosanitary certification required via KEPHIS. Lists quarantine pests (False Codling Moth, Thrips palmi). EU increased inspection frequency on Kenyan roses in 2023 — strict compliance needed.</div>
+                </div>
+              </div>
+              <div style="padding:12px;background:var(--surface);border-radius:8px;display:flex;gap:10px">
+                <span style="width:6px;height:6px;border-radius:50%;background:#7F77DD;flex-shrink:0;margin-top:5px"></span>
+                <div>
+                  <div class="fw-600 text-sm" style="margin-bottom:2px">CSDDD — Corporate Sustainability Due Diligence</div>
+                  <div class="text-muted" style="font-size:11px">EU Corporate Sustainability Due Diligence Directive (2024) requires large EU buyers to vet supply chains for human rights &amp; environmental harms. Kenyan exporters must provide labour, water, and land-use documentation.</div>
+                </div>
+              </div>
+              <div style="padding:12px;background:var(--surface);border-radius:8px;display:flex;gap:10px">
+                <span style="width:6px;height:6px;border-radius:50%;background:var(--amber-500);flex-shrink:0;margin-top:5px"></span>
+                <div>
+                  <div class="fw-600 text-sm" style="margin-bottom:2px">EU Organic Regulation (EU) 2018/848</div>
+                  <div class="text-muted" style="font-size:11px">Strict certification for organic herbs/flowers sold in EU. Requires third-party verification (e.g. Ceres, Ecocert, EnCert). No use of synthetic pesticides; documented traceability from farm to EU border.</div>
+                </div>
+              </div>
+              <div style="padding:12px;background:var(--surface);border-radius:8px;display:flex;gap:10px">
+                <span style="width:6px;height:6px;border-radius:50%;background:var(--red-500);flex-shrink:0;margin-top:5px"></span>
+                <div>
+                  <div class="fw-600 text-sm" style="margin-bottom:2px">EU-Kenya Economic Partnership Agreement (EPA)</div>
+                  <div class="text-muted" style="font-size:11px">Duty-free, quota-free access for Kenyan exports. Includes enforceable sustainability provisions: Paris Agreement, ILO labour standards, biodiversity commitments. Non-compliance risks preferential access.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Compliance checklist</div>
+            <div style="font-size:11px;font-weight:600;color:var(--ink-400);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Pesticide &amp; MRL management</div>
+            <div class="check-list" style="margin-bottom:16px">
+              <label class="check-row" onclick="toggleCheck(this);setTimeout(recalcEUHort,50)">
+                <input type="checkbox" id="eu-mrl-register" onchange="recalcEUHort()">
+                <div><div class="check-label">Active ingredient register maintained</div><div class="check-sub">All PPPs documented with EU MRL reference values</div></div>
+                <div class="check-badge-right"><span class="badge badge-blue">EC 396/2005</span></div>
+              </label>
+              <label class="check-row" onclick="toggleCheck(this);setTimeout(recalcEUHort,50)">
+                <input type="checkbox" id="eu-mrl-testing" onchange="recalcEUHort()">
+                <div><div class="check-label">MRL pre-shipment testing in place</div><div class="check-sub">Regular third-party lab testing (KEPHIS-accredited)</div></div>
+                <div class="check-badge-right"><span class="badge badge-blue">Critical</span></div>
+              </label>
+              <label class="check-row" onclick="toggleCheck(this);setTimeout(recalcEUHort,50)">
+                <input type="checkbox" id="eu-mrl-spray" onchange="recalcEUHort()">
+                <div><div class="check-label">Spray diary &amp; IPM records</div><div class="check-sub">Integrated pest management records; date, crop, PPP, dosage, PHI</div></div>
+                <div class="check-badge-right"><span class="badge badge-blue">GlobalG.A.P.</span></div>
+              </label>
+            </div>
+
+            <div style="font-size:11px;font-weight:600;color:var(--ink-400);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Phytosanitary &amp; certification</div>
+            <div class="check-list" style="margin-bottom:16px">
+              <label class="check-row" onclick="toggleCheck(this);setTimeout(recalcEUHort,50)">
+                <input type="checkbox" id="eu-phyto-kephis" onchange="recalcEUHort()">
+                <div><div class="check-label">KEPHIS phytosanitary certification current</div><div class="check-sub">Valid phytosanitary certificate for each consignment</div></div>
+                <div class="check-badge-right"><span class="badge badge-purple">Reg. 2019/2072</span></div>
+              </label>
+              <label class="check-row" onclick="toggleCheck(this);setTimeout(recalcEUHort,50)">
+                <input type="checkbox" id="eu-phyto-globalgap" onchange="recalcEUHort()">
+                <div><div class="check-label">GlobalG.A.P. certification active</div><div class="check-sub">Farm-level good agricultural practices audit</div></div>
+                <div class="check-badge-right"><span class="badge badge-green">Market req.</span></div>
+              </label>
+              <label class="check-row" onclick="toggleCheck(this);setTimeout(recalcEUHort,50)">
+                <input type="checkbox" id="eu-phyto-mps" onchange="recalcEUHort()">
+                <div><div class="check-label">MPS / Florimark certification (if flowers)</div><div class="check-sub">Environmental certification for floriculture — covers PPP, fertiliser, energy</div></div>
+                <div class="check-badge-right"><span class="badge badge-amber">Floriculture</span></div>
+              </label>
+            </div>
+
+            <div style="font-size:11px;font-weight:600;color:var(--ink-400);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Supply chain due diligence (CSDDD)</div>
+            <div class="check-list">
+              <label class="check-row" onclick="toggleCheck(this);setTimeout(recalcEUHort,50)">
+                <input type="checkbox" id="eu-due-labour" onchange="recalcEUHort()">
+                <div><div class="check-label">Labour &amp; human rights policy documented</div><div class="check-sub">ILO core conventions; no child/forced labour; written contracts</div></div>
+                <div class="check-badge-right"><span class="badge badge-purple">CSDDD</span></div>
+              </label>
+              <label class="check-row" onclick="toggleCheck(this);setTimeout(recalcEUHort,50)">
+                <input type="checkbox" id="eu-due-water" onchange="recalcEUHort()">
+                <div><div class="check-label">Water use &amp; discharge permits current</div><div class="check-sub">NEMA water abstraction permit; wastewater treatment records</div></div>
+                <div class="check-badge-right"><span class="badge badge-purple">CSDDD</span></div>
+              </label>
+              <label class="check-row" onclick="toggleCheck(this);setTimeout(recalcEUHort,50)">
+                <input type="checkbox" id="eu-due-land" onchange="recalcEUHort()">
+                <div><div class="check-label">Land tenure &amp; community consent documented</div><div class="check-sub">No land grabbing; community engagement records; FPIC for new sites</div></div>
+                <div class="check-badge-right"><span class="badge badge-purple">CSDDD</span></div>
+              </label>
+              <label class="check-row" onclick="toggleCheck(this);setTimeout(recalcEUHort,50)">
+                <input type="checkbox" id="eu-due-fairtrade" onchange="recalcEUHort()">
+                <div><div class="check-label">Fair Trade / Rainforest Alliance / Ethical cert.</div><div class="check-sub">Third-party social certification preferred by EU buyers</div></div>
+                <div class="check-badge-right"><span class="badge badge-green">Market req.</span></div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="card reveal" style="transition-delay:0.4s">
+          <div class="card-title">Certification pathways for EU market access</div>
+          <table>
+            <thead><tr><th>Scheme</th><th>Scope</th><th>EU buyer requirement</th><th>Cost (KES)</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td><strong>GlobalG.A.P.</strong></td><td>Farm-level GAP</td><td><span class="badge badge-green">Expected</span></td><td>80K–150K</td><td><span class="badge badge-gray" id="cert-ggap">Not started</span></td></tr>
+              <tr><td><strong>MPS (Floriculture)</strong></td><td>Environmental, PPP, energy</td><td><span class="badge badge-green">Expected</span></td><td>50K–120K</td><td><span class="badge badge-gray" id="cert-mps">Not started</span></td></tr>
+              <tr><td><strong>EU Organic (EU 2018/848)</strong></td><td>Organic herbs &amp; flowers</td><td><span class="badge badge-blue">If organic</span></td><td>200K–500K</td><td><span class="badge badge-gray" id="cert-organic">Not started</span></td></tr>
+              <tr><td><strong>Fair Trade</strong></td><td>Social &amp; labour</td><td><span class="badge badge-blue">Preferred</span></td><td>100K–300K</td><td><span class="badge badge-gray" id="cert-fairtrade">Not started</span></td></tr>
+              <tr><td><strong>Rainforest Alliance</strong></td><td>Sustainable agriculture</td><td><span class="badge badge-blue">Preferred</span></td><td>150K–350K</td><td><span class="badge badge-gray" id="cert-ra">Not started</span></td></tr>
+              <tr><td><strong>Kenya Flower Council (KFC)</strong></td><td>Local floriculture standard</td><td><span class="badge badge-green">Expected</span></td><td>60K–100K</td><td><span class="badge badge-gray" id="cert-kfc">Not started</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card reveal" style="transition-delay:0.5s">
+          <div class="card-title">Key institutions &amp; contacts</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+            <div style="padding:14px;background:var(--surface);border-radius:8px">
+              <div class="fw-600 text-sm" style="margin-bottom:4px">KEPHIS</div>
+              <div class="text-muted text-sm">Phytosanitary certification &amp; MRL testing. Mandatory for all plant exports to EU.</div>
+              <div style="margin-top:6px"><a href="https://www.kephis.org" style="color:var(--green-700);font-size:11px">kephis.org →</a></div>
+            </div>
+            <div style="padding:14px;background:var(--surface);border-radius:8px">
+              <div class="fw-600 text-sm" style="margin-bottom:4px">HCD (Horticultural Crops Directorate)</div>
+              <div class="text-muted text-sm">Regulatory oversight for horticulture exports. Export licence &amp; levy management.</div>
+              <div style="margin-top:6px"><a href="https://www.hcd.co.ke" style="color:var(--green-700);font-size:11px">hcd.co.ke →</a></div>
+            </div>
+            <div style="padding:14px;background:var(--surface);border-radius:8px">
+              <div class="fw-600 text-sm" style="margin-bottom:4px">Kenya Flower Council (KFC)</div>
+              <div class="text-muted text-sm">Industry body for floriculture. Silver/Gold certification recognised by EU buyers.</div>
+              <div style="margin-top:6px"><a href="https://www.kenyaflowercouncil.org" style="color:var(--green-700);font-size:11px">kenyaflowercouncil.org →</a></div>
+            </div>
+            <div style="padding:14px;background:var(--surface);border-radius:8px">
+              <div class="fw-600 text-sm" style="margin-bottom:4px">NEMA</div>
+              <div class="text-muted text-sm">Water abstraction permits, EIA for new farms, waste discharge licences.</div>
+              <div style="margin-top:6px"><a href="https://www.nema.go.ke" style="color:var(--green-700);font-size:11px">nema.go.ke →</a></div>
+            </div>
+            <div style="padding:14px;background:var(--surface);border-radius:8px">
+              <div class="fw-600 text-sm" style="margin-bottom:4px">EU Delegation to Kenya</div>
+              <div class="text-muted text-sm">EPA implementation, trade capacity building &amp; technical assistance programmes.</div>
+              <div style="margin-top:6px"><a href="https://www.eeas.europa.eu/kenya" style="color:var(--green-700);font-size:11px">eeas.europa.eu →</a></div>
+            </div>
+            <div style="padding:14px;background:var(--surface);border-radius:8px">
+              <div class="fw-600 text-sm" style="margin-bottom:4px">GlobalG.A.P. Secretariat</div>
+              <div class="text-muted text-sm">Farm certification standard recognised by EU retailers. Local auditors in Kenya.</div>
+              <div style="margin-top:6px"><a href="https://www.globalgap.org" style="color:var(--green-700);font-size:11px">globalgap.org →</a>      <!-- ── EMISSIONS PANEL ── -->
+      <div id="panel-emissions" class="panel">
+        <div class="alert alert-green reveal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green-700)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div class="alert-body">
+            <strong>Scope 1, 2 &amp; 3 Emissions Tools</strong>
+            Convert activity data to tCO₂e using Kenya-specific emission factors, break down scope 3 by all 15 GHG Protocol categories, and chart an SBTi-aligned 1.5°C reduction pathway.
+          </div>
+        </div>
+
+        <!-- === Tool Tabs === -->
+        <div style="display:flex;gap:8px;margin-bottom:20px" class="reveal">
+          <span class="pill active" onclick="switchEmTab(this,'ghg-calc')" id="em-tab-ghg">GHG Calculator</span>
+          <span class="pill" onclick="switchEmTab(this,'scope3-cats')" id="em-tab-scope3">Scope 3 Categories</span>
+          <span class="pill" onclick="switchEmTab(this,'sbti-pathway')" id="em-tab-sbti">SBTi Pathway</span>
+        </div>
+
+        <!-- ── TAB 1: GHG CALCULATOR ── -->
+        <div id="em-ghg-calc">
+          <div class="two-col" style="margin-bottom:0">
+            <div class="card">
+              <div class="card-title">
+                <div class="card-title-left">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green-700)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  Scope 1 — Direct Emissions
+                </div>
+              </div>
+              <div style="margin-bottom:10px">
+                <div class="em-calc-row">
+                  <span class="em-calc-label">Diesel (generators) — litres</span>
+                  <div class="em-calc-input"><input type="number" id="em-diesel" placeholder="0" oninput="calcGHG()"></div>
+                  <span class="em-calc-factor">× 2.69 kg/L</span>
+                  <span class="em-calc-result" id="em-diesel-result">0.00</span>
+                </div>
+                <div class="em-calc-row">
+                  <span class="em-calc-label">Petrol (fleet) — litres</span>
+                  <div class="em-calc-input"><input type="number" id="em-petrol" placeholder="0" oninput="calcGHG()"></div>
+                  <span class="em-calc-factor">× 2.30 kg/L</span>
+                  <span class="em-calc-result" id="em-petrol-result">0.00</span>
+                </div>
+                <div class="em-calc-row">
+                  <span class="em-calc-label">Natural gas / LPG — kg</span>
+                  <div class="em-calc-input"><input type="number" id="em-lpg" placeholder="0" oninput="calcGHG()"></div>
+                  <span class="em-calc-factor">× 3.02 kg/kg</span>
+                  <span class="em-calc-result" id="em-lpg-result">0.00</span>
+                </div>
+                <div class="em-calc-row">
+                  <span class="em-calc-label">Biomass (wood) — tonnes</span>
+                  <div class="em-calc-input"><input type="number" id="em-biomass" placeholder="0" oninput="calcGHG()"></div>
+                  <span class="em-calc-factor">× 1,130 kg/t</span>
+                  <span class="em-calc-result" id="em-biomass-result">0.00</span>
+                </div>
+                <div class="em-calc-row">
+                  <span class="em-calc-label">Refrigerants (F-gas loss) — kg</span>
+                  <div class="em-calc-input"><input type="number" id="em-fgas" placeholder="0" oninput="calcGHG()"></div>
+                  <span class="em-calc-factor">× 1.43–14.8 GWP</span>
+                  <span class="em-calc-result" id="em-fgas-result">0.00</span>
+                </div>
+              </div>
+              <div class="em-total-row">
+                <span class="em-total-label">Scope 1 Total</span>
+                <div><div class="em-total-val" id="em-s1-total">0.00</div><div class="em-total-sub">tCO₂e</div></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">
+                <div class="card-title-left">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green-700)" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                  Scope 2 — Purchased Energy
+                </div>
+              </div>
+              <div style="margin-bottom:10px">
+                <div class="em-calc-row">
+                  <span class="em-calc-label">Grid electricity — kWh</span>
+                  <div class="em-calc-input"><input type="number" id="em-grid" placeholder="0" oninput="calcGHG()"></div>
+                  <span class="em-calc-factor">× 0.056 kg/kWh</span>
+                  <span class="em-calc-result" id="em-grid-result">0.00</span>
+                </div>
+                <div class="em-calc-row">
+                  <span class="em-calc-label">Backup gen (grid offset) — kWh</span>
+                  <div class="em-calc-input"><input type="number" id="em-grid-backup" placeholder="0" oninput="calcGHG()"></div>
+                  <span class="em-calc-factor">× 0.056 kg/kWh</span>
+                  <span class="em-calc-result" id="em-grid-backup-result">0.00</span>
+                </div>
+              </div>
+              <div class="em-total-row">
+                <span class="em-total-label">Scope 2 Total</span>
+                <div><div class="em-total-val" id="em-s2-total">0.00</div><div class="em-total-sub">tCO₂e</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:18px">
+            <div class="card-title">
+              <div class="card-title-left">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green-700)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Scope 3 — Business Travel &amp; Logistics (selected)
+              </div>
+            </div>
+            <div style="margin-bottom:10px">
+              <div class="em-calc-row">
+                <span class="em-calc-label">Air travel (short haul) — km</span>
+                <div class="em-calc-input"><input type="number" id="em-air-short" placeholder="0" oninput="calcGHG()"></div>
+                <span class="em-calc-factor">× 0.20 kg/km</span>
+                <span class="em-calc-result" id="em-air-short-result">0.00</span>
+              </div>
+              <div class="em-calc-row">
+                <span class="em-calc-label">Air travel (long haul) — km</span>
+                <div class="em-calc-input"><input type="number" id="em-air-long" placeholder="0" oninput="calcGHG()"></div>
+                <span class="em-calc-factor">× 0.15 kg/km</span>
+                <span class="em-calc-result" id="em-air-long-result">0.00</span>
+              </div>
+              <div class="em-calc-row">
+                <span class="em-calc-label">Road transport — km</span>
+                <div class="em-calc-input"><input type="number" id="em-road" placeholder="0" oninput="calcGHG()"></div>
+                <span class="em-calc-factor">× 0.17 kg/km</span>
+                <span class="em-calc-result" id="em-road-result">0.00</span>
+              </div>
+              <div class="em-calc-row">
+                <span class="em-calc-label">Rail transport — km</span>
+                <div class="em-calc-input"><input type="number" id="em-rail" placeholder="0" oninput="calcGHG()"></div>
+                <span class="em-calc-factor">× 0.04 kg/km</span>
+                <span class="em-calc-result" id="em-rail-result">0.00</span>
+              </div>
+            </div>
+            <div class="em-total-row">
+              <span class="em-total-label">Selected Scope 3 Total</span>
+              <div><div class="em-total-val" id="em-sel-s3-total">0.00</div><div class="em-total-sub">tCO₂e</div></div>
+            </div>
+          </div>
+
+          <div class="em-factor-ref reveal" style="transition-delay:0.15s">
+            <strong>Emission factor sources:</strong> IPCC 2006 Guidelines, DEFRA 2023, Kenya grid emission factor 0.056 kg CO₂e/kWh (Kenya Electricity Generating Company, 2023). Factors are location-based estimates. For verified reporting, use source-specific lab-tested factors.
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:16px">
+            <button class="btn btn-primary" onclick="calcGHG()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              Refresh Calculations
+            </button>
+            <button class="btn btn-secondary" onclick="clearEmInputs()">
+              Clear All
+            </button>
+          </div>
+        </div>
+
+        <!-- ── TAB 2: SCOPE 3 CATEGORIES ── -->
+        <div id="em-scope3-cats" style="display:none">
+          <div class="alert alert-green" style="margin-bottom:16px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green-700)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <div class="alert-body">
+              <strong>All 15 GHG Protocol Scope 3 Categories</strong>
+              Enter estimated tCO₂e for each category. The GHG Protocol requires disclosure of any category that is material to your business. Total auto-calculated below.
+            </div>
+          </div>
+
+          <div class="two-col">
+            <div class="card">
+              <div class="card-title">Upstream categories (1–8)</div>
+              <table class="em-scope3-table">
+                <thead><tr><th>#</th><th>Category</th><th>tCO₂e</th></tr></thead>
+                <tbody id="em-s3-upstream"></tbody>
+              </table>
+            </div>
+            <div class="card">
+              <div class="card-title">Downstream categories (9–15)</div>
+              <table class="em-scope3-table">
+                <thead><tr><th>#</th><th>Category</th><th>tCO₂e</th></tr></thead>
+                <tbody id="em-s3-downstream"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="em-total-row" style="margin-bottom:16px">
+            <span class="em-total-label">Total Scope 3 Emissions</span>
+            <div><div class="em-total-val" id="em-s3-total">0.00</div><div class="em-total-sub">tCO₂e</div></div>
+          </div>
+
+          <div class="em-factor-ref">
+            <strong>Note:</strong> These values should be estimated using spend-based or supplier-specific methods per the GHG Protocol Corporate Value Chain (Scope 3) Standard. Use actual data where available.
+          </div>
+        </div>
+
+        <!-- ── TAB 3: SBTi PATHWAY ── -->
+        <div id="em-sbti-pathway" style="display:none">
+          <div class="alert alert-green" style="margin-bottom:16px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green-700)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <div class="alert-body">
+              <strong>SBTi 1.5°C-Aligned Reduction Pathway</strong>
+              The Science Based Targets initiative 1.5°C pathway requires <strong>~42% reduction by 2030</strong> (from a base year) and <strong>net-zero by 2050</strong>. Enter your base year emissions below to see annual targets.
+            </div>
+          </div>
+
+          <div class="em-kpi-grid">
+            <div class="em-kpi-card">
+              <div class="em-kpi-label">Base Year Emissions</div>
+              <div class="em-kpi-val" id="em-sbti-base-val" style="font-size:18px">—</div>
+              <div class="em-kpi-unit">tCO₂e</div>
+            </div>
+            <div class="em-kpi-card">
+              <div class="em-kpi-label">Target Year 2030</div>
+              <div class="em-kpi-val" id="em-sbti-2030-val" style="font-size:18px;color:var(--amber-500)">—</div>
+              <div class="em-kpi-unit">tCO₂e (−42%)</div>
+            </div>
+            <div class="em-kpi-card">
+              <div class="em-kpi-label">Target Year 2050</div>
+              <div class="em-kpi-val" id="em-sbti-2050-val" style="font-size:18px;color:var(--green-700)">—</div>
+              <div class="em-kpi-unit">tCO₂e (net zero)</div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-title">Set your baseline</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Base year (e.g. 2024)</label>
+                <input type="number" id="em-sbti-base-year" placeholder="2024" oninput="calcSBTi()">
+              </div>
+              <div class="form-group">
+                <label>Base year emissions (tCO₂e Scope 1+2)</label>
+                <input type="number" id="em-sbti-base-em" placeholder="e.g. 2050" oninput="calcSBTi()">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Scope 3 base year emissions (tCO₂e)</label>
+                <input type="number" id="em-sbti-s3-em" placeholder="e.g. 4200" oninput="calcSBTi()">
+              </div>
+              <div class="form-group">
+                <label>Annual reduction rate (%)</label>
+                <input type="number" id="em-sbti-rate" placeholder="4.2" value="4.2" step="0.1" oninput="calcSBTi()">
+                <div class="input-hint">SBTi 1.5°C = 4.2% linear per year for scope 1+2</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-primary" onclick="calcSBTi()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 2 17"/><polyline points="17 6 23 6 23 12"/></svg>
+                Calculate Pathway
+              </button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">
+              <div class="card-title-left">Annual Reduction Pathway</div>
+              <div class="em-legend">
+                <span><span class="em-legend-dot" style="background:var(--green-500)"></span> Current target</span>
+                <span><span class="em-legend-dot" style="background:var(--amber-500)"></span> SBTi pathway</span>
+              </div>
+            </div>
+            <div id="em-sbti-table">
+              <div style="text-align:center;padding:24px;color:var(--ink-400);font-size:13px">Enter your base year data and click Calculate Pathway to see annual targets.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SETTINGS PANEL ── -->
+      <div id="panel-settings" class="panel">
+        <div class="two-col">
+          <div>
+            <div class="card" style="margin-bottom:18px">
+              <div class="card-title">Company profile</div>
+              <div class="form-group" style="margin-bottom:12px">
+                <label>Company name</label>
+                <input type="text" id="s-company" placeholder="e.g. Acacia Kenya Limited" oninput="saveSettings()">
+              </div>
+              <div class="form-row" style="margin-bottom:12px">
+                <div class="form-group">
+                  <label>NSE ticker</label>
+                  <input type="text" id="s-ticker" placeholder="e.g. ACAC" oninput="saveSettings()">
+                </div>
+                <div class="form-group">
+                  <label>NSSF / KRA PIN</label>
+                  <input type="text" id="s-pin" placeholder="e.g. A012345678Z" oninput="saveSettings()">
+                </div>
+              </div>
+              <div class="form-row" style="margin-bottom:12px">
+                <div class="form-group">
+                  <label>Sector</label>
+                  <select id="s-sector" onchange="saveSettings()">
+                    <option>Manufacturing</option>
+                    <option>Financial Services</option>
+                    <option>Technology</option>
+                    <option>Energy &amp; Utilities</option>
+                    <option>Consumer Goods</option>
+                    <option>Real Estate</option>
+                    <option>Agriculture &amp; Food</option>
+                    <option>Transport &amp; Logistics</option>
+                    <option>Healthcare</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Reporting year</label>
+                  <input type="number" id="s-year" placeholder="2024" oninput="saveSettings()">
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom:12px">
+                <label>Registered address (Nairobi)</label>
+                <input type="text" id="s-address" placeholder="e.g. Upper Hill, Nairobi" oninput="saveSettings()">
+              </div>
+              <div class="form-group">
+                <label>Sustainability contact email</label>
+                <input type="email" id="s-email" placeholder="esg@company.co.ke" oninput="saveSettings()">
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">Revenue (for intensity metrics)</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Annual revenue (KES millions)</label>
+                  <input type="number" id="s-revenue" placeholder="e.g. 4500" oninput="saveSettings()">
+                </div>
+                <div class="form-group">
+                  <label>Number of sites / locations</label>
+                  <input type="number" id="s-sites" placeholder="e.g. 12" oninput="saveSettings()">
+                </div>
+              </div>
+              <div class="input-hint" style="margin-top:4px">Used to auto-calculate emission and energy intensity ratios on the Environmental page.</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="card" style="margin-bottom:18px">
+              <div class="card-title">Framework preferences</div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+                  <input type="checkbox" id="fw-gri" checked style="accent-color:var(--green-500)">
+                  <div>
+                    <div class="fw-600 text-sm">GRI Standards</div>
+                    <div class="text-muted" style="font-size:11px">Recommended by NSE ESG Guidance Manual</div>
+                  </div>
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+                  <input type="checkbox" id="fw-nse" checked style="accent-color:var(--green-500)">
+                  <div>
+                    <div class="fw-600 text-sm">NSE Disclosure Manual</div>
+                    <div class="text-muted" style="font-size:11px">Mandatory for all NSE-listed companies</div>
+                  </div>
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+                  <input type="checkbox" id="fw-tcfd" style="accent-color:var(--green-500)">
+                  <div>
+                    <div class="fw-600 text-sm">TCFD</div>
+                    <div class="text-muted" style="font-size:11px">Climate-related financial disclosures — CBK guidance</div>
+                  </div>
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+                  <input type="checkbox" id="fw-gbp" style="accent-color:var(--green-500)">
+                  <div>
+                    <div class="fw-600 text-sm">Green Bond Principles (ICMA)</div>
+                    <div class="text-muted" style="font-size:11px">If issuing a green bond on NSE or internationally</div>
+                  </div>
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+                  <input type="checkbox" id="fw-sdg" style="accent-color:var(--green-500)">
+                  <div>
+                    <div class="fw-600 text-sm">UN Sustainable Development Goals</div>
+                    <div class="text-muted" style="font-size:11px">Kenya Vision 2030 aligns with SDG 1, 2, 6, 7, 8, 13</div>
+                  </div>
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+                  <input type="checkbox" id="fw-cbk" checked style="accent-color:var(--green-500)">
+                  <div>
+                    <div class="fw-600 text-sm">CBK Green Finance Taxonomy</div>
+                    <div class="text-muted" style="font-size:11px">Required for green lending from Kenyan banks</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <div class="card" style="margin-bottom:18px">
+              <div class="card-title">Data &amp; storage</div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div class="flex-between">
+                  <div>
+                    <div class="fw-600 text-sm">Local data storage</div>
+                    <div class="text-muted" style="font-size:11px">All data saved in your browser (localStorage)</div>
+                  </div>
+                  <span class="badge badge-green">Active</span>
+                </div>
+                <div class="flex-between">
+                  <div>
+                    <div class="fw-600 text-sm">Export all data</div>
+                    <div class="text-muted" style="font-size:11px">Download a JSON backup of all entered data</div>
+                  </div>
+                  <button class="btn btn-secondary" style="padding:6px 12px;font-size:12px" onclick="exportData()">Export JSON</button>
+                </div>
+                <div class="flex-between">
+                  <div>
+                    <div class="fw-600 text-sm">Clear all data</div>
+                    <div class="text-muted" style="font-size:11px">Wipe all saved data and start fresh</div>
+                  </div>
+                  <button class="btn" style="padding:6px 12px;font-size:12px;background:var(--red-100);color:var(--red-500);border:1px solid var(--red-500)" onclick="clearData()">Clear data</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">About Mazingira</div>
+              <div class="text-muted text-sm" style="line-height:1.8">
+                <strong style="color:var(--ink-900)">Mazingira</strong> (Swahili: <em>environment</em>) is Kenya's dedicated ESG and Green Finance reporting platform — built for NSE-listed companies, banks, and sustainability teams in Nairobi.<br><br>
+                Aligned with the NSE ESG Disclosure Guidance Manual (2021), the CBK Green Finance Taxonomy (2024), and international standards including GRI, TCFD, and ICMA GBP.<br><br>
+                <span style="color:var(--green-700);font-weight:500">Version 1.0 · Nairobi, Kenya</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- ── AI FILL DRAWER ── -->
+<div id="ai-fill-overlay" onclick="toggleAIFill()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.2);z-index:199;backdrop-filter:blur(1px)"></div>
+
+<div id="ai-fill-drawer" style="
+  position:fixed; right:-440px; top:0; bottom:0; width:420px; z-index:200;
+  background:#fff; box-shadow:-4px 0 32px rgba(0,0,0,0.12);
+  display:flex; flex-direction:column; transition:right 0.3s cubic-bezier(.4,0,.2,1);
+  font-family:'Inter',sans-serif;
+">
+  <!-- Drawer header -->
+  <div style="padding:18px 20px;border-bottom:1px solid #DEDEDE;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+    <div>
+      <div style="font-size:15px;font-weight:600;color:#1A1A1A;display:flex;align-items:center;gap:8px">
+        <span style="width:24px;height:24px;background:#0D4A35;border-radius:6px;display:inline-flex;align-items:center;justify-content:center">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#E8A020" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </span>
+        AI Form Assistant
+      </div>
+      <div style="font-size:11px;color:#7A7A7A;margin-top:2px">Powered by OpenRouter · Fills your ESG form intelligently</div>
+    </div>
+    <button onclick="toggleAIFill()" style="background:none;border:none;cursor:pointer;padding:6px;border-radius:6px;color:#7A7A7A;font-size:18px;line-height:1" title="Close">&times;</button>
+  </div>
+
+  <!-- API key bar -->
+  <div id="ai-fill-keybar" style="padding:12px 20px;background:#F0FAF6;border-bottom:1px solid #c8edd9;display:flex;align-items:center;gap:8px;flex-shrink:0">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1A7050" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    <input id="or-api-key" type="password" placeholder="Paste your OpenRouter API key…" style="flex:1;border:1px solid #c8edd9;border-radius:6px;padding:6px 10px;font-size:12px;background:#fff;font-family:'Inter',sans-serif" oninput="saveApiKey()">
+    <a href="https://openrouter.ai/keys" target="_blank" style="font-size:11px;color:#1A7050;white-space:nowrap;text-decoration:none">Get key ↗</a>
+  </div>
+
+  <!-- Quick-fill buttons -->
+  <div style="padding:14px 20px 10px;border-bottom:1px solid #F0EFEC;flex-shrink:0">
+    <div style="font-size:11px;font-weight:600;color:#7A7A7A;text-transform:uppercase;letter-spacing:0.7px;margin-bottom:10px">Quick actions</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">
+      <button class="aif-chip" onclick="quickFill('environmental')">🌿 Fill Environmental</button>
+      <button class="aif-chip" onclick="quickFill('social')">👥 Fill Social</button>
+      <button class="aif-chip" onclick="quickFill('governance')">🏛️ Fill Governance</button>
+      <button class="aif-chip" onclick="quickFill('greenfinance')">💰 Fill Green Finance</button>
+      <button class="aif-chip" onclick="quickFill('all')">⚡ Fill All Sections</button>
+      <button class="aif-chip" onclick="explainGaps()">🔍 Explain gaps</button>
+    </div>
+  </div>
+
+  <!-- Conversation -->
+  <div id="aif-messages" style="flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px">
+    <div class="aif-msg aif-ai">
+      <div class="aif-name">AI Assistant</div>
+      <div class="aif-body">Habari! I'm your ESG form assistant. I can help you fill in your environmental, social, governance, and green finance data — either by asking you questions or by auto-filling with industry estimates for a Kenyan listed company.<br><br>Click a <strong>Quick action</strong> above to start filling a section, or describe your company and I'll guide you through.</div>
+    </div>
+  </div>
+
+  <!-- Suggested fills preview -->
+  <div id="aif-preview" style="display:none;margin:0 20px 10px;background:#F0FAF6;border:1px solid #c8edd9;border-radius:10px;padding:14px;font-size:13px;max-height:200px;overflow-y:auto">
+    <div style="font-size:11px;font-weight:600;color:#1A7050;text-transform:uppercase;letter-spacing:0.7px;margin-bottom:10px">Suggested values — review &amp; confirm</div>
+    <div id="aif-preview-body"></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button onclick="applyFills()" style="flex:1;padding:9px;background:#1A7050;color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer">✓ Apply to form</button>
+      <button onclick="document.getElementById('aif-preview').style.display='none'" style="padding:9px 14px;background:#fff;color:#4A4A4A;border:1px solid #DEDEDE;border-radius:7px;font-size:13px;cursor:pointer">Dismiss</button>
+    </div>
+  </div>
+
+  <!-- Input bar -->
+  <div style="padding:14px 20px;border-top:1px solid #DEDEDE;flex-shrink:0;background:#fff">
+    <div style="display:flex;gap:8px;align-items:flex-end">
+      <textarea id="aif-input" placeholder="e.g. We are a 600-employee manufacturer in Nairobi with KES 2B revenue…" style="flex:1;border:1px solid #DEDEDE;border-radius:8px;padding:9px 12px;font-size:13px;font-family:'Inter',sans-serif;resize:none;min-height:40px;max-height:100px;line-height:1.5" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAIFill()}"></textarea>
+      <button onclick="sendAIFill()" style="background:#0D4A35;color:#fff;border:none;border-radius:8px;padding:10px 14px;cursor:pointer;flex-shrink:0">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+    <div style="font-size:11px;color:#7A7A7A;margin-top:6px">Press Enter to send · Shift+Enter for new line · Values are suggestions — always verify</div>
+  </div>
+</div>
+
+<!-- ── API KEY MISSING MODAL ── -->
+<div id="aif-key-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:300;display:none;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:12px;padding:28px;max-width:380px;width:90%;font-family:'Inter',sans-serif">
+    <div style="font-size:16px;font-weight:600;color:#1A1A1A;margin-bottom:8px">OpenRouter API key needed</div>
+    <div style="font-size:13px;color:#4A4A4A;margin-bottom:16px;line-height:1.6">The AI assistant uses OpenRouter to access language models. Get a free API key at <a href="https://openrouter.ai/keys" target="_blank" style="color:#1A7050">openrouter.ai/keys</a>, then paste it in the key bar at the top of the assistant panel.</div>
+    <button onclick="document.getElementById('aif-key-modal').style.display='none';document.getElementById('or-api-key').focus()" style="width:100%;padding:10px;background:#0D4A35;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer">Got it</button>
+  </div>
+</div>
+
+<style>
+.aif-chip {
+  font-size:12px; padding:6px 12px; border-radius:99px;
+  border:1px solid #DEDEDE; background:#fff; cursor:pointer;
+  color:#4A4A4A; font-family:'Inter',sans-serif; transition:all .15s;
+}
+.aif-chip:hover { background:#F0FAF6; border-color:#1D9E75; color:#0D4A35; }
+.aif-msg { max-width:100%; }
+.aif-name { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.7px; margin-bottom:5px; }
+.aif-body { font-size:13px; line-height:1.65; }
+.aif-ai .aif-name { color:#1A7050; }
+.aif-ai .aif-body { background:#F0FAF6; border:1px solid #c8edd9; border-radius:0 10px 10px 10px; padding:11px 14px; color:#1A1A1A; }
+.aif-user .aif-name { color:#7A7A7A; text-align:right; }
+.aif-user .aif-body { background:#0D4A35; color:#fff; border-radius:10px 0 10px 10px; padding:11px 14px; text-align:left; }
+.aif-fill-row { display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid #E1F5EE; font-size:12px; }
+.aif-fill-row:last-child { border-bottom:none; }
+.aif-fill-key { color:#4A4A4A; }
+.aif-fill-val { font-weight:600; color:#0D4A35; }
+.aif-thinking { display:flex; gap:5px; align-items:center; padding:10px 14px; background:#F0FAF6; border:1px solid #c8edd9; border-radius:0 10px 10px 10px; }
+.aif-dot { width:7px; height:7px; border-radius:50%; background:#1D9E75; animation:aif-bounce .9s ease-in-out infinite; }
+.aif-dot:nth-child(2) { animation-delay:.15s; }
+.aif-dot:nth-child(3) { animation-delay:.3s; }
+@keyframes aif-bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+</style>
+
+<script>
+// ── NAVIGATION ──────────────────────────────────────────
+const panels = ['dashboard','compliance','environmental','social','governance','greenfinance','cbktaxonomy','euhorticulture','emissions','trends','materiality','report','documents','advisor','settings'];
+const titles = {
+  dashboard:'Dashboard', compliance:'NSE Compliance', environmental:'Environmental (GRI 305 · 302 · 303 · 306)',
+  social:'Social (GRI 401–405)', governance:'Governance (GRI 102)', greenfinance:'Green Finance',
+  cbktaxonomy:'CBK Green Finance Taxonomy', euhorticulture:'EU Horticulture Compliance',
+  emissions:'Scope 1, 2 & 3 Tools',
+  trends:'Trends & Analytics', materiality:'Materiality Assessment (GRI 3-1)',
+  report:'Draft ESG Report', documents:'Document Vault', advisor:'AI ESG Advisor', settings:'Settings'
+};
+
+function showPanel(id, navEl) {
+  panels.forEach(p => document.getElementById('panel-' + p).classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  if (navEl) navEl.classList.add('active');
+  document.getElementById('topbar-title').textContent = titles[id] || id;
+  updateReadiness();
+  if (id === 'trends' && !chartsInited) initCharts();
+  if (id === 'materiality' && !matInited) initMateriality();
+  if (id === 'settings') loadSettings();
+  animatePanel(id);
+}
+
+// Wire skeleton loading for heavy panels + scroll reveals
+var _origShowPanel = showPanel;
+showPanel = function(id, navEl) {
+  if (id === 'trends' || id === 'materiality') {
+    showSkeleton(id);
+    setTimeout(function() { hideSkeleton(id); }, 800);
+  }
+  _origShowPanel(id, navEl);
+  setTimeout(function() { initRevealObserver(); }, 300);
+};
+
+// ── SCORE / READINESS ──────────────────────────────────
+function v(id) { return parseFloat(document.getElementById(id)?.value) || 0; }
+function filled(id) { const el = document.getElementById(id); return el && el.value.trim() !== '' ? 1 : 0; }
+
+function recalc() {
+  const eF = ['scope1','scope2','energy','renewable','water','waste','waste-div'].filter(id => filled(id)).length;
+  const sF = ['emp-total','emp-women','lead-women','turnover','ltir','training','community','suppliers'].filter(id => filled(id)).length;
+  const gChecks = document.querySelectorAll('#gov-checks input[type=checkbox]');
+  const gF = ['board-size','independent','board-women','board-esg'].filter(id => filled(id)).length;
+  const gC = Array.from(gChecks).filter(c => c.checked).length;
+  const gfC = document.querySelectorAll('#panel-greenfinance .check-row input:checked').length;
+  const gfF = ['gf-size','gf-co2'].filter(id => filled(id)).length;
+  const eligC = document.querySelectorAll('#elig-pills .pill.active').length;
+  const hasInstrument = document.querySelector('#instrument-grid .instrument-card.selected') ? 1 : 0;
+
+  const ePct = Math.round(eF / 7 * 100);
+  const sPct = Math.round(sF / 8 * 100);
+  const gPct = Math.round((gF / 4 * 0.5 + gC / 7 * 0.5) * 100);
+  const gfPct = Math.round((gfC / 8 * 0.5 + gfF / 2 * 0.2 + Math.min(eligC / 3, 1) * 0.2 + hasInstrument * 0.1) * 100);
+
+  ['r-ebar','r-sbar','r-gbar','r-gfbar'].forEach((id, i) => {
+    const pct = [ePct, sPct, gPct, gfPct][i];
+    const el = document.getElementById(id);
+    if (el) el.style.width = pct + '%';
+  });
+  ['r-epct','r-spct','r-gpct','r-gfpct'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = [ePct, sPct, gPct, gfPct][i] + '%';
+  });
+
+  const total = Math.round((ePct + sPct + gPct) / 3);
+  const rTot = document.getElementById('r-total');
+  if (rTot) rTot.textContent = total || '—';
+  const dashEsg = document.getElementById('dash-esg');
+  if (dashEsg && total) dashEsg.textContent = total;
+  const dashGf = document.getElementById('dash-gf');
+  if (dashGf && gfPct) dashGf.textContent = gfPct;
+  if (typeof updateCharts === "function") updateCharts();
+}
+
+function updateReadiness() { recalc(); }
+
+// ── AI FORM ASSISTANT ────────────────────────────────
+function toggleAIFill() {
+  var drawer = document.getElementById('ai-fill-drawer');
+  var overlay = document.getElementById('ai-fill-overlay');
+  if (!drawer || !overlay) return;
+  var open = drawer.style.right === '0px' || drawer.style.right === '0';
+  drawer.style.right = open ? '-440px' : '0px';
+  overlay.style.display = open ? 'none' : 'block';
+  if (!open) setTimeout(function() {
+    var msgs = document.getElementById("aif-messages");
+    if (msgs) msgs.scrollTop = msgs.scrollHeight;
+  }, 100);
+}
+
+function saveApiKey() {
+  var key = document.getElementById('or-api-key').value.trim();
+  if (key) localStorage.setItem('or_api_key', key);
+}
+
+function getApiKey() {
+  var saved = localStorage.getItem('or_api_key') || '';
+  var input = document.getElementById('or-api-key');
+  if (input && saved && !input.value) input.value = saved;
+  return saved;
+}
+
+function addAIFillMessage(role, text) {
+  var container = document.getElementById('aif-messages');
+  if (!container) return;
+  var div = document.createElement('div');
+  div.className = 'aif-msg aif-' + role;
+  div.style.cssText = 'padding:12px 14px;border-radius:10px;font-size:13px;line-height:1.6;animation:slideUp 0.3s ease';
+  if (role === 'ai') {
+    div.style.background = '#F0FAF6';
+    div.style.border = '1px solid #d1f0e0';
+    div.style.color = '#1A1A1A';
+    div.innerHTML = '<div style="font-size:10px;font-weight:600;color:#1A7050;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px">AI Assistant</div>' + text;
+  } else {
+    div.style.background = '#0D4A35';
+    div.style.color = '#fff';
+    div.style.alignSelf = 'flex-end';
+    div.textContent = text;
+  }
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function showAIFillLoading() {
+  var container = document.getElementById('aif-messages');
+  if (!container) return;
+  var div = document.createElement('div');
+  div.id = 'aif-loading';
+  div.style.cssText = 'padding:12px 14px;border-radius:10px;font-size:13px;background:#F0FAF6;border:1px solid #c8edd9;color:#4A4A4A;animation:slideUp 0.3s ease';
+  div.innerHTML = '<div style="display:flex;align-items:center;gap:8px"><div class="dot-pulse" style="display:flex;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:#1D9E75;animation:pulse 1.2s infinite"></span><span style="width:6px;height:6px;border-radius:50%;background:#1D9E75;animation:pulse 1.2s infinite;animation-delay:0.2s"></span><span style="width:6px;height:6px;border-radius:50%;background:#1D9E75;animation:pulse 1.2s infinite;animation-delay:0.4s"></span></div><span>Generating ESG data...</span></div>';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeAIFillLoading() {
+  var el = document.getElementById('aif-loading');
+  if (el) el.remove();
+}
+
+async function callOpenRouter(messages, systemPrompt, maxTokens) {
+  var key = getApiKey();
+  if (!key) {
+    var modal = document.getElementById('aif-key-modal');
+    if (modal) modal.style.display = 'flex';
+    return null;
+  }
+  try {
+    var res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + key,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'openai/gpt-4o-mini',
+        max_tokens: maxTokens || 1500,
+        messages: systemPrompt ? [{role:'system',content:systemPrompt}].concat(messages) : messages
+      })
+    });
+    if (!res.ok) {
+      var errText = await res.text();
+      return {error: 'API error (' + res.status + '): ' + errText.substring(0,200)};
+    }
+    var data = await res.json();
+    var text = data.choices?.[0]?.message?.content || '';
+    return {text: text};
+  } catch(e) {
+    return {error: 'Could not connect: ' + e.message};
+  }
+}
+
+async function quickFill(section) {
+  var sections = {
+    environmental: {
+      title: 'Environmental (GRI 305, 302, 303, 306)',
+      fields: ['scope1','scope2','scope3','em-target','em-base','energy','renewable','solar','water','water-recycled','waste','waste-div']
+    },
+    social: {
+      title: 'Social (GRI 401-405, 403, 413)',
+      fields: ['emp-total','emp-women','emp-local','lead-women','emp-youth','turnover','ltir','training','community','suppliers','local-suppliers','sme-suppliers']
+    },
+    governance: {
+      title: 'Governance (GRI 102, 205, 207)',
+      fields: ['board-size','independent','board-women','board-meetings','board-esg']
+    },
+    greenfinance: {
+      title: 'Green Finance (GBP / GLP)',
+      fields: ['gf-size','gf-tenor','gf-co2','gf-mw']
+    }
+  };
+  var info = sections[section];
+  if (!info) return;
+  addAIFillMessage('user', 'Please fill the ' + info.title + ' section with realistic ESG data for a Kenyan NSE-listed company.');
+  showAIFillLoading();
+  var sysPrompt = 'You are an ESG data specialist for Kenyan companies. Generate realistic ESG metrics for a Nairobi-based NSE-listed company (manufacturing sector, ~850 employees, ~KES 4.5B revenue). Return ONLY valid JSON with field IDs as keys and numeric values. Do not include any explanation or markdown.';
+  var userMsg = 'Generate realistic ESG data for these form fields (as JSON keys): ' + info.fields.join(', ') + '. Each value must be a number. For governance, include a string value for board-esg field. Return ONLY the JSON object.';
+  var result = await callOpenRouter([{role:'user',content:userMsg}], sysPrompt, 800);
+  removeAIFillLoading();
+  if (!result) return;
+  if (result.error) {
+    addAIFillMessage('ai', '⚠️ ' + result.error);
+    return;
+  }
+  try {
+    var jsonMatch = result.text.match(/\{[\s\S]*\}/);
+    var data = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(result.text);
+    var filled = 0;
+    for (var key in data) {
+      var el = document.getElementById(key);
+      if (el) {
+        el.value = data[key];
+        el.dispatchEvent(new Event('input', {bubbles:true}));
+        filled++;
+      }
+    }
+    addAIFillMessage('ai', '✅ Filled <strong>' + filled + '</strong> fields in the ' + info.title + ' section with realistic Kenyan ESG data.');
+    recalc();
+  } catch(e) {
+    addAIFillMessage('ai', '⚠️ Could not parse the AI response. Try again or use the custom input below.');
+  }
+}
+
+async function sendAIFill() {
+  var input = document.getElementById('aif-input');
+  var q = input.value.trim();
+  if (!q) return;
+  input.value = '';
+  addAIFillMessage('user', q);
+  showAIFillLoading();
+  var sysPrompt = 'You are an ESG and green finance assistant for Kenyan companies. Help fill ESG reporting forms with realistic data for a Nairobi-based NSE-listed company. Provide specific numeric values and explanations. Be concise and practical.';
+  var result = await callOpenRouter([{role:'user',content:q}], sysPrompt, 1000);
+  removeAIFillLoading();
+  if (!result) return;
+  if (result.error) {
+    addAIFillMessage('ai', '⚠️ ' + result.error);
+    return;
+  }
+  addAIFillMessage('ai', result.text);
+  recalc();
+}
+
+async function explainGaps() {
+  addAIFillMessage('user', 'Analyse the current ESG form data and identify gaps or areas for improvement.');
+  showAIFillLoading();
+  var formData = {};
+  var fieldIds = ['scope1','scope2','scope3','energy','renewable','water','waste','emp-total','emp-women','lead-women','board-size','independent','board-women'];
+  fieldIds.forEach(function(id) {
+    var el = document.getElementById(id);
+    formData[id] = el ? (el.value || '(empty)') : '(not found)';
+  });
+  var sysPrompt = 'You are an ESG analyst for Kenyan NSE-listed companies. Analyse the provided ESG form data and identify gaps, improvement areas, and Kenya-specific compliance considerations. Be concise and practical.';
+  var userMsg = 'Current form data: ' + JSON.stringify(formData) + '. Identify gaps and suggest improvements for NSE ESG compliance.';
+  var result = await callOpenRouter([{role:'user',content:userMsg}], sysPrompt, 1000);
+  removeAIFillLoading();
+  if (!result) return;
+  if (result.error) {
+    addAIFillMessage('ai', '⚠️ ' + result.error);
+    return;
+  }
+  addAIFillMessage('ai', result.text);
+}
+
+// ── EMISSIONS DATA PERSISTENCE ──────────────────────────
+// Restore display values after localStorage data is loaded
+function loadEmissionsData() {
+  // Check if any emissions inputs have data and recalculate
+  var emInputs = ['em-diesel','em-petrol','em-lpg','em-biomass','em-fgas','em-grid','em-grid-backup',
+    'em-air-short','em-air-long','em-road','em-rail'];
+  var hasData = false;
+  for (var i = 0; i < emInputs.length; i++) {
+    var el = document.getElementById(emInputs[i]);
+    if (el && el.value && parseFloat(el.value) !== 0) {
+      hasData = true;
+      break;
+    }
+  }
+  if (hasData) {
+    calcGHG();
+  }
+  // Initialize scope 3 table and restore values
+  if (document.getElementById('em-s3-upstream')) {
+    var tbl = document.getElementById('em-s3-upstream');
+    if (tbl && tbl.children.length === 0) {
+      initScope3();
+    }
+    calcScope3();
+    // Re-apply saved Scope 3 values (inputs are created dynamically so loadSavedData skipped them)
+    var savedData = JSON.parse(localStorage.getItem('esg_form_data') || '{}');
+    for (var i = 1; i <= 15; i++) {
+      var key = 'em-s3-' + i;
+      var el = document.getElementById(key);
+      if (el && savedData[key] !== undefined) {
+        el.value = savedData[key];
+      }
+    }
+    calcScope3();
+  }
+  // Restore SBTi values
+  var sbtiYear = document.getElementById('em-sbti-base-year');
+  var sbtiEm = document.getElementById('em-sbti-base-em');
+  if (sbtiYear && sbtiYear.value && sbtiEm && sbtiEm.value) {
+    calcSBTi();
+  }
+}
+
+// Load saved API key on page load
+setTimeout(function() { getApiKey(); }, 100);
+
+
+// ── EMISSIONS TOOLS ──────────────────────────────────────
+
+// Kenya-specific emission factors (tCO₂e per unit)
+const EM_FACTORS = {
+  diesel: 0.00269,      // tCO₂e per litre
+  petrol: 0.00230,      // tCO₂e per litre
+  lpg: 0.00302,         // tCO₂e per kg
+  biomass: 1.130,       // tCO₂e per tonne
+  fgas: 1.43,            // tCO₂e per kg (avg R-410A)
+  grid: 0.000056,       // tCO₂e per kWh (Kenya grid 2023)
+  airShort: 0.00020,    // tCO₂e per km
+  airLong: 0.00015,     // tCO₂e per km
+  road: 0.00017,        // tCO₂e per km
+  rail: 0.00004         // tCO₂e per km
+};
+
+// Scope 3 categories (GHG Protocol)
+const SCOPE3_CATS = [
+  {num:1, name:'Purchased goods & services', up:true},
+  {num:2, name:'Capital goods', up:true},
+  {num:3, name:'Fuel & energy-related (not in S1/S2)', up:true},
+  {num:4, name:'Upstream transportation & distribution', up:true},
+  {num:5, name:'Waste generated in operations', up:true},
+  {num:6, name:'Business travel', up:true},
+  {num:7, name:'Employee commuting', up:true},
+  {num:8, name:'Upstream leased assets', up:true},
+  {num:9,  name:'Downstream transportation', up:false},
+  {num:10, name:'Processing of sold products', up:false},
+  {num:11, name:'Use of sold products', up:false},
+  {num:12, name:'End-of-life treatment of sold products', up:false},
+  {num:13, name:'Downstream leased assets', up:false},
+  {num:14, name:'Franchises', up:false},
+  {num:15, name:'Investments', up:false}
+];
+
+function switchEmTab(el, tabId) {
+  document.querySelectorAll('#panel-emissions .pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  ['em-ghg-calc','em-scope3-cats','em-sbti-pathway'].forEach(id => {
+    document.getElementById(id).style.display = id === 'em-' + tabId ? 'block' : 'none';
+  });
+  if (tabId === 'scope3-cats' && !document.getElementById('em-s3-upstream').children.length) {
+    initScope3();
+  }
+  if (tabId === 'sbti-pathway' && !window._sbtiInited) {
+    window._sbtiInited = true;
+  }
+}
+
+function calcGHG() {
+  const v = id => parseFloat(document.getElementById(id).value) || 0;
+  const r = id => document.getElementById(id);
+
+  // Scope 1
+  const diesel = v('em-diesel') * EM_FACTORS.diesel;
+  const petrol = v('em-petrol') * EM_FACTORS.petrol;
+  const lpg = v('em-lpg') * EM_FACTORS.lpg;
+  const biomass = v('em-biomass') * EM_FACTORS.biomass;
+  const fgas = v('em-fgas') * EM_FACTORS.fgas;
+
+  r('em-diesel-result').textContent = (v('em-diesel') * EM_FACTORS.diesel).toFixed(2);
+  r('em-petrol-result').textContent = (v('em-petrol') * EM_FACTORS.petrol).toFixed(2);
+  r('em-lpg-result').textContent = (v('em-lpg') * EM_FACTORS.lpg).toFixed(2);
+  r('em-biomass-result').textContent = (v('em-biomass') * EM_FACTORS.biomass).toFixed(2);
+  r('em-fgas-result').textContent = (v('em-fgas') * EM_FACTORS.fgas).toFixed(2);
+
+  const s1 = diesel + petrol + lpg + biomass + fgas;
+  r('em-s1-total').textContent = s1.toFixed(2);
+
+  // Scope 2
+  const grid = v('em-grid') * EM_FACTORS.grid;
+  const gridBk = v('em-grid-backup') * EM_FACTORS.grid;
+  r('em-grid-result').textContent = grid.toFixed(2);
+  r('em-grid-backup-result').textContent = gridBk.toFixed(2);
+  const s2 = grid + gridBk;
+  r('em-s2-total').textContent = s2.toFixed(2);
+
+  // Scope 3 selected
+  const airS = v('em-air-short') * EM_FACTORS.airShort;
+  const airL = v('em-air-long') * EM_FACTORS.airLong;
+  const road = v('em-road') * EM_FACTORS.road;
+  const rail = v('em-rail') * EM_FACTORS.rail;
+  r('em-air-short-result').textContent = airS.toFixed(2);
+  r('em-air-long-result').textContent = airL.toFixed(2);
+  r('em-road-result').textContent = road.toFixed(2);
+  r('em-rail-result').textContent = rail.toFixed(2);
+  const s3sel = airS + airL + road + rail;
+  r('em-sel-s3-total').textContent = s3sel.toFixed(2);
+
+  // Update dashboard KPI
+  const grandTotal = s1 + s2 + s3sel;
+  const dashTotal = document.getElementById('dash-emissions-total');
+  if (dashTotal) {
+    dashTotal.textContent = grandTotal > 0 ? grandTotal.toFixed(1) : '—';
+  }
+  const dashDelta = document.getElementById('dash-emissions-delta');
+  if (dashDelta) {
+    if (grandTotal > 0) {
+      dashDelta.textContent = 'S1: ' + s1.toFixed(1) + ' / S2: ' + s2.toFixed(1) + ' / S3: ' + s3sel.toFixed(1);
+      dashDelta.style.color = 'var(--ink-400)';;
+    } else {
+      dashDelta.textContent = 'Enter data in Carbon panel';
+      dashDelta.style.color = 'var(--green-500)';;
+    }
+  }
+}
+
+function clearEmInputs() {
+  const ids = ['em-diesel','em-petrol','em-lpg','em-biomass','em-fgas','em-grid','em-grid-backup','em-air-short','em-air-long','em-road','em-rail'];
+  ids.forEach(id => document.getElementById(id).value = '');
+  calcGHG();
+  showToast('Cleared ✓');
+}
+
+function initScope3() {
+  const up = document.getElementById('em-s3-upstream');
+  const down = document.getElementById('em-s3-downstream');
+  SCOPE3_CATS.forEach(c => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td><strong>' + c.num + '</strong></td><td>' + c.name + '</td><td><input type="number" id="em-s3-' + c.num + '" placeholder="0" style="width:80px;padding:4px 8px;border:1px solid var(--ink-200);border-radius:5px;font-size:12px;font-family:Inter,sans-serif;color:var(--ink-900);background:var(--white);outline:none" oninput="calcScope3()"></td>';
+    if (c.up) up.appendChild(tr); else down.appendChild(tr);
+  });
+}
+
+function calcScope3() {
+  let total = 0;
+  SCOPE3_CATS.forEach(c => {
+    const el = document.getElementById('em-s3-' + c.num);
+    const v = el ? (parseFloat(el.value) || 0) : 0;
+    total += v;
+  });
+  document.getElementById('em-s3-total').textContent = total.toFixed(2);
+}
+
+function calcSBTi() {
+  const baseYear = parseInt(document.getElementById('em-sbti-base-year').value);
+  const baseEm = parseFloat(document.getElementById('em-sbti-base-em').value) || 0;
+  const s3Em = parseFloat(document.getElementById('em-sbti-s3-em').value) || 0;
+  const rate = parseFloat(document.getElementById('em-sbti-rate').value) || 4.2;
+
+  if (!baseYear || !baseEm) {
+    document.getElementById('em-sbti-table').innerHTML = '<div style="text-align:center;padding:24px;color:var(--ink-400);font-size:13px">Enter your base year data and click Calculate Pathway to see annual targets.</div>';
+    document.getElementById('em-sbti-base-val').textContent = '—';
+    document.getElementById('em-sbti-2030-val').textContent = '—';
+    document.getElementById('em-sbti-2050-val').textContent = '—';
+    return;
+  }
+
+  const totalEm = baseEm + s3Em;
+  document.getElementById('em-sbti-base-val').textContent = totalEm.toFixed(0);
+
+  // Calculate annual targets
+  const currentYear = 2026;
+  let html = '<table class="em-scope3-table"><thead><tr><th>Year</th><th>Target tCO₂e</th><th>% of Base</th><th>Progress bar</th></tr></thead><tbody>';
+  let target2030 = 0;
+  let target2050 = 0;
+
+  // SBTi 1.5°C uses linear reduction: reduce by rate% of base emissions each year
+  const annualCut = totalEm * (rate / 100);
+  for (let y = baseYear; y <= 2050; y++) {
+    const yearsFromBase = y - baseYear;
+    let target = Math.max(totalEm - annualCut * yearsFromBase, 0);
+    if (y > 2050) continue;
+    if (y === 2030) target2030 = target;
+    if (y === 2050) target2050 = Math.max(target, 0);
+
+    const pct = totalEm > 0 ? Math.round(target / totalEm * 100) : 0;
+    const barPct = Math.min(pct, 100);
+    const barColor = pct >= 80 ? 'var(--green-500)' : pct >= 50 ? 'var(--amber-500)' : 'var(--red-500)';
+
+    // Only show every 2 years, plus base, 2030, 2050
+    if (y === baseYear || y === 2030 || y === 2050 || (y % 2 === 0 && y > baseYear && y < 2050)) {
+      html += '<tr><td><strong>' + y + '</strong></td><td>' + target.toFixed(0) + '</td><td>' + pct + '%</td><td><div style="height:8px;background:var(--ink-100);border-radius:99px;overflow:hidden;width:120px"><div style="height:100%;width:' + barPct + '%;background:' + barColor + ';border-radius:99px;transition:width 0.4s ease;"></div></div></td></tr>';
+    }
+  }
+  html += '</tbody></table>';
+
+  document.getElementById('em-sbti-table').innerHTML = html;
+  document.getElementById('em-sbti-2030-val').textContent = target2030.toFixed(0);
+  document.getElementById('em-sbti-2050-val').textContent = target2050.toFixed(0);
+}
+
+</script>
+  <script src="dashboard.js"></script>
+  <script src="animations.js"></script>
+</body>
+</html>
