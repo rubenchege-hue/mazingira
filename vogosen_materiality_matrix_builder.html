@@ -77,18 +77,63 @@
 .modal-chip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:6px;margin:2px 3px;border:1px solid var(--border,#e0ddd8);background:var(--surface-1,#f7f7f5);color:var(--text-primary,#1a1a1a)}
 .modal-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
 
+/* ── COMPARE TABS ──────────────────────── */
+.compare-tabs{display:flex;gap:4px;margin-bottom:16px;background:var(--surface-1,#f5f5f0);padding:4px;border-radius:10px;border:0.5px solid var(--border,#e0ddd8)}
+.compare-tab{padding:7px 18px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text-muted,#888);transition:all .15s;user-select:none}
+.compare-tab:hover{color:var(--text-primary,#1a1a1a)}
+.compare-tab.active{background:var(--surface-2,#fff);color:var(--text-primary,#1a1a1a);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+/* ── COMPARE PANEL ────────────────────── */
+.compare-panel{display:none}
+.compare-panel.active{display:block}
+.comp-sel-row{display:grid;grid-template-columns:1fr 44px 1fr;gap:12px;align-items:end;margin-bottom:16px}
+@media(max-width:700px){.comp-sel-row{grid-template-columns:1fr;gap:8px}}
+.comp-sel-col label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted,#888);font-family:var(--font-mono,monospace);display:block;margin-bottom:6px}
+.comp-vs{text-align:center;padding-bottom:9px;font-size:13px;font-weight:600;color:var(--text-muted,#888);font-family:var(--font-mono,monospace)}
+.comp-select{width:100%;font-size:13px;padding:8px 10px;border:0.5px solid var(--border-strong,#ccc);border-radius:var(--radius,8px);background:var(--surface-2,#fff);color:var(--text-primary,#1a1a1a);font-family:var(--font-sans,sans-serif)}
+.comp-select:focus{outline:none;border-color:var(--border-accent,#1D9E75)}
+
+.compare-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+@media(max-width:700px){.compare-stats{grid-template-columns:repeat(2,1fr)}}
+.comp-stat{background:var(--surface-1,#f7f7f5);border-radius:var(--radius,8px);padding:10px 12px;text-align:center}
+.comp-stat-num{font-size:20px;font-weight:600;color:var(--text-primary,#1a1a1a)}
+.comp-stat-lbl{font-size:10px;color:var(--text-muted,#888);margin-top:2px;font-family:var(--font-mono,monospace)}
+
+.compare-breakdown{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+@media(max-width:700px){.compare-breakdown{grid-template-columns:1fr}}
+.comp-col{border:0.5px solid var(--border,#e0ddd8);border-radius:10px;padding:12px;background:var(--surface-2,#fff)}
+.comp-col-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding-bottom:6px;border-bottom:0.5px solid var(--border,#e0ddd8)}
+.comp-col-item{font-size:12px;padding:4px 6px;margin:3px 0;border-radius:6px;display:flex;align-items:center;gap:6px}
+.comp-col-item .dim-dot{width:6px;height:6px}
+
+/* Overlay matrix on compare canvas */
+.comp-matrix-grid{position:relative;width:100%;height:420px;border:0.5px solid var(--border,#e0ddd8);border-radius:10px;overflow:hidden;background:var(--surface-2,#fff)}
+@media(max-width:600px){.comp-matrix-grid{height:320px}}
+.comp-matrix-canvas{position:absolute;inset:0}
+.comp-matrix-canvas canvas{width:100%;height:100%;display:block}
+
+.compare-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+
+.compare-chip{position:absolute;transform:translate(-50%,-50%);padding:3px 7px;border-radius:6px;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px;border:1.5px solid;pointer-events:none;z-index:5}
+
 /* ── CHIP ENTRANCE ANIMATION ────────── */
 @keyframes chipPlace{0%{opacity:0;transform:translate(-50%,-50%) scale(.7)}50%{transform:translate(-50%,-50%) scale(1.08)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 .placed-chip.placing{animation:chipPlace .3s cubic-bezier(.22,.61,.36,1) forwards}
-</style>
-
-<div class="wrap">
+</style>  <div class="wrap">
   <div class="hero">
     <div class="hero-tag">Free ESG Tool · Vogosen</div>
     <div class="hero-title">Materiality Matrix Builder</div>
-    <div class="hero-sub">Place SASB material issues by business relevance and stakeholder importance — drag to position, then export your matrix</div>
+    <div class="hero-sub">Place SASB material issues by business relevance and stakeholder importance — drag to position, compare industries, then export your matrix</div>
   </div>
 
+  <!-- ── TAB BAR ── -->
+  <div class="compare-tabs">
+    <div class="compare-tab active" onclick="switchMatrixTab('builder',this)">✏️ Builder</div>
+    <div class="compare-tab" onclick="switchMatrixTab('compare',this)">🔍 Compare Industries</div>
+  </div>
+
+  <!-- ── BUILDER TAB ── -->
+  <div id="matrixBuilder" class="compare-panel active">
   <div class="stats-row" id="statsRow">
     <div class="stat-card"><div class="stat-num" id="st-placed">0</div><div class="stat-lbl">issues placed</div></div>
     <div class="stat-card"><div class="stat-num" id="st-high">0</div><div class="stat-lbl">high materiality</div></div>
@@ -142,6 +187,72 @@
           <span class="legend-item"><span class="dim-dot dim-bm"></span>Business model</span>
         </div>
       </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- ── COMPARE TAB ── -->
+  <div id="matrixCompare" class="compare-panel">
+    <div class="comp-sel-row">
+      <div class="comp-sel-col">
+        <label>Industry A</label>
+        <select class="comp-select" id="compSelA" onchange="runCompare()">
+          <option value="">— select —</option>
+        </select>
+      </div>
+      <div class="comp-vs">vs</div>
+      <div class="comp-sel-col">
+        <label>Industry B</label>
+        <select class="comp-select" id="compSelB" onchange="runCompare()">
+          <option value="">— select —</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="compare-stats" id="compStats">
+      <div class="comp-stat"><div class="comp-stat-num" id="comp-shared">0</div><div class="comp-stat-lbl">shared issues</div></div>
+      <div class="comp-stat"><div class="comp-stat-num" id="comp-unique-a" style="color:#2563EB">0</div><div class="comp-stat-lbl">unique to A</div></div>
+      <div class="comp-stat"><div class="comp-stat-num" id="comp-unique-b" style="color:#DC2626">0</div><div class="comp-stat-lbl">unique to B</div></div>
+      <div class="comp-stat"><div class="comp-stat-num" id="comp-dims">—</div><div class="comp-stat-lbl">dimensions overlap</div></div>
+    </div>
+
+    <div class="matrix-wrap">
+      <div style="display:grid;grid-template-columns:28px 1fr;grid-template-rows:1fr 28px;width:100%;height:420px">
+        <div style="writing-mode:vertical-rl;transform:rotate(180deg);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-muted,#888);letter-spacing:.06em;text-transform:uppercase;font-family:var(--font-mono,monospace);border-right:0.5px solid var(--border,#e0ddd8);grid-row:1;grid-column:1">Stakeholder importance</div>
+        <div class="comp-matrix-grid" style="grid-row:1;grid-column:2">
+          <div style="position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;pointer-events:none">
+            <div style="border-right:0.5px dashed var(--border,#e0ddd8);border-bottom:0.5px dashed var(--border,#e0ddd8)"></div>
+            <div style="border-bottom:0.5px dashed var(--border,#e0ddd8)"></div>
+            <div style="border-right:0.5px dashed var(--border,#e0ddd8)"></div>
+            <div></div>
+          </div>
+          <div style="position:absolute;top:4px;left:6px;font-size:10px;color:var(--text-muted,#888);font-family:var(--font-mono,monospace);pointer-events:none">Monitor</div>
+          <div style="position:absolute;top:4px;right:6px;font-size:10px;color:#185FA5;font-weight:500;font-family:var(--font-mono,monospace);pointer-events:none">High materiality</div>
+          <div style="position:absolute;bottom:4px;left:6px;font-size:10px;color:var(--text-muted,#888);font-family:var(--font-mono,monospace);pointer-events:none">Low priority</div>
+          <div style="position:absolute;bottom:4px;right:6px;font-size:10px;color:#854F0B;font-family:var(--font-mono,monospace);pointer-events:none">Manage actively</div>
+          <div class="comp-matrix-canvas" id="compCanvas">
+            <canvas id="compCanvasEl" style="width:100%;height:100%"></canvas>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-muted,#888);letter-spacing:.06em;text-transform:uppercase;font-family:var(--font-mono,monospace);border-top:0.5px solid var(--border,#e0ddd8);grid-row:2;grid-column:2">Business relevance</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:11px;color:var(--text-secondary,#666)">
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:#2563EB;display:inline-block"></span> Industry A</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:#DC2626;display:inline-block"></span> Industry B</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:#059669;display:inline-block"></span> Both (shared)</span>
+      <span style="display:flex;align-items:center;gap:5px"><span class="dim-dot dim-e"></span>Environment</span>
+      <span style="display:flex;align-items:center;gap:5px"><span class="dim-dot dim-s"></span>Social</span>
+      <span style="display:flex;align-items:center;gap:5px"><span class="dim-dot dim-g"></span>Governance</span>
+      <span style="display:flex;align-items:center;gap:5px"><span class="dim-dot dim-bm"></span>Business model</span>
+    </div>
+
+    <div id="compBreakdownArea" style="margin-top:14px"></div>
+
+    <div class="compare-actions">
+      <button class="action-btn" onclick="document.getElementById('compSelA').value='';document.getElementById('compSelB').value='';runCompare()">Clear comparison</button>
+      <button class="action-btn primary" onclick="compareExportPNG()">⤓ Download comparison PNG</button>
     </div>
   </div>
 </div>
@@ -866,6 +977,404 @@ function exportMatrix() {
   openAnalysis(ind, high, monitor, manage, low);
 }
 
+// ── TAB SWITCHING ──────────────────────────────────────
+function switchMatrixTab(tab, el) {
+  document.querySelectorAll('.compare-tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.compare-panel').forEach(function(p) { p.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  document.getElementById('matrix' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+  if (tab === 'compare') runCompare();
+}
+
+// ── POPULATE COMPARE SELECTORS ──────────────────────────
+function populateCompareSelectors() {
+  var keys = Object.keys(INDUSTRIES).sort();
+  var selA = document.getElementById('compSelA');
+  var selB = document.getElementById('compSelB');
+
+  // Clear existing options (except first)
+  while (selA.options.length > 1) selA.remove(1);
+  while (selB.options.length > 1) selB.remove(1);
+
+  keys.forEach(function(k) {
+    var oa = document.createElement('option');
+    oa.value = k;
+    oa.textContent = k;
+    selA.appendChild(oa);
+
+    var ob = document.createElement('option');
+    ob.value = k;
+    ob.textContent = k;
+    selB.appendChild(ob);
+  });
+}
+
+// ── RUN COMPARISON ───────────────────────────────────────
+function runCompare() {
+  var valA = document.getElementById('compSelA').value;
+  var valB = document.getElementById('compSelB').value;
+
+  if (!valA || !valB) {
+    document.getElementById('comp-shared').textContent = '0';
+    document.getElementById('comp-unique-a').textContent = '0';
+    document.getElementById('comp-unique-b').textContent = '0';
+    document.getElementById('comp-dims').textContent = '—';
+    document.getElementById('compBreakdownArea').innerHTML = '';
+    clearCompareCanvas();
+    return;
+  }
+
+  var indA = INDUSTRIES[valA];
+  var indB = INDUSTRIES[valB];
+
+  // Normalize issue names for comparison (lowercase, trim)
+  function norm(n) { return n.toLowerCase().replace(/[^a-z0-9]/g, ''); }
+
+  var issuesA = indA.issues.map(function(i) { return {issue: i, key: norm(i.name)}; });
+  var issuesB = indB.issues.map(function(i) { return {issue: i, key: norm(i.name)}; });
+
+  var bKeys = {};
+  issuesB.forEach(function(ib) { bKeys[ib.key] = ib.issue; });
+
+  var shared = [];
+  var uniqueA = [];
+  var uniqueB = [];
+
+  issuesA.forEach(function(ia) {
+    if (bKeys[ia.key]) {
+      shared.push({a: ia.issue, b: bKeys[ia.key]});
+    } else {
+      uniqueA.push(ia.issue);
+    }
+  });
+
+  var aKeys = {};
+  issuesA.forEach(function(ia) { aKeys[ia.key] = true; });
+  issuesB.forEach(function(ib) {
+    if (!aKeys[ib.key]) {
+      uniqueB.push(ib.issue);
+    }
+  });
+
+  // Update stats
+  document.getElementById('comp-shared').textContent = shared.length;
+  document.getElementById('comp-unique-a').textContent = uniqueA.length;
+  document.getElementById('comp-unique-b').textContent = uniqueB.length;
+
+  // Dimensions overlap
+  var dimsA = {};
+  var dimsB = {};
+  indA.issues.forEach(function(i) { dimsA[i.dim] = true; });
+  indB.issues.forEach(function(i) { dimsB[i.dim] = true; });
+  var overlapDims = Object.keys(dimsA).filter(function(d) { return dimsB[d]; }).length;
+  document.getElementById('comp-dims').textContent = overlapDims + ' of ' + Math.max(Object.keys(dimsA).length, Object.keys(dimsB).length);
+
+  // Render overlay matrix
+  renderCompareOverlay(indA, indB, shared, uniqueA, uniqueB);
+
+  // Render breakdown
+  renderCompareBreakdown(shared, uniqueA, uniqueB, valA, valB, indA, indB);
+}
+
+// ── RENDER COMPARE OVERLAY MATRIX ───────────────────────
+function renderCompareOverlay(indA, indB, shared, uniqueA, uniqueB) {
+  var canvas = document.getElementById('compCanvasEl');
+  if (!canvas) return;
+  // Wait for layout if needed
+  requestAnimationFrame(function() {
+  var rect = canvas.parentElement.getBoundingClientRect();
+  if (!rect.width || !rect.height) {
+    setTimeout(function() { renderCompareOverlay(indA, indB, shared, uniqueA, uniqueB); }, 50);
+    return;
+  }
+  var W = rect.width * 2;
+  var H = rect.height * 2;
+  var s = 2;
+
+  canvas.width = W;
+  canvas.height = H;
+  canvas.style.width = (W / 2) + 'px';
+  canvas.style.height = (H / 2) + 'px';
+
+  var ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+
+  var gridX = 10 * s, gridY = 10 * s;
+  var gridW = W - 20 * s, gridH = H - 20 * s;
+
+  // Draw quadrant labels directly on canvas
+  ctx.font = (10 * s) + 'px monospace';
+  ctx.fillStyle = '#888';
+  ctx.textAlign = 'left';
+  ctx.fillText('Monitor', gridX + 6 * s, gridY + 14 * s);
+  ctx.fillText('Low priority', gridX + 6 * s, gridY + gridH - 6 * s);
+  ctx.fillStyle = '#185FA5';
+  ctx.font = 'bold ' + (10 * s) + 'px monospace';
+  ctx.textAlign = 'right';
+  ctx.fillText('High materiality', gridX + gridW - 6 * s, gridY + 14 * s);
+  ctx.fillStyle = '#854F0B';
+  ctx.fillText('Manage actively', gridX + gridW - 6 * s, gridY + gridH - 6 * s);
+
+  // Place issues at strategic positions based on their dimension
+  // E = bottom-right (manage actively), S = top-right (high materiality),
+  // G = top-left (monitor), BM = bottom-left (low priority)
+  // with some randomness for spread
+  function getDefaultPos(issue, idx, total) {
+    var dimPositions = {
+      E: {px: 70, py: 65},
+      S: {px: 65, py: 35},
+      G: {px: 35, py: 35},
+      BM: {px: 35, py: 70}
+    };
+    var base = dimPositions[issue.dim] || {px: 50, py: 50};
+    var offset = (idx - (total - 1) / 2) * 8;
+    return {
+      px: Math.max(5, Math.min(95, base.px + offset)),
+      py: Math.max(5, Math.min(95, base.py + (idx % 3 - 1) * 5))
+    };
+  }
+
+  // Placement tracking for shared issues: draw both with slight offset
+  var placedPositions = {};
+
+  function placeCompareChip(issue, color, side) {
+    var key = issue.name.toLowerCase().replace(/[^a-z0-9]/g, '') + '-' + issue.dim;
+    var total = indA.issues.length;
+    var idx = indA.issues.indexOf(issue);
+    if (idx === -1) idx = indB.issues.indexOf(issue);
+    if (idx === -1) idx = 0;
+
+    var pos = getDefaultPos(issue, idx, total);
+    var px = pos.px, py = pos.py;
+
+    // If this is a shared issue, offset the two placements
+    if (side === 'a' && placedPositions[key]) {
+      px = placedPositions[key].px - 3;
+      py = placedPositions[key].py - 3;
+    } else if (side === 'b' && placedPositions[key]) {
+      px = placedPositions[key].px + 3;
+      py = placedPositions[key].py + 3;
+    } else {
+      placedPositions[key] = {px: px, py: py};
+    }
+
+    var cx = gridX + (px / 100) * gridW;
+    var cy = gridY + (py / 100) * gridH;
+    var name = issue.name.length > 16 ? issue.name.substring(0, 15) + '…' : issue.name;
+
+    // Background
+    ctx.fillStyle = color;
+    ctx.globalAlpha = 0.15;
+    var chipW = ctx.measureText(name).width + 22 * s;
+    var chipH = 18 * s;
+    var rx = cx - chipW / 2;
+    var ry = cy - chipH / 2;
+    roundCompareRect(ctx, rx, ry, chipW, chipH, 5 * s);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    // Border
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5 * s;
+    roundCompareRect(ctx, rx, ry, chipW, chipH, 5 * s);
+    ctx.stroke();
+
+    // Dim dot
+    var dotColor = DIM_COLORS[issue.dim] || '#888';
+    ctx.fillStyle = dotColor;
+    ctx.beginPath();
+    ctx.arc(rx + 7 * s, ry + chipH / 2, 3 * s, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Text
+    ctx.font = (9 * s) + 'px sans-serif';
+    ctx.fillStyle = '#1a1a1a';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(name, rx + 13 * s, ry + chipH / 2);
+  }
+
+  // Draw issues
+  // Shared: draw with green
+  shared.forEach(function(s) {
+    placeCompareChip(s.a, '#059669', 'a');
+    placeCompareChip(s.b, '#059669', 'b');
+  });
+  // Unique A: blue
+  uniqueA.forEach(function(i) {
+    placeCompareChip(i, '#2563EB', 'a');
+  });
+  // Unique B: red
+  uniqueB.forEach(function(i) {
+    placeCompareChip(i, '#DC2626', 'b');
+  });
+
+  function roundCompareRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+  }); // end requestAnimationFrame
+}
+
+function clearCompareCanvas() {
+  var canvas = document.getElementById('compCanvasEl');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+// ── RENDER COMPARE BREAKDOWN ────────────────────────────
+function renderCompareBreakdown(shared, uniqueA, uniqueB, nameA, nameB, indA, indB) {
+  var area = document.getElementById('compBreakdownArea');
+
+  var html = '<div class="compare-breakdown">';
+
+  // Shared column
+  html += '<div class="comp-col" style="border-left:3px solid #059669">';
+  html += '<div class="comp-col-title" style="color:#059669">✓ Shared issues (' + shared.length + ')</div>';
+  if (shared.length === 0) {
+    html += '<div style="font-size:12px;color:var(--text-muted,#888);padding:6px 0">No overlapping material issues</div>';
+  } else {
+    shared.forEach(function(s) {
+      html += '<div class="comp-col-item" style="border-left:2px solid #059669;padding-left:6px"><span class="dim-dot ' + dimClass[s.a.dim] + '"></span>' + s.a.name + ' <span style="font-family:monospace;font-size:10px;color:var(--text-muted,#888)">' + s.a.code + '</span></div>';
+    });
+  }
+  html += '</div>';
+
+  // Unique column
+  html += '<div>';
+  html += '<div class="comp-col" style="border-left:3px solid #2563EB;margin-bottom:10px">';
+  html += '<div class="comp-col-title" style="color:#2563EB">A · Only ' + nameA + ' (' + uniqueA.length + ')</div>';
+  if (uniqueA.length === 0) {
+    html += '<div style="font-size:12px;color:var(--text-muted,#888);padding:6px 0">All issues shared with Industry B</div>';
+  } else {
+    uniqueA.forEach(function(i) {
+      html += '<div class="comp-col-item"><span class="dim-dot ' + dimClass[i.dim] + '"></span>' + i.name + ' <span style="font-family:monospace;font-size:10px;color:var(--text-muted,#888)">' + i.code + '</span></div>';
+    });
+  }
+  html += '</div>';
+
+  html += '<div class="comp-col" style="border-left:3px solid #DC2626">';
+  html += '<div class="comp-col-title" style="color:#DC2626">B · Only ' + nameB + ' (' + uniqueB.length + ')</div>';
+  if (uniqueB.length === 0) {
+    html += '<div style="font-size:12px;color:var(--text-muted,#888);padding:6px 0">All issues shared with Industry A</div>';
+  } else {
+    uniqueB.forEach(function(i) {
+      html += '<div class="comp-col-item"><span class="dim-dot ' + dimClass[i.dim] + '"></span>' + i.name + ' <span style="font-family:monospace;font-size:10px;color:var(--text-muted,#888)">' + i.code + '</span></div>';
+    });
+  }
+  html += '</div>';
+  html += '</div>';
+  html += '</div>';
+
+  // Sector context
+  html += '<div style="margin-top:12px;padding:10px 14px;border-radius:8px;background:var(--surface-1,#f7f7f5);font-size:12px;color:var(--text-secondary,#666);border:0.5px solid var(--border,#e0ddd8)">';
+  html += '<strong>' + nameA + '</strong> (' + indA.sector + ') vs <strong>' + nameB + '</strong> (' + indB.sector + ') — ';
+  html += '<strong>' + shared.length + '</strong> of ' + (shared.length + uniqueA.length + uniqueB.length) + ' total unique issues are shared across both industries.';
+  if (indA.sector === indB.sector) {
+    html += ' Both belong to the <strong>' + indA.sector + '</strong> sector, so high overlap is expected.';
+  } else {
+    html += ' They are in different sectors (<strong>' + indA.sector + '</strong> vs <strong>' + indB.sector + '</strong>), so differences reflect distinct materiality profiles.';
+  }
+  html += '</div>';
+
+  area.innerHTML = html;
+}
+
+// ── EXPORT COMPARISON AS PNG ────────────────────────────
+function compareExportPNG() {
+  var valA = document.getElementById('compSelA').value;
+  var valB = document.getElementById('compSelB').value;
+  if (!valA || !valB) { showToast('Select two industries to compare', 'warn'); return; }
+
+  showToast('Generating comparison PNG…', '');
+
+  var canvas = document.getElementById('compCanvasEl');
+  if (!canvas) return;
+
+  var scale = 2;
+  var w = 560 * scale, h = 460 * scale;
+  var exportCanvas = document.createElement('canvas');
+  exportCanvas.width = w;
+  exportCanvas.height = h;
+  var ctx = exportCanvas.getContext('2d');
+  var s = scale;
+
+  // Background
+  ctx.fillStyle = '#F7F5F0';
+  ctx.fillRect(0, 0, w, h);
+
+  // Draw the comparison canvas content scaled into the export canvas
+  ctx.save();
+  ctx.scale(w / canvas.width, h / canvas.height);
+  ctx.drawImage(canvas, 0, 0);
+  ctx.restore();
+
+  // Title
+  ctx.font = 'bold ' + (13 * s) + 'px sans-serif';
+  ctx.fillStyle = '#1a1a1a';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.fillText('Materiality Comparison: ' + valA + ' vs ' + valB, 14 * s, 4 * s);
+
+  // Legend
+  var legColors = [
+    {label: 'Shared', color: '#059669'},
+    {label: valA, color: '#2563EB'},
+    {label: valB, color: '#DC2626'}
+  ];
+  var legX = 14 * s;
+  var legY = h - 16 * s;
+  legColors.forEach(function(lc) {
+    ctx.fillStyle = lc.color;
+    ctx.globalAlpha = 0.2;
+    roundCompareExport(ctx, legX, legY - 6 * s, 10 * s, 10 * s, 2 * s);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = lc.color;
+    ctx.lineWidth = 1.5 * s;
+    roundCompareExport(ctx, legX, legY - 6 * s, 10 * s, 10 * s, 2 * s);
+    ctx.stroke();
+    ctx.font = (9 * s) + 'px sans-serif';
+    ctx.fillStyle = '#666';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(lc.label, legX + 15 * s, legY);
+    legX += ctx.measureText(lc.label).width + 30 * s;
+  });
+
+  function roundCompareExport(c, x, y, w, h, r) {
+    c.beginPath();
+    c.moveTo(x + r, y);
+    c.lineTo(x + w - r, y);
+    c.quadraticCurveTo(x + w, y, x + w, y + r);
+    c.lineTo(x + w, y + h - r);
+    c.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    c.lineTo(x + r, y + h);
+    c.quadraticCurveTo(x, y + h, x, y + h - r);
+    c.lineTo(x, y + r);
+    c.quadraticCurveTo(x, y, x + r, y);
+    c.closePath();
+  }
+
+  // Download
+  var link = document.createElement('a');
+  link.download = 'materiality-comparison-' + valA.replace(/[^a-zA-Z0-9]/g, '-') + '-vs-' + valB.replace(/[^a-zA-Z0-9]/g, '-') + '-' + new Date().toISOString().split('T')[0] + '.png';
+  link.href = exportCanvas.toDataURL('image/png');
+  link.click();
+  showToast('Comparison exported as PNG ✓', 'success');
+}
+
 // ── INIT ─────────────────────────────────────────────────
+populateCompareSelectors();
 init();
 </script>

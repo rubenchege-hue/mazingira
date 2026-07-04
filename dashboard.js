@@ -263,7 +263,7 @@ function getOrCreateChart(id, config) {
   if (chartInstances[id]) { chartInstances[id].destroy(); }
   var ctx = document.getElementById(id);
   if (!ctx) return null;
-  try { chartInstances[id] = new Chart(ctx, config); } catch(e) {}
+  try { chartInstances[id] = new Chart(ctx, config); } catch(e) { console.warn('Chart.js error for #'+id+':', e.message); }
   return chartInstances[id];
 }
 
@@ -331,6 +331,39 @@ function initCharts() {
   });
 }
 
+// ── COMPUTE ESG SCORES FROM YEARLY SNAPSHOT ──────────
+function computeYearScores(year) {
+  var data = loadYearlyData();
+  var snap = data[year];
+  if (!snap) return null;
+
+  function filled(id) { return snap[id] && snap[id].toString().trim() !== ''; }
+
+  var eF = ['scope1','scope2','energy','renewable','water','waste','waste-div'].filter(filled).length;
+  var sF = ['emp-total','emp-women','lead-women','turnover','ltir','training','community','suppliers'].filter(filled).length;
+  var gF = ['board-size','independent','board-women','board-esg'].filter(filled).length;
+
+  var gC = 0;
+  if (snap['_gov-checks-count']) { gC = parseInt(snap['_gov-checks-count']) || 0; }
+
+  var gfC = 0;
+  if (snap['_gf-checks-count']) { gfC = parseInt(snap['_gf-checks-count']) || 0; }
+
+  var gfF = ['gf-size','gf-co2'].filter(filled).length;
+  var eligC = 0;
+  ['Renewable energy','Energy efficiency','Clean transport','Sustainable water & sanitation','Pollution prevention','Biodiversity & land use','Green buildings','Circular economy','Climate adaptation','Agriculture & food systems'].forEach(function(name) {
+    if (snap['pill-' + name] === 'active') eligC++;
+  });
+  var hasInstrument = snap['_selected-instrument'] === 'true' ? 1 : 0;
+
+  var ePct = Math.min(100, Math.round(eF / 7 * 100));
+  var sPct = Math.min(100, Math.round(sF / 8 * 100));
+  var gPct = Math.min(100, gF === 0 && gC === 0 ? 0 : Math.round((gF / 4 * 0.5 + gC / 7 * 0.5) * 100));
+  var gfPct = Math.min(100, gfC === 0 && gfF === 0 && eligC === 0 && !hasInstrument ? 0 : Math.round((gfC / 8 * 0.5 + gfF / 2 * 0.2 + Math.min(eligC / 3, 1) * 0.2 + hasInstrument * 0.1) * 100));
+
+  return { e: ePct, s: sPct, g: gPct, gf: gfPct };
+}
+
 // ── DYNAMIC CHART UPDATES (from yearly data) ──────────
 function updateCharts() {
   if (typeof Chart === 'undefined' || !chartsInited) return;
@@ -378,7 +411,12 @@ function updateCharts() {
     esgChart.data.datasets[0].label = older;
     esgChart.data.datasets[1].label = newer;
     esgChart.data.datasets[1].data = [eScore, sScore, gScore, gfScore];
-    esgChart.data.datasets[0].data = [Math.round(eScore*0.8), Math.round(sScore*0.8), Math.round(gScore*0.8), Math.round(gfScore*0.8)];
+    var prevScores = computeYearScores(older);
+    if (prevScores) {
+      esgChart.data.datasets[0].data = [prevScores.e, prevScores.s, prevScores.g, prevScores.gf];
+    } else {
+      esgChart.data.datasets[0].data = [Math.round(eScore*0.85), Math.round(sScore*0.85), Math.round(gScore*0.85), Math.round(gfScore*0.85)];
+    }
     esgChart.update('none');
   }
 
@@ -641,9 +679,11 @@ function generateReport() {
   var achievements = document.getElementById('achievements')?.value || '';
 
   var btn = document.getElementById('gen-btn');
+  if (!btn) return;
   btn.innerHTML = '<div class="spinner" style="display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;margin-right:8px;vertical-align:middle"></div> Generating...';
 
   var reportDiv = document.getElementById('report-output');
+  if (!reportDiv) return;
   reportDiv.style.display = 'none';
 
   var eFilled = ['scope1','scope2','energy','renewable','water','waste'].filter(function(id) {
@@ -802,7 +842,7 @@ function exportData() {
 
 function clearData() {
   if (!confirm('Clear all ESG data? This cannot be undone.')) return;
-  ['esg_form_data','esg_settings','esg_docs'].forEach(function(k) { localStorage.removeItem(k); });
+  ['esg_form_data','esg_settings','esg_docs','esg_yearly_data','mazingira_user'].forEach(function(k) { localStorage.removeItem(k); });
   document.querySelectorAll('input, select, textarea').forEach(function(el) {
     if (el.type === 'checkbox') el.checked = false;
     else if (el.type !== 'file') el.value = '';
@@ -905,13 +945,20 @@ function recalcEUHort() {
   var allChecks = document.querySelectorAll('#panel-euhorticulture .check-row input[type=checkbox]');
   if (!allChecks.length) return;
 
-  // Count checked per category
-  // MRL: first 3 checkboxes, Phyto: next 3, Due Diligence: last 4
+  // Count checked per category using data attributes
   var mrlChecked = 0, phytoChecked = 0, dueChecked = 0;
-  allChecks.forEach(function(cb, i) {
-    if (i < 3 && cb.checked) mrlChecked++;
-    else if (i >= 3 && i < 6 && cb.checked) phytoChecked++;
-    else if (i >= 6 && cb.checked) dueChecked++;
+  allChecks.forEach(function(cb) {
+    var cat = cb.closest('[data-category]') ? cb.closest('[data-category]').dataset.category : '';
+    if (cat === 'mrl' && cb.checked) mrlChecked++;
+    else if (cat === 'phyto' && cb.checked) phytoChecked++;
+    else if (cat === 'due' && cb.checked) dueChecked++;
+    // Fallback: positional detection if no data-category attribute
+    if (!cat) {
+      var idx = Array.prototype.indexOf.call(allChecks, cb);
+      if (idx < 3 && cb.checked) mrlChecked++;
+      else if (idx >= 3 && idx < 6 && cb.checked) phytoChecked++;
+      else if (idx >= 6 && cb.checked) dueChecked++;
+    }
   });
 
   var mrlPct = Math.round(mrlChecked / 3 * 100);

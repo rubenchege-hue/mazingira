@@ -20,7 +20,12 @@
 ├── esg_emissions_calculator.html       # Scope 1/2/3 calculator
 ├── esg_ai_gap_analyser.html            # AI gap analysis
 ├── esg_gap_analyser_green_finance.html # Green finance framework analysis
-└── mazingira-esg.html                  # Additional ESG page
+├── esg_industry_comparator.html        # Industry ESG materiality comparison
+├── mazingira-esg.html                  # Additional ESG page
+├── vogosen_esg_material_mapping.html   # ESG materiality mapping tool
+├── vogosen_materiality_matrix_builder.html # Interactive materiality matrix with industry comparison
+├── vercel.json                         # Vercel static deployment config
+└── README.md                           # Project readme
 ```
 
 ### Technology Stack
